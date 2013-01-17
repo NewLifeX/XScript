@@ -8,7 +8,7 @@
     <ProjectGuid>{FB8580E8-B500-4BAF-99BE-43ADF7ABDE2F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XScript</RootNamespace>
+    <RootNamespace>NewLife.XScript</RootNamespace>
     <AssemblyName>XScript</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>leaf.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -40,6 +43,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptConfig.cs" />
+    <Compile Include="Shortcut.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NewLife.Core\NewLife.Core.csproj">
@@ -52,6 +57,9 @@
       <Link>X组件.txt</Link>
     </EmbeddedResource>
     <EmbeddedResource Include="更新信息.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="leaf.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
