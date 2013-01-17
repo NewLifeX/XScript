@@ -92,9 +92,9 @@ namespace NewLife.XScript
             //Console.ForegroundColor = ConsoleColor.White;
             //Console.WriteLine("");
             //Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine("温馨提醒：{0}会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！", asmx.Name);
-            Console.WriteLine();
+            //Console.ForegroundColor = ConsoleColor.Magenta;
+            //Console.WriteLine("温馨提醒：{0}会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！", asmx.Name);
+            //Console.WriteLine();
 
             Console.ForegroundColor = oldcolor;
         }

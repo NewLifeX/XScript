@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Reflection;
+using System.Xml.Serialization;
 using NewLife.Exceptions;
 using NewLife.Reflection;
-using System.Xml.Serialization;
-using System.Reflection;
 
 namespace NewLife.XScript
 {

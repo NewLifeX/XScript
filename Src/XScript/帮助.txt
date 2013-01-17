@@ -2,8 +2,10 @@
 使用方法：
 [Color:White]
 XScritp.exe [源文件] [/NoLogo] [/Debug]
-    /NoLogo		不显示版权信息
-    /Debug (/D)	调试模式
+    /NoLogo     不显示版权信息
+    /Debug (/D) 调试模式
+[Color:Magenta]
+温馨提醒：XScript会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！
 
 [Color:Red]
 脚本格式：
@@ -18,7 +20,8 @@ XScritp.exe [源文件] [/NoLogo] [/Debug]
 二、完整模式
 [Color:White]
     代码必须写在方法之中，主函数必须是static void Main()
-    自动添加命名空间和类名
+    如果没有写命名空间和类名，程序将自动添加
+    如果需要引入命名空间，请务必书写完整的命名空间和类名，确保是完整的类文件
     如：
 [Color:Magenta]
     static void Main() {
