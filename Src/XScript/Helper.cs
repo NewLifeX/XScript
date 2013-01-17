@@ -16,17 +16,20 @@ namespace NewLife.XScript
         public static String ReadCode(String file)
         {
             // 防止递归包含
-            var fs = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
-            fs.Add(file);
+            var fs = new Stack<String>();
+            fs.Push(file);
             return ReadCode(file, fs);
         }
 
-        static String ReadCode(String file, ICollection<String> fs)
+        static String ReadCode(String file, Stack<String> fs)
         {
             var ss = File.ReadAllLines(file);
             var dir = Path.GetDirectoryName(file);
 
             var sb = new StringBuilder(10240);
+            // 源码行
+            sb.AppendFormat("#line {0} \"{1}\"\r\n", 1, file);
+
             for (int i = 0; i < ss.Length; i++)
             {
                 var item = ss[i];
@@ -38,13 +41,14 @@ namespace NewLife.XScript
                     var f = item.Substring("//Include=".Length);
                     f = Path.Combine(dir, f);
 
-                    if (fs.Contains(f)) throw new XException("{0}中递归包含{1}！", file, f);
-                    fs.Add(f);
+                    var f2 = f.ToLower();
+                    if (fs.Contains(f2)) throw new XException("{0}中递归包含{1}！", file, f);
+                    fs.Push(f2);
                     sb.Append(ReadCode(f, fs));
-                    fs.Remove(f);
+                    fs.Pop();
 
                     // 恢复原来的代码行号
-                    sb.AppendFormat("#line {0} \"{1}\"", i, file);
+                    sb.AppendFormat("#line {0} \"{1}\"\r\n", i + 1, file);
                 }
             }
 

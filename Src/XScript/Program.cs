@@ -63,10 +63,9 @@ namespace NewLife.XScript
 
                     if (Config.Debug) Console.WriteLine("执行脚本：{0}", file);
 
-                    var code = File.ReadAllText(file);
                     // 增加源文件路径，便于调试纠错
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
-                    code = String.Format("#line 1 \"{0}\"\r\n{1}", file, code);
+                    var code = Helper.ReadCode(file);
                     var sc = ScriptEngine.Create(code, false);
                     sc.Invoke();
                 }
