@@ -74,22 +74,6 @@ namespace NewLife.XScript
                         break;
                     }
                 }
-                //var elm = item.ToLower();
-                //switch (elm)
-                //{
-                //    case "/nologo":
-                //    case "-nologo":
-                //        config.NoLogo = true;
-                //        break;
-                //    case "/d":
-                //    case "-d":
-                //    case "/debug":
-                //    case "-debug":
-                //        config.Debug = true;
-                //        break;
-                //    default:
-                //        throw new XException("不可识别的参数{0}。", item);
-                //}
 
                 throw new XException("不可识别的参数{0}。", item);
             }

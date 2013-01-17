@@ -32,7 +32,7 @@ namespace NewLife.XScript
 
             if (Config.Debug) XTrace.UseConsole();
 
-            XTrace.TempPath = "XTemp";
+            //XTrace.TempPath = "XTemp";
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -55,9 +55,16 @@ namespace NewLife.XScript
                     var file = Config.File;
                     if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
+                    if (Path.IsPathRooted(file))
+                        XTrace.TempPath = Path.GetDirectoryName(file);
+                    else
+                        XTrace.TempPath = Environment.CurrentDirectory;
+
                     if (Config.Debug) Console.WriteLine("执行脚本：{0}", file);
 
                     var code = File.ReadAllText(file);
+                    // 增加源文件路径，便于调试纠错
+                    code = String.Format("#line 1 \"{0}\"\r\n{1}", file, code);
                     var sc = ScriptEngine.Create(code, false);
                     sc.Invoke();
                 }
