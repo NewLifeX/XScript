@@ -27,6 +27,9 @@ namespace NewLife.XScript
                 return;
             }
 
+            var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
+            Console.Title = asmx.Title;
+
             if (Config.Debug) XTrace.UseConsole();
 
             XTrace.TempPath = "XTemp";
@@ -42,6 +45,9 @@ namespace NewLife.XScript
             }
             else
             {
+                // 加上源文件路径
+                Console.Title += " " + Config.File;
+
                 if (!Config.NoLogo) ShowCopyright();
 
                 try
@@ -57,7 +63,9 @@ namespace NewLife.XScript
                 }
                 catch (Exception ex)
                 {
+                    if (ex.InnerException != null) ex = ex.InnerException;
                     XTrace.WriteException(ex);
+                    if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
 
 #if DEBUG
@@ -93,27 +101,22 @@ namespace NewLife.XScript
 
         static void ShowHelp()
         {
-            Console.WriteLine("使用方法：");
-            Console.WriteLine("XScritp.exe [源文件] [/NoLogo] [/Debug]");
-            Console.WriteLine("\t{0,-16}\t不显示版权信息", "/NoLogo");
-            Console.WriteLine("\t{0,-16}\t调试模式", "/Debug (/D)");
-            Console.WriteLine();
-
-            Console.WriteLine("脚本格式：");
-            Console.WriteLine("一、简易模式");
-            Console.WriteLine("\t直接书写脚本代码行，不得使用函数。");
-            Console.WriteLine("\t如：Console.WriteLine(\"Hello NewLife!\");");
-            Console.WriteLine("二、完整模式");
-            Console.WriteLine("\t代码必须写在方法之中，主函数必须是static void Main()");
-            Console.WriteLine("\t自动添加命名空间和类名");
-            Console.WriteLine("\t如：");
-            Console.WriteLine("\tstatic void Main() {");
-            Console.WriteLine("\t\tTest();");
-            Console.WriteLine("\t}");
-            Console.WriteLine();
-            Console.WriteLine("\tstatic void Test() {");
-            Console.WriteLine("\t\tConsole.WriteLine(\"Hello NewLife!\");");
-            Console.WriteLine("\t}");
+            var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Program).Namespace + ".帮助.txt");
+            var txt = stream.ToStr();
+            //Console.WriteLine(txt);
+            foreach (var item in txt.Split(new String[] { Environment.NewLine }, StringSplitOptions.None))
+            {
+                // 改变颜色
+                if (item.StartsWith("[Color:"))
+                {
+                    var name = item.Substring("[Color:".Length);
+                    name = name.TrimEnd(']');
+                    var fix = FieldInfoX.Create(typeof(ConsoleColor), name);
+                    if (fix != null) Console.ForegroundColor = (ConsoleColor)fix.GetValue();
+                }
+                else
+                    Console.WriteLine(item);
+            }
         }
 
         static void SetSendTo()
