@@ -114,12 +114,16 @@ namespace NewLife.XScript
             Console.WriteLine("本工具由新生命开发团队开发，{0}！", asmx.Description);
             Console.WriteLine("版权所有：{0}", asmx.Asm.GetCustomAttributeValue<AssemblyCopyrightAttribute, String>());
             Console.WriteLine();
-            //Console.ForegroundColor = ConsoleColor.White;
-            //Console.WriteLine("");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(".Net版本：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("v{0}", Environment.Version);
             //Console.WriteLine();
-            //Console.ForegroundColor = ConsoleColor.Magenta;
-            //Console.WriteLine("温馨提醒：{0}会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！", asmx.Name);
-            //Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("编译时间：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("{0:yyyy-MM-dd HH:mm:ss}", asmx.Compile);
+            Console.WriteLine();
 
             Console.ForegroundColor = oldcolor;
         }
