@@ -70,9 +70,20 @@ namespace NewLife.XScript
                     // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
                     code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
                     var rs = Helper.ParseAssembly(code);
+                    rs = Helper.ExpendAssembly(rs);
 
                     var sc = ScriptEngine.Create(code, false);
+
+                    // 加入代码中标明的程序集
                     if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
+                    // 加入参数中标明的程序集
+                    if (!String.IsNullOrEmpty(Config.Assembly))
+                    {
+                        rs = Config.Assembly.Split(';');
+                        rs = Helper.ExpendAssembly(rs);
+                        if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
+                    }
+
                     sc.Invoke();
                 }
                 catch (Exception ex)

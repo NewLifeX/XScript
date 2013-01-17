@@ -67,22 +67,38 @@ namespace NewLife.XScript
                 if (item.StartsWith("//Assembly=", StringComparison.OrdinalIgnoreCase))
                 {
                     var name = item.Substring("//Assembly=".Length).Trim();
+                    list.Add(name);
+                }
+            }
 
-                    // 有可能是目录，目录要遍历文件
-                    if (name.EndsWith("/") || name.EndsWith("\\") || !Path.GetFileName(name).Contains("."))
+            return list.ToArray();
+        }
+
+        /// <summary>扩展引用程序集，拆分目录</summary>
+        /// <param name="afs"></param>
+        /// <returns></returns>
+        public static String[] ExpendAssembly(String[] afs)
+        {
+            var list = new List<String>();
+
+            foreach (var item in afs)
+            {
+                if (item.IsNullOrWhiteSpace()) continue;
+
+                // 有可能是目录，目录要遍历文件
+                if (item.EndsWith("/") || item.EndsWith("\\") || !Path.GetFileName(item).Contains("."))
+                {
+                    var fs = Directory.GetFiles(item, "*.dll", SearchOption.AllDirectories);
+                    if (fs.Length > 0)
                     {
-                        var fs = Directory.GetFiles(name, "*.dll", SearchOption.AllDirectories);
-                        if (fs.Length > 0)
+                        foreach (var elm in fs)
                         {
-                            foreach (var elm in fs)
-                            {
-                                list.Add(elm);
-                            }
+                            list.Add(elm);
                         }
                     }
-                    else
-                        list.Add(name);
                 }
+                else
+                    list.Add(item);
             }
 
             return list.ToArray();

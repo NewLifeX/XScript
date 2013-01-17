@@ -4,6 +4,8 @@
 XScritp.exe [源文件] [/NoLogo] [/Debug]
     /NoLogo     不显示版权信息
     /Debug (/D) 调试模式
+    /Assembly   引用程序集，多个以分号分隔，支持目录（遍历所有目录的DLL文件）
+                如：/Assembly="aa.dll;bb.dll;C:\X\DLL"
 [Color:Magenta]
 温馨提醒：XScript会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！
 

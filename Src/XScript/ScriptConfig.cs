@@ -22,6 +22,10 @@ namespace NewLife.XScript
         /// <summary>调试</summary>
         [XmlElement("D")]
         public Boolean Debug { get { return _Debug; } set { _Debug = value; } }
+
+        private String _Assembly;
+        /// <summary>引用程序集</summary>
+        public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
         #endregion
 
         #region 方法
@@ -67,10 +71,17 @@ namespace NewLife.XScript
                 // 遍历属性，匹配赋值
                 foreach (var pi in pis)
                 {
+                    if (!Match(pi, name)) continue;
+
                     // 布尔型
-                    if (pi.PropertyType == typeof(Boolean) && Match(pi, name))
+                    if (pi.PropertyType == typeof(Boolean))
                     {
                         PropertyInfoX.Create(pi).SetValue(config, true);
+                        break;
+                    }
+                    else if (pi.PropertyType == typeof(String))
+                    {
+                        PropertyInfoX.Create(pi).SetValue(config, (value + "").Trim().Trim('\"').Trim());
                         break;
                     }
                 }
