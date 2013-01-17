@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using NewLife.Collections;
+using System.Text;
 using NewLife.Exceptions;
 
 namespace NewLife.XScript
@@ -53,6 +52,25 @@ namespace NewLife.XScript
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>分析代码中导入的第三方程序集</summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public static String[] ParseAssembly(String code)
+        {
+            var list = new List<String>();
+
+            var ss = code.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
+            foreach (var item in ss)
+            {
+                if (item.StartsWith("//Assembly=", StringComparison.OrdinalIgnoreCase))
+                {
+
+                }
+            }
+
+            return list.ToArray();
         }
     }
 }

@@ -66,7 +66,13 @@ namespace NewLife.XScript
                     // 增加源文件路径，便于调试纠错
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
                     var code = Helper.ReadCode(file);
+
+                    // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
+                    code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
+                    var rs = Helper.ParseAssembly(code);
+
                     var sc = ScriptEngine.Create(code, false);
+                    if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
                     sc.Invoke();
                 }
                 catch (Exception ex)
