@@ -38,6 +38,7 @@ namespace NewLife.XScript
                 if (item.StartsWith("//Include=", StringComparison.OrdinalIgnoreCase))
                 {
                     var f = item.Substring("//Include=".Length);
+                    f = f.Trim('\"');
                     f = Path.Combine(dir, f);
 
                     var f2 = f.ToLower();
@@ -67,6 +68,7 @@ namespace NewLife.XScript
                 if (item.StartsWith("//Assembly=", StringComparison.OrdinalIgnoreCase))
                 {
                     var name = item.Substring("//Assembly=".Length).Trim();
+                    name = name.Trim('\"');
                     list.Add(name);
                 }
             }
@@ -86,7 +88,7 @@ namespace NewLife.XScript
                 if (item.IsNullOrWhiteSpace()) continue;
 
                 // 有可能是目录，目录要遍历文件
-                if (item.EndsWith("/") || item.EndsWith("\\") || !Path.GetFileName(item).Contains("."))
+                if (item.EndsWith("/") || item.EndsWith("\\") || !File.Exists(item))
                 {
                     var fs = Directory.GetFiles(item, "*.dll", SearchOption.AllDirectories);
                     if (fs.Length > 0)

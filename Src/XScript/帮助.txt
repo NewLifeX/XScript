@@ -33,3 +33,18 @@ XScritp.exe [源文件] [/NoLogo] [/Debug]
     static void Test() {
         Console.WriteLine("Hello NewLife!");
     }
+
+[Color:Red]
+扩展格式（采用双斜杠加关键字开头）：
+[Color:Green]
+1，文件包含
+[Color:White]
+    指令后紧跟文件名，可以用相对路径
+[Color:Magenta]
+    //Include=Test.cs
+[Color:Green]
+2，程序集引用
+[Color:White]
+    指令后可跟多个程序集，分号隔开，可以用项目路径，可以指定目录，将搜索加载所有DLL文件
+[Color:Magenta]
+    //Assembly="aa.dll;bb.dll;C:\X\DLL"
