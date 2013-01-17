@@ -55,6 +55,7 @@ namespace NewLife.XScript
                     var file = Config.File;
                     if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
+                    // 这个临时目录和#line的文件共同决定报错时源码行所在位置
                     if (Path.IsPathRooted(file))
                         XTrace.TempPath = Path.GetDirectoryName(file);
                     else
