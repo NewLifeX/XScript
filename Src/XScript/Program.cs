@@ -5,6 +5,7 @@ using NewLife.Log;
 using NewLife.Reflection;
 using NewLife.Exceptions;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace NewLife.XScript
 {
@@ -66,7 +67,8 @@ namespace NewLife.XScript
 
                     // 增加源文件路径，便于调试纠错
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
-                    var code = Helper.ReadCode(file);
+                    var ns = new List<String>();
+                    var code = Helper.ReadCode(file, ns);
 
                     // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
                     code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
@@ -74,6 +76,12 @@ namespace NewLife.XScript
                     rs = Helper.ExpendAssembly(rs);
 
                     var se = ScriptEngine.Create(code, false);
+
+                    // 加入命名空间
+                    foreach (var item in ns)
+                    {
+                        if (!se.NameSpaces.Contains(item)) se.NameSpaces.Add(item);
+                    }
 
                     // 加入代码中标明的程序集
                     if (rs.Length > 0) se.ReferencedAssemblies.AddRange(rs);

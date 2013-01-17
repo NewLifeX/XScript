@@ -11,16 +11,17 @@ namespace NewLife.XScript
     {
         /// <summary>读取源代码，同时嵌入被引用的代码文件</summary>
         /// <param name="file"></param>
+        /// <param name="ns">命名空间集合</param>
         /// <returns></returns>
-        public static String ReadCode(String file)
+        public static String ReadCode(String file, List<String> ns)
         {
             // 防止递归包含
             var fs = new Stack<String>();
             fs.Push(file);
-            return ReadCode(file, fs);
+            return ReadCode(file, ns, fs);
         }
 
-        static String ReadCode(String file, Stack<String> fs)
+        static String ReadCode(String file, List<String> ns, Stack<String> fs)
         {
             var ss = File.ReadAllLines(file);
             var dir = Path.GetDirectoryName(file);
@@ -32,7 +33,24 @@ namespace NewLife.XScript
             for (int i = 0; i < ss.Length; i++)
             {
                 var item = ss[i];
+
+                // 提取命名空间
+                if (!String.IsNullOrEmpty(item))
+                {
+                    var line = item.Trim();
+                    if (line.StartsWith("using ") && line.EndsWith(";"))
+                    {
+                        var len = "using ".Length;
+                        line = line.Substring(len, line.Length - len - 1);
+                        if (!ns.Contains(line)) ns.Add(line);
+                        continue;
+                    }
+                }
+
                 sb.AppendLine(item);
+                if (String.IsNullOrEmpty(item)) continue;
+
+                item = item.Trim();
 
                 // 包含源码指令
                 if (item.StartsWith("//Include=", StringComparison.OrdinalIgnoreCase))
@@ -44,7 +62,7 @@ namespace NewLife.XScript
                     var f2 = f.ToLower();
                     if (fs.Contains(f2)) throw new XException("{0}中递归包含{1}！", file, f);
                     fs.Push(f2);
-                    sb.Append(ReadCode(f, fs));
+                    sb.Append(ReadCode(f, ns, fs));
                     fs.Pop();
 
                     // 恢复原来的代码行号
