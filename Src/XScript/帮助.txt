@@ -1,0 +1,20 @@
+﻿使用方法：
+XScritp.exe [源文件] [/NoLogo] [/Debug]
+	/NoLogo		不显示版权信息
+	/Debug (/D)	调试模式
+
+脚本格式：
+一、简易模式
+	直接书写脚本代码行，不得使用函数。
+	如：Console.WriteLine("Hello NewLife!");
+二、完整模式
+	代码必须写在方法之中，主函数必须是static void Main()
+	自动添加命名空间和类名
+	如：
+	static void Main() {
+		Test();
+	}
+
+	static void Test() {
+		Console.WriteLine("Hello NewLife!");
+	}

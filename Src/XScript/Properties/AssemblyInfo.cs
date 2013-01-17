@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("用于编译执行C#文件脚本")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("新生命开发团队")]
-[assembly: AssemblyCopyright("\x00a92002-2013 新生命开发团队")]
+[assembly: AssemblyCopyright("(C)2002-2013 新生命开发团队")]
 [assembly: AssemblyTrademark("四叶草")]
 [assembly: AssemblyCulture("")]
 
