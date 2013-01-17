@@ -66,7 +66,22 @@ namespace NewLife.XScript
             {
                 if (item.StartsWith("//Assembly=", StringComparison.OrdinalIgnoreCase))
                 {
+                    var name = item.Substring("//Assembly=".Length).Trim();
 
+                    // 有可能是目录，目录要遍历文件
+                    if (name.EndsWith("/") || name.EndsWith("\\") || !Path.GetFileName(name).Contains("."))
+                    {
+                        var fs = Directory.GetFiles(name, "*.dll", SearchOption.AllDirectories);
+                        if (fs.Length > 0)
+                        {
+                            foreach (var elm in fs)
+                            {
+                                list.Add(elm);
+                            }
+                        }
+                    }
+                    else
+                        list.Add(name);
                 }
             }
 
