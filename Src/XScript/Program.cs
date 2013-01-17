@@ -56,15 +56,16 @@ namespace NewLife.XScript
                     if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
                     // 这个临时目录和#line的文件共同决定报错时源码行所在位置
-                    if (Path.IsPathRooted(file))
-                        XTrace.TempPath = Path.GetDirectoryName(file);
-                    else
-                        XTrace.TempPath = Environment.CurrentDirectory;
+                    //if (Path.IsPathRooted(file))
+                    //    XTrace.TempPath = Path.GetDirectoryName(file);
+                    //else
+                    //    XTrace.TempPath = Environment.CurrentDirectory;
 
                     if (Config.Debug) Console.WriteLine("执行脚本：{0}", file);
 
                     var code = File.ReadAllText(file);
                     // 增加源文件路径，便于调试纠错
+                    if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
                     code = String.Format("#line 1 \"{0}\"\r\n{1}", file, code);
                     var sc = ScriptEngine.Create(code, false);
                     sc.Invoke();
