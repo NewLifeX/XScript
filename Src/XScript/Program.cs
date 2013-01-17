@@ -4,6 +4,7 @@ using System.Reflection;
 using NewLife.Log;
 using NewLife.Reflection;
 using NewLife.Exceptions;
+using System.Diagnostics;
 
 namespace NewLife.XScript
 {
@@ -84,7 +85,30 @@ namespace NewLife.XScript
                         if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
                     }
 
-                    sc.Invoke();
+                    var sw = new Stopwatch();
+                    var times = Config.Times;
+                    if (times < 1) times = 1;
+                    while (times-- > 0)
+                    {
+                        if (!Config.NoTime)
+                        {
+                            sw.Reset();
+                            sw.Start();
+                        }
+
+                        sc.Invoke();
+
+                        if (!Config.NoTime)
+                        {
+                            sw.Stop();
+
+                            var old = Console.ForegroundColor;
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("执行时间：{0}", sw.Elapsed);
+                            //Console.WriteLine("按c键重复执行，其它键退出！");
+                            Console.ForegroundColor = old;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -93,9 +117,8 @@ namespace NewLife.XScript
                     if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
 
-#if DEBUG
-                Console.ReadKey();
-#endif
+                // 暂停，等待客户查看输出
+                if (!Config.NoStop) Console.ReadKey();
             }
 
             // 发送到菜单

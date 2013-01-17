@@ -27,6 +27,18 @@ namespace NewLife.XScript
         /// <summary>引用程序集</summary>
         [XmlElement("R")]
         public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
+
+        private Boolean _NoStop;
+        /// <summary>结束时不停止，退出进程</summary>
+        public Boolean NoStop { get { return _NoStop; } set { _NoStop = value; } }
+
+        private Boolean _NoTime;
+        /// <summary>不显示执行时间</summary>
+        public Boolean NoTime { get { return _NoTime; } set { _NoTime = value; } }
+
+        private Int32 _Times = 1;
+        /// <summary>执行次数</summary>
+        public Int32 Times { get { return _Times; } set { _Times = value; } }
         #endregion
 
         #region 方法
@@ -69,6 +81,8 @@ namespace NewLife.XScript
                         name = name.Substring(0, p).Trim();
                     }
                 }
+
+                var flag = false;
                 // 遍历属性，匹配赋值
                 foreach (var pi in pis)
                 {
@@ -78,16 +92,24 @@ namespace NewLife.XScript
                     if (pi.PropertyType == typeof(Boolean))
                     {
                         PropertyInfoX.Create(pi).SetValue(config, true);
+                        flag = true;
                         break;
                     }
                     else if (pi.PropertyType == typeof(String))
                     {
                         PropertyInfoX.Create(pi).SetValue(config, (value + "").Trim().Trim('\"').Trim());
+                        flag = true;
+                        break;
+                    }
+                    else if (pi.PropertyType == typeof(Int32))
+                    {
+                        PropertyInfoX.Create(pi).SetValue(config, Int32.Parse(value));
+                        flag = true;
                         break;
                     }
                 }
 
-                throw new XException("不可识别的参数{0}。", item);
+                if (!flag) throw new XException("不可识别的参数{0}。", item);
             }
 
             return config;
