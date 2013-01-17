@@ -25,6 +25,7 @@ namespace NewLife.XScript
 
         private String _Assembly;
         /// <summary>引用程序集</summary>
+        [XmlElement("R")]
         public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
         #endregion
 
