@@ -73,16 +73,25 @@ namespace NewLife.XScript
                     var rs = Helper.ParseAssembly(code);
                     rs = Helper.ExpendAssembly(rs);
 
-                    var sc = ScriptEngine.Create(code, false);
+                    var se = ScriptEngine.Create(code, false);
 
                     // 加入代码中标明的程序集
-                    if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
+                    if (rs.Length > 0) se.ReferencedAssemblies.AddRange(rs);
                     // 加入参数中标明的程序集
                     if (!String.IsNullOrEmpty(Config.Assembly))
                     {
                         rs = Config.Assembly.Split(';');
                         rs = Helper.ExpendAssembly(rs);
-                        if (rs.Length > 0) sc.ReferencedAssemblies.AddRange(rs);
+                        if (rs.Length > 0) se.ReferencedAssemblies.AddRange(rs);
+                    }
+
+                    // 调试状态下输出最终代码
+                    if (Config.Debug)
+                    {
+                        se.GenerateCode();
+                        //File.WriteAllText(String.Format("{0:yyyyMMdd_HHmmss_fff}.cs", DateTime.Now), se.FinalCode);
+                        file = Path.ChangeExtension(file, "code.cs");
+                        File.WriteAllText(file, se.FinalCode);
                     }
 
                     var sw = new Stopwatch();
@@ -96,7 +105,7 @@ namespace NewLife.XScript
                             sw.Start();
                         }
 
-                        sc.Invoke();
+                        se.Invoke();
 
                         if (!Config.NoTime)
                         {

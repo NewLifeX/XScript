@@ -18,7 +18,11 @@ namespace NewLife.XScript
         /// <summary>不显示版权信息</summary>
         public Boolean NoLogo { get { return _NoLogo; } set { _NoLogo = value; } }
 
+#if DEBUG
+        private Boolean _Debug = true;
+#else
         private Boolean _Debug;
+#endif
         /// <summary>调试</summary>
         [XmlElement("D")]
         public Boolean Debug { get { return _Debug; } set { _Debug = value; } }
