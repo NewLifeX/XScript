@@ -189,15 +189,24 @@ namespace NewLife.XScript
             var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
 
             var file = Path.Combine(dir, asmx.Title + ".lnk");
-            if (File.Exists(file)) return;
+            // 每次更新，用于覆盖，避免错误
+            //if (File.Exists(file)) return;
 
-            XTrace.WriteLine("添加快捷方式到“发送到”菜单！");
+            //XTrace.WriteLine("添加快捷方式到“发送到”菜单！");
 
             try
             {
                 var sc = new Shortcut();
                 sc.Path = Assembly.GetEntryAssembly().Location;
                 //sc.Arguments = "启动参数";
+                sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                sc.Description = asmx.Description;
+                sc.Save(file);
+
+                file = Path.Combine(dir, asmx.Title + "（调试）.lnk");
+                sc = new Shortcut();
+                sc.Path = Assembly.GetEntryAssembly().Location;
+                sc.Arguments = "/D";
                 sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 sc.Description = asmx.Description;
                 sc.Save(file);
