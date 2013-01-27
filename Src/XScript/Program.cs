@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using NewLife.Log;
 using NewLife.Reflection;
-using NewLife.Exceptions;
-using System.Diagnostics;
-using System.Collections.Generic;
+using System.CodeDom.Compiler;
 
 namespace NewLife.XScript
 {
@@ -57,68 +56,12 @@ namespace NewLife.XScript
                     var file = Config.File;
                     if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
-                    // 这个临时目录和#line的文件共同决定报错时源码行所在位置
-                    //if (Path.IsPathRooted(file))
-                    //    XTrace.TempPath = Path.GetDirectoryName(file);
-                    //else
-                    //    XTrace.TempPath = Environment.CurrentDirectory;
-
-                    if (Config.Debug) Console.WriteLine("执行脚本：{0}", file);
+                    if (Config.Debug) Console.WriteLine("脚本：{0}", file);
 
                     // 增加源文件路径，便于调试纠错
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
-                    var code = Helper.ReadCode(file);
 
-                    // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
-                    code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
-                    var rs = Helper.ParseAssembly(code);
-                    rs = Helper.ExpendAssembly(rs);
-
-                    var se = ScriptEngine.Create(code, false);
-
-                    // 加入代码中标明的程序集
-                    if (rs.Length > 0) se.ReferencedAssemblies.AddRange(rs);
-                    // 加入参数中标明的程序集
-                    if (!String.IsNullOrEmpty(Config.Assembly))
-                    {
-                        rs = Config.Assembly.Split(';');
-                        rs = Helper.ExpendAssembly(rs);
-                        if (rs.Length > 0) se.ReferencedAssemblies.AddRange(rs);
-                    }
-
-                    // 调试状态下输出最终代码
-                    if (Config.Debug)
-                    {
-                        se.GenerateCode();
-                        //File.WriteAllText(String.Format("{0:yyyyMMdd_HHmmss_fff}.cs", DateTime.Now), se.FinalCode);
-                        file = Path.ChangeExtension(file, "code.cs");
-                        File.WriteAllText(file, se.FinalCode);
-                    }
-
-                    var sw = new Stopwatch();
-                    var times = Config.Times;
-                    if (times < 1) times = 1;
-                    while (times-- > 0)
-                    {
-                        if (!Config.NoTime)
-                        {
-                            sw.Reset();
-                            sw.Start();
-                        }
-
-                        se.Invoke();
-
-                        if (!Config.NoTime)
-                        {
-                            sw.Stop();
-
-                            var old = Console.ForegroundColor;
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine("执行时间：{0}", sw.Elapsed);
-                            //Console.WriteLine("按c键重复执行，其它键退出！");
-                            Console.ForegroundColor = old;
-                        }
-                    }
+                    Process(file);
                 }
                 catch (Exception ex)
                 {
@@ -128,11 +71,88 @@ namespace NewLife.XScript
                 }
 
                 // 暂停，等待客户查看输出
-                if (!Config.NoStop) Console.ReadKey();
+                if (!Config.NoStop)
+                {
+                    Console.WriteLine("任意键退出……");
+                    Console.ReadKey();
+                }
             }
 
             // 发送到菜单
             SetSendTo();
+        }
+
+        static void Process(String file)
+        {
+            var code = Helper.ReadCode(file);
+
+            // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
+            code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
+            var rs = Helper.ParseAssembly(code);
+            rs = Helper.ExpendAssembly(rs);
+
+            var session = ScriptEngine.Create(code, false);
+
+            // 加入代码中标明的程序集
+            if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
+            // 加入参数中标明的程序集
+            if (!String.IsNullOrEmpty(Config.Assembly))
+            {
+                rs = Config.Assembly.Split(';');
+                rs = Helper.ExpendAssembly(rs);
+                if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
+            }
+
+            // 调试状态下输出最终代码
+            if (Config.Debug)
+            {
+                session.GenerateCode();
+                //File.WriteAllText(String.Format("{0:yyyyMMdd_HHmmss_fff}.cs", DateTime.Now), se.FinalCode);
+                var codefile = Path.ChangeExtension(file, "code.cs");
+                File.WriteAllText(codefile, session.FinalCode);
+            }
+
+            // 生成Exe
+            if (Config.Exe)
+            {
+                var exe = Path.ChangeExtension(file, "exe");
+                var option = new CompilerParameters();
+                option.OutputAssembly = exe;
+                option.GenerateExecutable = true;
+                option.GenerateInMemory = false;
+                option.IncludeDebugInformation = Config.Debug;
+
+                session.Compile(session.FinalCode, option);
+
+                Console.WriteLine("已生成{0}", exe);
+
+                return;
+            }
+
+            var sw = new Stopwatch();
+            var times = Config.Times;
+            if (times < 1) times = 1;
+            while (times-- > 0)
+            {
+                if (!Config.NoTime)
+                {
+                    sw.Reset();
+                    sw.Start();
+                }
+
+                session.Invoke();
+
+                if (!Config.NoTime)
+                {
+                    sw.Stop();
+
+                    var old = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("执行时间：{0}", sw.Elapsed);
+                    //Console.WriteLine("按c键重复执行，其它键退出！");
+                    Console.ForegroundColor = old;
+                }
+            }
         }
 
         static void ShowCopyright()

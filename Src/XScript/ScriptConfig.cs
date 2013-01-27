@@ -14,6 +14,10 @@ namespace NewLife.XScript
         /// <summary>脚本文件</summary>
         public String File { get { return _File; } set { _File = value; } }
 
+        private Boolean _Exe;
+        /// <summary>是否生成Exe</summary>
+        public Boolean Exe { get { return _Exe; } set { _Exe = value; } }
+
         private Boolean _NoLogo;
         /// <summary>不显示版权信息</summary>
         public Boolean NoLogo { get { return _NoLogo; } set { _NoLogo = value; } }

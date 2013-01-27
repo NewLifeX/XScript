@@ -2,6 +2,7 @@
 使用方法：
 [Color:White]
 XScritp.exe [源文件] [/NoLogo] [/D]
+    /Exe        生成Exe，不执行
     /NoLogo     不显示版权信息
     /D          调试模式
     /R          引用程序集，多个以分号分隔，支持目录（遍历所有目录的DLL文件）
