@@ -12,6 +12,9 @@ XScritp.exe [源文件] [/NoLogo] [/D]
 [Color:Magenta]
 温馨提醒：XScript会自己添加到资源管理器右键菜单中的“发送到”中，便于使用！
 
+[Color:White]
+任意键显示脚本格式……
+[Pause]
 [Color:Red]
 脚本格式：
 [Color:Green]
@@ -37,6 +40,9 @@ XScritp.exe [源文件] [/NoLogo] [/D]
         Console.WriteLine("Hello NewLife!");
     }
 
+[Color:White]
+任意键显示扩展格式……
+[Pause]
 [Color:Red]
 扩展格式（采用双斜杠加关键字开头）：
 [Color:Green]

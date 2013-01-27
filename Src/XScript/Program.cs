@@ -176,6 +176,10 @@ namespace NewLife.XScript
                     var fix = FieldInfoX.Create(typeof(ConsoleColor), name);
                     if (fix != null) Console.ForegroundColor = (ConsoleColor)fix.GetValue();
                 }
+                else if (item == "[Pause]")
+                {
+                    Console.ReadKey(true);
+                }
                 else
                     Console.WriteLine(item);
             }
