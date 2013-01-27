@@ -259,6 +259,14 @@ namespace NewLife.XScript
                 sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 sc.Description = asmx.Description;
                 sc.Save(file);
+
+                file = Path.Combine(dir, asmx.Title + "（生成Exe）.lnk");
+                sc = new Shortcut();
+                sc.Path = Assembly.GetEntryAssembly().Location;
+                sc.Arguments = "/Exe";
+                sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                sc.Description = asmx.Description;
+                sc.Save(file);
             }
             catch (Exception ex)
             {
