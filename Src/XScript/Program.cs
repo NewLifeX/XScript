@@ -5,6 +5,7 @@ using System.Reflection;
 using NewLife.Log;
 using NewLife.Reflection;
 using System.CodeDom.Compiler;
+using System.Threading;
 
 namespace NewLife.XScript
 {
@@ -34,6 +35,9 @@ namespace NewLife.XScript
             if (Config.Debug) XTrace.UseConsole();
 
             //XTrace.TempPath = "XTemp";
+
+            // 发送到菜单
+            ThreadPool.QueueUserWorkItem(s => SetSendTo());
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -78,8 +82,8 @@ namespace NewLife.XScript
                 }
             }
 
-            // 发送到菜单
-            SetSendTo();
+            //// 发送到菜单
+            //SetSendTo();
         }
 
         static void Process(String file)
