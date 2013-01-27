@@ -122,9 +122,34 @@ namespace NewLife.XScript
                 option.GenerateInMemory = false;
                 option.IncludeDebugInformation = Config.Debug;
 
-                session.Compile(session.FinalCode, option);
+                // 生成图标
+                if (!Config.NoLogo)
+                {
+                    option.CompilerOptions = "/win32icon:leaf.ico";
+                    var ico = "leaf.ico".GetFullPath();
+                    if (!File.Exists(ico))
+                    {
+                        var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.leaf.ico");
+                        File.WriteAllBytes(ico, ms.ReadBytes());
+                    }
+                }
 
-                Console.WriteLine("已生成{0}", exe);
+                code = session.FinalCode;
+
+                //// 加上版权信息
+                //code = "\r\n[assembly: System.Reflection.AssemblyCompany(\"新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyCopyright(\"(C)2002-2013 新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyVersion(\"1.0.*\")]\r\n" + code;
+
+                var cr = session.Compile(code, option);
+                if (cr.Errors == null || !cr.Errors.HasErrors)
+                {
+                    Console.WriteLine("已生成{0}", exe);
+                }
+                else
+                {
+                    //var err = cr.Errors[0];
+                    //Console.WriteLine("{0} {1} {2}({3},{4})", err.ErrorNumber, err.ErrorText, err.FileName, err.Line, err.Column);
+                    Console.WriteLine(cr.Errors[0].ToString());
+                }
 
                 return;
             }

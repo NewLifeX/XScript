@@ -72,7 +72,7 @@
     <EmbeddedResource Include="更新信息.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="leaf.ico" />
+    <EmbeddedResource Include="leaf.ico" />
     <EmbeddedResource Include="帮助.txt" />
   </ItemGroup>
   <ItemGroup>
