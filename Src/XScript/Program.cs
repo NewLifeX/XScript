@@ -98,6 +98,10 @@ namespace NewLife.XScript
             var rs = Helper.ParseAssembly(code);
             rs = Helper.ExpendAssembly(rs);
 
+            //var vPath = Environment.GetEnvironmentVariable("Path");
+            //Environment.SetEnvironmentVariable("Path", vPath += ";" + Path.GetDirectoryName(file));
+            Environment.CurrentDirectory = Path.GetDirectoryName(file);
+
             var session = ScriptEngine.Create(code, false);
 
             // 加入代码中标明的程序集
@@ -122,44 +126,70 @@ namespace NewLife.XScript
             // 生成Exe
             if (Config.Exe)
             {
-                var exe = Path.ChangeExtension(file, "exe");
-                var option = new CompilerParameters();
-                option.OutputAssembly = exe;
-                option.GenerateExecutable = true;
-                option.GenerateInMemory = false;
-                option.IncludeDebugInformation = Config.Debug;
-
-                // 生成图标
-                if (!Config.NoLogo)
-                {
-                    option.CompilerOptions = "/win32icon:leaf.ico";
-                    var ico = "leaf.ico".GetFullPath();
-                    if (!File.Exists(ico))
-                    {
-                        var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.leaf.ico");
-                        File.WriteAllBytes(ico, ms.ReadBytes());
-                    }
-                }
-
-                code = session.FinalCode;
-
-                //// 加上版权信息
-                //code = "\r\n[assembly: System.Reflection.AssemblyCompany(\"新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyCopyright(\"(C)2002-2013 新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyVersion(\"1.0.*\")]\r\n" + code;
-
-                var cr = session.Compile(code, option);
-                if (cr.Errors == null || !cr.Errors.HasErrors)
-                {
-                    Console.WriteLine("已生成{0}", exe);
-                }
-                else
-                {
-                    //var err = cr.Errors[0];
-                    //Console.WriteLine("{0} {1} {2}({3},{4})", err.ErrorNumber, err.ErrorText, err.FileName, err.Line, err.Column);
-                    Console.WriteLine(cr.Errors[0].ToString());
-                }
+                MakeExe(session, file);
 
                 return;
             }
+
+            Run(session);
+        }
+
+        static void MakeExe(ScriptEngine session, String codefile)
+        {
+            var exe = Path.ChangeExtension(codefile, "exe");
+            var option = new CompilerParameters();
+            option.OutputAssembly = exe;
+            option.GenerateExecutable = true;
+            option.GenerateInMemory = false;
+            option.IncludeDebugInformation = Config.Debug;
+
+            // 生成图标
+            if (!Config.NoLogo)
+            {
+                option.CompilerOptions = "/win32icon:leaf.ico";
+                var ico = "leaf.ico".GetFullPath();
+                if (!File.Exists(ico))
+                {
+                    var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.leaf.ico");
+                    File.WriteAllBytes(ico, ms.ReadBytes());
+                }
+            }
+
+            var code = session.FinalCode;
+
+            //// 加上版权信息
+            //code = "\r\n[assembly: System.Reflection.AssemblyCompany(\"新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyCopyright(\"(C)2002-2013 新生命开发团队\")]\r\n[assembly: System.Reflection.AssemblyVersion(\"1.0.*\")]\r\n" + code;
+
+            var cr = session.Compile(code, option);
+            if (cr.Errors == null || !cr.Errors.HasErrors)
+            {
+                Console.WriteLine("已生成{0}", exe);
+            }
+            else
+            {
+                //var err = cr.Errors[0];
+                //Console.WriteLine("{0} {1} {2}({3},{4})", err.ErrorNumber, err.ErrorText, err.FileName, err.Line, err.Column);
+                Console.WriteLine(cr.Errors[0].ToString());
+            }
+        }
+
+        static void Run(ScriptEngine session)
+        {
+            // 预编译
+            session.Compile();
+
+            //// 提前加载引用
+            //foreach (var item in session.ReferencedAssemblies)
+            //{
+            //    try
+            //    {
+            //        Assembly.LoadFile(item);
+            //    }
+            //    catch { }
+            //}
+
+            // 考虑到某些要引用的程序集在别的目录
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
 
             var sw = new Stopwatch();
             var times = Config.Times;
@@ -185,6 +215,39 @@ namespace NewLife.XScript
                     Console.ForegroundColor = old;
                 }
             }
+        }
+
+        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var name = args.Name;
+            if (!String.IsNullOrEmpty(name))
+            {
+                // 遍历现有程序集
+                foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (item.FullName == name) return item;
+                }
+
+                // 查找当前目录的程序集，就是源代码所在目录
+                var p = name.IndexOf(",");
+                if (p >= 0) name = name.Substring(0, p);
+                var fs = Directory.GetFiles(Environment.CurrentDirectory, name + ".dll", SearchOption.AllDirectories);
+                if (fs != null && fs.Length > 0)
+                {
+                    // 可能多个，遍历加载
+                    foreach (var item in fs)
+                    {
+                        try
+                        {
+                            var asm = Assembly.LoadFile(item);
+                            if (asm != null && asm.FullName == args.Name) return asm;
+                        }
+                        catch { }
+                    }
+                }
+            }
+
+            return null;
         }
 
         static void ShowCopyright()
