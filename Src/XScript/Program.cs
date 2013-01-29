@@ -70,7 +70,7 @@ namespace NewLife.XScript
                 }
                 catch (Exception ex)
                 {
-                    if (ex.InnerException != null) ex = ex.InnerException;
+                    //if (ex.InnerException != null) ex = ex.InnerException;
                     XTrace.WriteException(ex);
                     if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
@@ -146,8 +146,8 @@ namespace NewLife.XScript
             // 生成图标
             if (!Config.NoLogo)
             {
-                option.CompilerOptions = "/win32icon:leaf.ico";
                 var ico = "leaf.ico".GetFullPath();
+                option.CompilerOptions = String.Format("/win32icon:\"{0}\"", ico);
                 if (!File.Exists(ico))
                 {
                     var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.leaf.ico");
@@ -169,7 +169,12 @@ namespace NewLife.XScript
             {
                 //var err = cr.Errors[0];
                 //Console.WriteLine("{0} {1} {2}({3},{4})", err.ErrorNumber, err.ErrorText, err.FileName, err.Line, err.Column);
-                Console.WriteLine(cr.Errors[0].ToString());
+                //Console.WriteLine(cr.Errors[0].ToString());
+                Console.WriteLine("编译出错：");
+                foreach (var item in cr.Errors)
+                {
+                    Console.WriteLine(item.ToString());
+                }
             }
         }
 
