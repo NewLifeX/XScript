@@ -1,11 +1,11 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using NewLife.Log;
 using NewLife.Reflection;
-using System.CodeDom.Compiler;
-using System.Threading;
 
 namespace NewLife.XScript
 {
@@ -41,12 +41,13 @@ namespace NewLife.XScript
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
-                // 如果前面没有输出版权信息，这里输出
+                // 输出版权信息
                 ShowCopyright();
 
                 // 显示帮助菜单
                 ShowHelp();
-                Console.ReadKey();
+
+                Console.ReadKey(true);
             }
             else
             {
@@ -91,7 +92,9 @@ namespace NewLife.XScript
             var code = Helper.ReadCode(file);
 
             // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
-            code += "\r\n//Assembly=" + AppDomain.CurrentDomain.BaseDirectory;
+            code = "//Assembly=" + AppDomain.CurrentDomain.BaseDirectory + Environment.NewLine + code;
+            // 以及源代码所在目录的所有程序集
+            code = "//Assembly=" + Path.GetDirectoryName(file) + Environment.NewLine + code;
             var rs = Helper.ParseAssembly(code);
             rs = Helper.ExpendAssembly(rs);
 
