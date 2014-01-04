@@ -70,7 +70,6 @@ namespace NewLife.XScript
                 }
                 catch (Exception ex)
                 {
-                    //if (ex.InnerException != null) ex = ex.InnerException;
                     XTrace.WriteException(ex);
                     if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
@@ -82,9 +81,6 @@ namespace NewLife.XScript
                     Console.ReadKey();
                 }
             }
-
-            //// 发送到菜单
-            //SetSendTo();
         }
 
         static void Process(String file)

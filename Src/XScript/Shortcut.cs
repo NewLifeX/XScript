@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-//using System.Windows.Forms;
 
 namespace NewLife.XScript
 {
@@ -271,11 +270,6 @@ namespace NewLife.XScript
         {
             Marshal.ThrowExceptionForHR(this._link.Resolve(hwnd, flags));
         }
-
-        //public void Resolve(IWin32Window window)
-        //{
-        //    this.Resolve(window.Handle, 0);
-        //}
 
         public void Resolve()
         {

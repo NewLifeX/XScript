@@ -39,7 +39,7 @@ namespace NewLife.XScript
                 item = item.Trim();
 
                 // 包含源码指令
-                if (item.StartsWith("//Include=", StringComparison.OrdinalIgnoreCase))
+                if (item.StartsWithIgnoreCase("//Include="))
                 {
                     var f = item.Substring("//Include=".Length);
                     f = f.Trim('\"');
@@ -69,7 +69,7 @@ namespace NewLife.XScript
             var ss = code.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
             foreach (var item in ss)
             {
-                if (item.StartsWith("//Assembly=", StringComparison.OrdinalIgnoreCase))
+                if (item.StartsWithIgnoreCase("//Assembly="))
                 {
                     var name = item.Substring("//Assembly=".Length).Trim();
                     name = name.Trim('\"');

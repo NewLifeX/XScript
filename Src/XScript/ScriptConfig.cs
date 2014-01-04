@@ -99,19 +99,19 @@ namespace NewLife.XScript
                     // 布尔型
                     if (pi.PropertyType == typeof(Boolean))
                     {
-                        PropertyInfoX.Create(pi).SetValue(config, true);
+                        config.SetValue(pi, true);
                         flag = true;
                         break;
                     }
                     else if (pi.PropertyType == typeof(String))
                     {
-                        PropertyInfoX.Create(pi).SetValue(config, (value + "").Trim().Trim('\"').Trim());
+                        config.SetValue(pi, (value + "").Trim().Trim('\"').Trim());
                         flag = true;
                         break;
                     }
                     else if (pi.PropertyType == typeof(Int32))
                     {
-                        PropertyInfoX.Create(pi).SetValue(config, Int32.Parse(value));
+                        config.SetValue(pi, Int32.Parse(value));
                         flag = true;
                         break;
                     }
