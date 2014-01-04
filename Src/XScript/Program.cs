@@ -37,6 +37,7 @@ namespace NewLife.XScript
 
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
+            ThreadPool.QueueUserWorkItem(s => SetFileType(true));
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -182,15 +183,22 @@ namespace NewLife.XScript
             var asm = Assembly.GetCallingAssembly();
             var name = asm.GetName().Name;
 
+            // 修改.cs文件指向
+            root.CreateSubKey(".cs").SetValue("", name);
+
             var reg = root.OpenSubKey(name);
-            if (reg != null) return;
+            if (!force && reg != null) return;
 
-            reg = root.CreateSubKey(name);
-            reg.SetValue("", name + "脚本文件");
+            var xs = root.CreateSubKey(name);
+            xs.SetValue("", name + "脚本文件");
 
-            reg = reg.CreateSubKey("shell\\Run");
-            reg.SetValue("", "执行脚本");
+            reg = xs.CreateSubKey("shell\\MakeExe");
+            reg.SetValue("", "生成Exe");
+            reg = reg.CreateSubKey("Command");
+            reg.SetValue("", String.Format("\"{0}\" \"%1\" /Exe", asm.Location));
 
+            reg = xs.CreateSubKey("shell\\open");
+            reg.SetValue("", "执行脚本(&O)");
             reg = reg.CreateSubKey("Command");
             reg.SetValue("", String.Format("\"{0}\" \"%1\"", asm.Location));
         }

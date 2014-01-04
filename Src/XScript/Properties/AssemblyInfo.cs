@@ -32,10 +32,12 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“内部版本号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.*")]
-[assembly: AssemblyFileVersion("1.2.2013.0129")]
+[assembly: AssemblyVersion("1.3.*")]
+[assembly: AssemblyFileVersion("1.3.2014.0104")]
 
 /*
+ * v1.3.2014.0104   关联cs文件右键菜单
+ * 
  * v1.2.2013.0129   支持源文件引用所在目录的程序集
  * 
  * v1.1.2013.0127   增加C#脚本生成Exe文件的功能
