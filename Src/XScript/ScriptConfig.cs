@@ -7,7 +7,7 @@ using NewLife.Reflection;
 namespace NewLife.XScript
 {
     /// <summary>脚本配置类</summary>
-    class ScriptConfig
+    public class ScriptConfig
     {
         #region 属性
         private String _File;
