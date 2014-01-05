@@ -65,6 +65,7 @@ namespace NewLife.XScript
 
                     // 增加源文件路径，便于调试纠错
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
+                    file = file.GetFullPath();
 
                     Script.Process(file, Config);
                 }
@@ -138,9 +139,6 @@ namespace NewLife.XScript
             var dir = Environment.GetFolderPath(Environment.SpecialFolder.SendTo);
             if (!Directory.Exists(dir)) return;
 
-            var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
-
-            var file = Path.Combine(dir, asmx.Title + ".lnk");
             // 每次更新，用于覆盖，避免错误
             //if (File.Exists(file)) return;
 
@@ -148,32 +146,14 @@ namespace NewLife.XScript
 
             try
             {
-                var sc = new Shortcut();
-                sc.Path = Assembly.GetEntryAssembly().Location;
-                //sc.Arguments = "启动参数";
-                sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                sc.Description = asmx.Description;
-                sc.Save(file);
-
-                file = Path.Combine(dir, asmx.Title + "（调试）.lnk");
-                sc = new Shortcut();
-                sc.Path = Assembly.GetEntryAssembly().Location;
-                sc.Arguments = "/D";
-                sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                sc.Description = asmx.Description;
-                sc.Save(file);
-
-                file = Path.Combine(dir, asmx.Title + "（生成Exe）.lnk");
-                sc = new Shortcut();
-                sc.Path = Assembly.GetEntryAssembly().Location;
-                sc.Arguments = "/Exe";
-                sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                sc.Description = asmx.Description;
-                sc.Save(file);
+                Shortcut.Create(null, null);
+                Shortcut.Create("调试", "/D");
+                Shortcut.Create("生成Exe", "/Exe");
+                Shortcut.Create("用VisualStudio打开", "/Vs");
             }
             catch (Exception ex)
             {
-                XTrace.WriteLine(ex.ToString());
+                XTrace.WriteException(ex);
             }
         }
 
@@ -191,13 +171,14 @@ namespace NewLife.XScript
 
             var xs = root.CreateSubKey(name);
             xs.SetValue("", name + "脚本文件");
+            var shell = root.CreateSubKey("shell");
 
-            reg = xs.CreateSubKey("shell\\MakeExe");
-            reg.SetValue("", "生成Exe");
+            reg = shell.CreateSubKey("Vs");
+            reg.SetValue("", "用VisualStudio打开");
             reg = reg.CreateSubKey("Command");
-            reg.SetValue("", String.Format("\"{0}\" \"%1\" /Exe", asm.Location));
+            reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
 
-            reg = xs.CreateSubKey("shell\\open");
+            reg = shell.CreateSubKey("open");
             reg.SetValue("", "执行脚本(&O)");
             reg = reg.CreateSubKey("Command");
             reg.SetValue("", String.Format("\"{0}\" \"%1\"", asm.Location));

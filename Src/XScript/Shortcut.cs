@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Reflection;
+using System.IO;
+using NewLife.Reflection;
 
 namespace NewLife.XScript
 {
@@ -291,6 +294,23 @@ namespace NewLife.XScript
         {
             int hres = this.AsPersist.Load(fileName, (uint)NativeClasses.STGM_ACCESS.STGM_READ);
             Marshal.ThrowExceptionForHR(hres);
+        }
+
+        public static Shortcut Create(String name, String arg)
+        {
+            var dir = Environment.GetFolderPath(Environment.SpecialFolder.SendTo);
+            var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
+            if (!String.IsNullOrEmpty(name)) name = "（" + name + "）";
+            var file = dir.CombinePath(asmx.Title + name + ".lnk");
+
+            var sc = new Shortcut();
+            sc.Path = Assembly.GetEntryAssembly().Location;
+            sc.Arguments = arg;
+            sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            sc.Description = asmx.Description;
+            sc.Save(file);
+
+            return sc;
         }
     }
 }

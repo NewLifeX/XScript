@@ -6,6 +6,9 @@ using NewLife.Reflection;
 using System.CodeDom.Compiler;
 using System.Reflection;
 using System.Diagnostics;
+using NewLife.Security;
+using NewLife.IO;
+using System.Xml;
 
 namespace NewLife.XScript
 {
@@ -29,8 +32,13 @@ namespace NewLife.XScript
             var rs = Helper.ParseAssembly(code);
             rs = Helper.ExpendAssembly(rs);
 
-            //var vPath = Environment.GetEnvironmentVariable("Path");
-            //Environment.SetEnvironmentVariable("Path", vPath += ";" + Path.GetDirectoryName(file));
+            // 使用VisualStudio打开源码文件进行编辑
+            if (config.Vs)
+            {
+                OpenWithVs(file, rs);
+                return;
+            }
+
             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
             var session = ScriptEngine.Create(code, false);
@@ -38,33 +46,31 @@ namespace NewLife.XScript
             // 加入代码中标明的程序集
             if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
             // 加入参数中标明的程序集
-            if (!String.IsNullOrEmpty(Config.Assembly))
+            if (!String.IsNullOrEmpty(config.Assembly))
             {
-                rs = Config.Assembly.Split(';');
+                rs = config.Assembly.Split(';');
                 rs = Helper.ExpendAssembly(rs);
                 if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
             }
 
             // 调试状态下输出最终代码
-            if (Config.Debug)
+            if (config.Debug)
             {
                 session.GenerateCode();
-                //File.WriteAllText(String.Format("{0:yyyyMMdd_HHmmss_fff}.cs", DateTime.Now), se.FinalCode);
                 var codefile = Path.ChangeExtension(file, "code.cs");
                 File.WriteAllText(codefile, session.FinalCode);
             }
 
             // 生成Exe
-            if (Config.Exe)
-            {
+            if (config.Exe)
                 MakeExe(session, file);
-
-                return;
-            }
-
-            Run(session);
+            else
+                Run(session);
         }
 
+        /// <summary>生成Exe文件</summary>
+        /// <param name="session"></param>
+        /// <param name="codefile"></param>
         static void MakeExe(ScriptEngine session, String codefile)
         {
             var exe = Path.ChangeExtension(codefile, "exe");
@@ -109,20 +115,48 @@ namespace NewLife.XScript
             }
         }
 
+        /// <summary>使用VisualStudio打开源码文件进行编辑</summary>
+        /// <param name="codefile"></param>
+        /// <param name="rs"></param>
+        static void OpenWithVs(String codefile, String[] rs)
+        {
+            // 判断项目文件是否存在，若不存在，则根据源码文件生成项目
+            var asm = Assembly.GetExecutingAssembly();
+            var name = Path.GetFileNameWithoutExtension(codefile) + ".csproj";
+            var dir = DataHelper.Hash(codefile.ToLower());
+            var proj = asm.Location.CombinePath("Projs", name);
+            //if (!File.Exists(proj))
+            MakeProj(codefile, proj, rs);
+        }
+
+        static void MakeProj(String codefile, String proj, String[] rs)
+        {
+            if (!File.Exists(proj)) FileSource.ReleaseFile(null, "tmpCmd.csproj", proj, true);
+
+            var doc = new XmlDocument();
+            doc.Load(proj);
+
+            var group = doc.SelectSingleNode("Project\\PropertyGroup");
+            // 版本
+            var node = group.SelectSingleNode("TargetFrameworkVersion");
+#if NET4
+            node.Value = "V4.0";
+#else
+            node.Value = "V2.0";
+#endif
+            // 程序集名称
+            node = group.SelectSingleNode("AssemblyName");
+            if (node.Value.IsNullOrWhiteSpace()) node.Value = Path.GetFileNameWithoutExtension(proj);
+
+            // 设定源码文件
+            node = doc.SelectSingleNode("Project\\ItemGroup\\Compile");
+            node.Value = codefile;
+        }
+
         static void Run(ScriptEngine session)
         {
             // 预编译
             session.Compile();
-
-            //// 提前加载引用
-            //foreach (var item in session.ReferencedAssemblies)
-            //{
-            //    try
-            //    {
-            //        Assembly.LoadFile(item);
-            //    }
-            //    catch { }
-            //}
 
             // 考虑到某些要引用的程序集在别的目录
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
@@ -156,30 +190,29 @@ namespace NewLife.XScript
         static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             var name = args.Name;
-            if (!String.IsNullOrEmpty(name))
-            {
-                // 遍历现有程序集
-                foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (item.FullName == name) return item;
-                }
+            if (String.IsNullOrEmpty(name)) return null;
 
-                // 查找当前目录的程序集，就是源代码所在目录
-                var p = name.IndexOf(",");
-                if (p >= 0) name = name.Substring(0, p);
-                var fs = Directory.GetFiles(Environment.CurrentDirectory, name + ".dll", SearchOption.AllDirectories);
-                if (fs != null && fs.Length > 0)
+            // 遍历现有程序集
+            foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (item.FullName == name) return item;
+            }
+
+            // 查找当前目录的程序集，就是源代码所在目录
+            var p = name.IndexOf(",");
+            if (p >= 0) name = name.Substring(0, p);
+            var fs = Directory.GetFiles(Environment.CurrentDirectory, name + ".dll", SearchOption.AllDirectories);
+            if (fs != null && fs.Length > 0)
+            {
+                // 可能多个，遍历加载
+                foreach (var item in fs)
                 {
-                    // 可能多个，遍历加载
-                    foreach (var item in fs)
+                    try
                     {
-                        try
-                        {
-                            var asm = Assembly.LoadFile(item);
-                            if (asm != null && asm.FullName == args.Name) return asm;
-                        }
-                        catch { }
+                        var asm = Assembly.LoadFile(item);
+                        if (asm != null && asm.FullName == args.Name) return asm;
                     }
+                    catch { }
                 }
             }
 

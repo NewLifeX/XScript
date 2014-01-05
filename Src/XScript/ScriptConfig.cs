@@ -18,6 +18,10 @@ namespace NewLife.XScript
         /// <summary>是否生成Exe</summary>
         public Boolean Exe { get { return _Exe; } set { _Exe = value; } }
 
+        private Boolean _Vs;
+        /// <summary>使用VisualStudio打开编辑</summary>
+        public Boolean Vs { get { return _Vs; } set { _Vs = value; } }
+
         private Boolean _NoLogo;
         /// <summary>不显示版权信息</summary>
         public Boolean NoLogo { get { return _NoLogo; } set { _NoLogo = value; } }
