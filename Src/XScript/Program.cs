@@ -67,7 +67,8 @@ namespace NewLife.XScript
                     if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
                     file = file.GetFullPath();
 
-                    Script.Process(file, Config);
+                    var rs = Script.ProcessFile(file, Config);
+                    if (rs) return;
                 }
                 catch (Exception ex)
                 {

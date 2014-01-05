@@ -8,6 +8,7 @@ using NewLife.IO;
 using NewLife.Reflection;
 using NewLife.Security;
 using NewLife.Log;
+using Microsoft.Win32;
 
 namespace NewLife.XScript
 {
@@ -18,7 +19,7 @@ namespace NewLife.XScript
         /// <summary>脚本配置</summary>
         public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
 
-        public static void Process(String file, ScriptConfig config)
+        public static Boolean ProcessFile(String file, ScriptConfig config)
         {
             Config = config;
 
@@ -32,11 +33,7 @@ namespace NewLife.XScript
             rs = Helper.ExpendAssembly(rs);
 
             // 使用VisualStudio打开源码文件进行编辑
-            if (config.Vs)
-            {
-                OpenWithVs(file, rs);
-                return;
-            }
+            if (config.Vs) return OpenWithVs(file, rs);
 
             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
@@ -65,6 +62,8 @@ namespace NewLife.XScript
                 MakeExe(session, file);
             else
                 Run(session);
+
+            return false;
         }
 
         /// <summary>生成Exe文件</summary>
@@ -117,7 +116,7 @@ namespace NewLife.XScript
         /// <summary>使用VisualStudio打开源码文件进行编辑</summary>
         /// <param name="codefile"></param>
         /// <param name="rs"></param>
-        static void OpenWithVs(String codefile, String[] rs)
+        static Boolean OpenWithVs(String codefile, String[] rs)
         {
             // 判断项目文件是否存在，若不存在，则根据源码文件生成项目
             var asm = Assembly.GetExecutingAssembly();
@@ -126,14 +125,45 @@ namespace NewLife.XScript
             var proj = Path.GetDirectoryName(asm.Location).CombinePath("Projs", dir, name);
             //if (!File.Exists(proj))
             MakeProj(codefile, proj, rs);
+
+            // 找到安装VisualStudio地址，暂时还不支持Express
+            var root = Registry.ClassesRoot;
+            var vs = "";
+            for (int i = 11; i >= 8; i--)
+            {
+                var reg = root.OpenSubKey(String.Format("VisualStudio.sln.{0}.0", i));
+                if (reg != null)
+                {
+                    reg = reg.OpenSubKey("shell\\Open\\Command");
+                    if (reg != null) vs = reg.GetValue("") + "";
+                    if (vs.IsNullOrWhiteSpace()) break;
+                }
+            }
+            if (vs.IsNullOrWhiteSpace())
+            {
+                XTrace.WriteLine("无法找到VisualStudio！");
+                return false;
+            }
+
+            vs = vs.TrimEnd("\"%1\"").Trim().Trim('\"');
+            var sln = Path.ChangeExtension(proj, "sln");
+            Process.Start(vs, String.Format("\"{0}\"", sln));
+
+            return true;
         }
 
         static void MakeProj(String codefile, String proj, String[] rs)
         {
             if (!File.Exists(proj))
             {
-                XTrace.WriteLine("释放模版到：{0}", proj);
+                XTrace.WriteLine("释放csproj模版到：{0}", proj);
                 FileSource.ReleaseFile(null, "tmpCmd.csproj", proj, true);
+            }
+            var sln = Path.ChangeExtension(proj, "sln");
+            if (!File.Exists(sln))
+            {
+                XTrace.WriteLine("释放sln模版到：{0}", sln);
+                FileSource.ReleaseFile(null, "tmpCmd.sln", sln, true);
             }
 
             var doc = new XmlDocument();
