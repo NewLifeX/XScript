@@ -171,7 +171,7 @@ namespace NewLife.XScript
 
             var xs = root.CreateSubKey(name);
             xs.SetValue("", name + "脚本文件");
-            var shell = root.CreateSubKey("shell");
+            var shell = xs.CreateSubKey("shell");
 
             reg = shell.CreateSubKey("Vs");
             reg.SetValue("", "用VisualStudio打开");

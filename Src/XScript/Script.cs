@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using NewLife.Reflection;
 using System.CodeDom.Compiler;
-using System.Reflection;
 using System.Diagnostics;
-using NewLife.Security;
-using NewLife.IO;
+using System.IO;
+using System.Reflection;
 using System.Xml;
+using NewLife.IO;
+using NewLife.Reflection;
+using NewLife.Security;
+using NewLife.Log;
 
 namespace NewLife.XScript
 {
@@ -124,33 +123,57 @@ namespace NewLife.XScript
             var asm = Assembly.GetExecutingAssembly();
             var name = Path.GetFileNameWithoutExtension(codefile) + ".csproj";
             var dir = DataHelper.Hash(codefile.ToLower());
-            var proj = asm.Location.CombinePath("Projs", name);
+            var proj = Path.GetDirectoryName(asm.Location).CombinePath("Projs", dir, name);
             //if (!File.Exists(proj))
             MakeProj(codefile, proj, rs);
         }
 
         static void MakeProj(String codefile, String proj, String[] rs)
         {
-            if (!File.Exists(proj)) FileSource.ReleaseFile(null, "tmpCmd.csproj", proj, true);
+            if (!File.Exists(proj))
+            {
+                XTrace.WriteLine("释放模版到：{0}", proj);
+                FileSource.ReleaseFile(null, "tmpCmd.csproj", proj, true);
+            }
 
             var doc = new XmlDocument();
             doc.Load(proj);
 
-            var group = doc.SelectSingleNode("Project\\PropertyGroup");
+            var uri = "http://schemas.microsoft.com/developer/msbuild/2003";
+            var nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("ns", uri);
+
+            var group = doc.SelectSingleNode("//ns:PropertyGroup", nsmgr);
             // 版本
-            var node = group.SelectSingleNode("TargetFrameworkVersion");
+            var node = group.SelectSingleNode("ns:TargetFrameworkVersion", nsmgr);
 #if NET4
-            node.Value = "V4.0";
+            node.InnerText = "v4.0";
 #else
-            node.Value = "V2.0";
+            node.InnerText = "v2.0";
 #endif
             // 程序集名称
-            node = group.SelectSingleNode("AssemblyName");
-            if (node.Value.IsNullOrWhiteSpace()) node.Value = Path.GetFileNameWithoutExtension(proj);
+            node = group.SelectSingleNode("ns:AssemblyName", nsmgr);
+            if (node.InnerText.IsNullOrWhiteSpace()) node.InnerText = Path.GetFileNameWithoutExtension(proj);
 
+            var items = doc.SelectSingleNode("//ns:ItemGroup", nsmgr);
             // 设定源码文件
-            node = doc.SelectSingleNode("Project\\ItemGroup\\Compile");
-            node.Value = codefile;
+            node = items.SelectSingleNode("Compile");
+            if (node == null)
+            {
+                node = doc.CreateElement("Compile", uri);
+                items.AppendChild(node);
+            }
+            //node.InnerText = null;
+            var att = node.Attributes["Include"];
+            if (att == null)
+            {
+                //att = doc.CreateAttribute("ns", "Include", uri);
+                att = doc.CreateAttribute("Include");
+                node.Attributes.Append(att);
+            }
+            att.Value = codefile;
+
+            doc.Save(proj);
         }
 
         static void Run(ScriptEngine session)
