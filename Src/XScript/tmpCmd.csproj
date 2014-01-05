@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NewLife.XScript</RootNamespace>
     <AssemblyName></AssemblyName>
-    <OutputPath></OutputPath>
+    <OutputPath>Bin</OutputPath>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>  
   </PropertyGroup>

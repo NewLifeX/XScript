@@ -26,9 +26,9 @@ namespace NewLife.XScript
             var code = Helper.ReadCode(file);
 
             // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
-            code = "//Assembly=" + AppDomain.CurrentDomain.BaseDirectory + Environment.NewLine + code;
+            code = "//Assembly=" + AppDomain.CurrentDomain.BaseDirectory.EnsureEnd("\\") + Environment.NewLine + code;
             // 以及源代码所在目录的所有程序集
-            code = "//Assembly=" + Path.GetDirectoryName(file) + Environment.NewLine + code;
+            code = "//Assembly=" + Path.GetDirectoryName(file).EnsureEnd("\\") + Environment.NewLine + code;
             var rs = Helper.ParseAssembly(code);
             rs = Helper.ExpendAssembly(rs);
 
@@ -199,7 +199,7 @@ namespace NewLife.XScript
 
             var items = doc.SelectSingleNode("//ns:ItemGroup", nsmgr);
             // 设定源码文件
-            node = items.SelectSingleNode("Compile");
+            node = items.SelectSingleNode("ns:Compile", nsmgr);
             if (node == null)
             {
                 node = doc.CreateElement("Compile", uri);

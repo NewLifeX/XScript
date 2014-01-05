@@ -33,8 +33,6 @@ namespace NewLife.XScript
 
             if (Config.Debug) XTrace.UseConsole();
 
-            //XTrace.TempPath = "XTemp";
-
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
             ThreadPool.QueueUserWorkItem(s => SetFileType(true));

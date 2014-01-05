@@ -85,7 +85,7 @@ namespace NewLife.XScript
         /// <returns></returns>
         public static String[] ExpendAssembly(String[] afs)
         {
-            var list = new List<String>();
+            var list = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var item in afs)
             {
@@ -99,15 +99,19 @@ namespace NewLife.XScript
                     {
                         foreach (var elm in fs)
                         {
-                            list.Add(elm);
+                            if (!list.Contains(elm)) list.Add(elm);
                         }
                     }
                 }
                 else
-                    list.Add(item);
+                {
+                    if (!list.Contains(item)) list.Add(item);
+                }
             }
 
-            return list.ToArray();
+            var arr = new String[list.Count];
+            list.CopyTo(arr, 0);
+            return arr;
         }
     }
 }
