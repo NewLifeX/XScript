@@ -32,9 +32,6 @@ namespace NewLife.XScript
             var rs = Helper.ParseAssembly(code);
             rs = Helper.ExpendAssembly(rs);
 
-            // 使用VisualStudio打开源码文件进行编辑
-            if (config.Vs) return OpenWithVs(file, rs);
-
             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
             var session = ScriptEngine.Create(code, false);
@@ -55,6 +52,13 @@ namespace NewLife.XScript
                 session.GenerateCode();
                 var codefile = Path.ChangeExtension(file, "code.cs");
                 File.WriteAllText(codefile, session.FinalCode);
+            }
+
+            // 使用VisualStudio打开源码文件进行编辑
+            if (config.Vs)
+            {
+                File.WriteAllText(file, session.FinalCode);
+                return OpenWithVs(file, rs);
             }
 
             // 生成Exe
@@ -188,6 +192,10 @@ namespace NewLife.XScript
             // 程序集名称
             node = group.SelectSingleNode("ns:AssemblyName", nsmgr);
             if (node.InnerText.IsNullOrWhiteSpace()) node.InnerText = Path.GetFileNameWithoutExtension(proj);
+
+            // 输出目录
+            node = group.SelectSingleNode("ns:OutputPath", nsmgr);
+            if (node.InnerText.IsNullOrWhiteSpace()) node.InnerText = Path.GetDirectoryName(proj);
 
             var items = doc.SelectSingleNode("//ns:ItemGroup", nsmgr);
             // 设定源码文件
