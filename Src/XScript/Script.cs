@@ -159,12 +159,6 @@ namespace NewLife.XScript
                 XTrace.WriteLine("释放csproj模版到：{0}", proj);
                 FileSource.ReleaseFile(null, "tmpCmd.csproj", proj, true);
             }
-            var sln = Path.ChangeExtension(proj, "sln");
-            if (!File.Exists(sln))
-            {
-                XTrace.WriteLine("释放sln模版到：{0}", sln);
-                FileSource.ReleaseFile(null, "tmpCmd.sln", sln, true);
-            }
 
             var doc = new XmlDocument();
             doc.Load(proj);
@@ -174,8 +168,18 @@ namespace NewLife.XScript
             nsmgr.AddNamespace("ns", uri);
 
             var group = doc.SelectSingleNode("//ns:PropertyGroup", nsmgr);
+            // Guid
+            var node = group.SelectSingleNode("ns:ProjectGuid", nsmgr);
+            if (node == null)
+            {
+                node = doc.CreateElement("ProjectGuid", uri);
+                group.AppendChild(node);
+                node.InnerText = "{" + Guid.NewGuid().ToString().ToUpper() + "}";
+            }
+            var guid = node.InnerText.Trim('{', '}');
+
             // 版本
-            var node = group.SelectSingleNode("ns:TargetFrameworkVersion", nsmgr);
+            node = group.SelectSingleNode("ns:TargetFrameworkVersion", nsmgr);
 #if NET4
             node.InnerText = "v4.0";
 #else
@@ -197,13 +201,25 @@ namespace NewLife.XScript
             var att = node.Attributes["Include"];
             if (att == null)
             {
-                //att = doc.CreateAttribute("ns", "Include", uri);
                 att = doc.CreateAttribute("Include");
                 node.Attributes.Append(att);
             }
             att.Value = codefile;
 
             doc.Save(proj);
+
+            var sln = Path.ChangeExtension(proj, "sln");
+            if (!File.Exists(sln))
+            {
+                XTrace.WriteLine("释放sln模版到：{0}", sln);
+                FileSource.ReleaseFile(null, "tmpCmd.sln", sln, true);
+
+                var txt = File.ReadAllText(sln);
+                txt = txt.Replace("{$SlnGUID}", Guid.NewGuid().ToString().ToUpper());
+                txt = txt.Replace("{$GUID}", guid);
+                txt = txt.Replace("{$Name}", Path.GetFileNameWithoutExtension(proj));
+                File.WriteAllText(sln, txt);
+            }
         }
 
         static void Run(ScriptEngine session)
