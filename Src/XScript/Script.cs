@@ -23,49 +23,32 @@ namespace NewLife.XScript
         {
             Config = config;
 
-            var code = Helper.ReadCode(file);
+            var sc = new ScriptCode(file);
+            // 加入参数中标明的程序集
+            sc.AddRef(config.Assembly);
 
-            // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
-            code = "//Assembly=" + AppDomain.CurrentDomain.BaseDirectory.EnsureEnd("\\") + Environment.NewLine + code;
-            // 以及源代码所在目录的所有程序集
-            code = "//Assembly=" + Path.GetDirectoryName(file).EnsureEnd("\\") + Environment.NewLine + code;
-            var rs = Helper.ParseAssembly(code);
-            rs = Helper.ExpendAssembly(rs);
+            // 使用VisualStudio打开源码文件进行编辑
+            if (config.Vs) return OpenWithVs(sc);
 
             Environment.CurrentDirectory = Path.GetDirectoryName(file);
 
-            var session = ScriptEngine.Create(code, false);
+            var se = ScriptEngine.Create(sc.ReadCode(true), false);
 
-            // 加入代码中标明的程序集
-            if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
-            // 加入参数中标明的程序集
-            if (!String.IsNullOrEmpty(config.Assembly))
-            {
-                rs = config.Assembly.Split(';');
-                rs = Helper.ExpendAssembly(rs);
-                if (rs.Length > 0) session.ReferencedAssemblies.AddRange(rs);
-            }
+            // 引用程序集
+            if (sc.Refs.Count > 0) se.ReferencedAssemblies.AddRange(sc.GetRefArray());
 
             // 调试状态下输出最终代码
             if (config.Debug)
             {
-                session.GenerateCode();
                 var codefile = Path.ChangeExtension(file, "code.cs");
-                File.WriteAllText(codefile, session.FinalCode);
-            }
-
-            // 使用VisualStudio打开源码文件进行编辑
-            if (config.Vs)
-            {
-                File.WriteAllText(file, session.FinalCode);
-                return OpenWithVs(file, rs);
+                File.WriteAllText(codefile, se.FinalCode);
             }
 
             // 生成Exe
             if (config.Exe)
-                MakeExe(session, file);
+                MakeExe(se, file);
             else
-                Run(session);
+                Run(se);
 
             return false;
         }
@@ -118,17 +101,24 @@ namespace NewLife.XScript
         }
 
         /// <summary>使用VisualStudio打开源码文件进行编辑</summary>
-        /// <param name="codefile"></param>
-        /// <param name="rs"></param>
-        static Boolean OpenWithVs(String codefile, String[] rs)
+        /// <param name="sc"></param>
+        static Boolean OpenWithVs(ScriptCode sc)
         {
+            var code = sc.GetRefStr();
+            if (!String.IsNullOrEmpty(code)) code += Environment.NewLine;
+
+            var se = ScriptEngine.Create(sc.ReadCode(false), false);
+            code += se.FinalCode;
+            File.WriteAllText(sc.CodeFile, code);
+
             // 判断项目文件是否存在，若不存在，则根据源码文件生成项目
+            var codefile = sc.CodeFile;
             var asm = Assembly.GetExecutingAssembly();
             var name = Path.GetFileNameWithoutExtension(codefile) + ".csproj";
             var dir = DataHelper.Hash(codefile.ToLower());
             var proj = Path.GetDirectoryName(asm.Location).CombinePath("Projs", dir, name);
-            //if (!File.Exists(proj))
-            MakeProj(codefile, proj, rs);
+
+            MakeProj(codefile, proj);
 
             // 找到安装VisualStudio地址，暂时还不支持Express
             var root = Registry.ClassesRoot;
@@ -156,7 +146,7 @@ namespace NewLife.XScript
             return true;
         }
 
-        static void MakeProj(String codefile, String proj, String[] rs)
+        static void MakeProj(String codefile, String proj)
         {
             if (!File.Exists(proj))
             {

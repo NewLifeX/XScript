@@ -66,6 +66,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Script.cs" />
+    <Compile Include="ScriptCode.cs" />
     <Compile Include="ScriptConfig.cs" />
     <Compile Include="Shortcut.cs" />
   </ItemGroup>
