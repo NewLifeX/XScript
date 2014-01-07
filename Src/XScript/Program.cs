@@ -35,7 +35,7 @@ namespace NewLife.XScript
 
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
-            ThreadPool.QueueUserWorkItem(s => SetFileType(true));
+            ThreadPool.QueueUserWorkItem(s => SetFileType());
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -156,31 +156,51 @@ namespace NewLife.XScript
             }
         }
 
-        static void SetFileType(Boolean force = false)
+        static void SetFileType()
         {
             var root = Registry.ClassesRoot;
-            var asm = Assembly.GetCallingAssembly();
+            var asm = Assembly.GetExecutingAssembly();
+            var ver = asm.GetName().Version;
             var name = asm.GetName().Name;
 
             // 修改.cs文件指向
             root.CreateSubKey(".cs").SetValue("", name);
 
             var reg = root.OpenSubKey(name);
-            if (!force && reg != null) return;
+            if (reg != null)
+            {
+                var verStr = reg.GetValue("Version") + "";
+                if (!String.IsNullOrEmpty(verStr))
+                {
+                    var verReg = new Version(verStr);
+                    // 如果注册表记录的版本更新，则不写入
+                    if (verReg >= ver) return;
+                }
+            }
 
-            var xs = root.CreateSubKey(name);
-            xs.SetValue("", name + "脚本文件");
-            var shell = xs.CreateSubKey("shell");
+            using (var xs = root.CreateSubKey(name))
+            {
+                xs.SetValue("", name + "脚本文件");
+                // 写入版本
+                xs.SetValue("Version", ver.ToString());
 
-            reg = shell.CreateSubKey("Vs");
-            reg.SetValue("", "用VisualStudio打开");
-            reg = reg.CreateSubKey("Command");
-            reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
+                using (var shell = xs.CreateSubKey("shell"))
+                {
+                    reg = shell.CreateSubKey("Vs");
+                    reg.SetValue("", "用VisualStudio打开");
+                    reg.Flush();
+                    reg = reg.CreateSubKey("Command");
+                    reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
+                    reg.Close();
 
-            reg = shell.CreateSubKey("open");
-            reg.SetValue("", "执行脚本(&O)");
-            reg = reg.CreateSubKey("Command");
-            reg.SetValue("", String.Format("\"{0}\" \"%1\"", asm.Location));
+                    reg = shell.CreateSubKey("open");
+                    reg.SetValue("", "执行脚本(&O)");
+                    reg.Flush();
+                    reg = reg.CreateSubKey("Command");
+                    reg.SetValue("", String.Format("\"{0}\" \"%1\"", asm.Location));
+                    reg.Close();
+                }
+            }
         }
     }
 }
