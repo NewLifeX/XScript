@@ -1,7 +1,7 @@
 ﻿[Color:Red]
 使用方法：
 [Color:White]
-XScritp.exe [源文件] [/NoLogo] [/D]
+XScript.exe [源文件] [/NoLogo] [/D]
     /Exe        生成Exe，不执行
     /Vs         用VisualStudio打开编辑
     /NoLogo     不显示版权信息
