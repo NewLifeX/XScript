@@ -156,54 +156,61 @@ namespace NewLife.XScript
             }
             catch (Exception ex)
             {
-                XTrace.WriteException(ex);
+                if (Config.Debug) XTrace.WriteException(ex);
             }
         }
 
         static void SetFileType()
         {
-            var root = Registry.ClassesRoot;
-            var asm = Assembly.GetExecutingAssembly();
-            var ver = asm.GetName().Version;
-            var name = asm.GetName().Name;
-
-            // 修改.cs文件指向
-            root.CreateSubKey(".cs").SetValue("", name);
-
-            var reg = root.OpenSubKey(name);
-            if (reg != null)
+            try
             {
-                var verStr = reg.GetValue("Version") + "";
-                if (!String.IsNullOrEmpty(verStr))
+                var root = Registry.ClassesRoot;
+                var asm = Assembly.GetExecutingAssembly();
+                var ver = asm.GetName().Version;
+                var name = asm.GetName().Name;
+
+                // 修改.cs文件指向
+                root.CreateSubKey(".cs").SetValue("", name);
+
+                var reg = root.OpenSubKey(name);
+                if (reg != null)
                 {
-                    var verReg = new Version(verStr);
-                    // 如果注册表记录的版本更新，则不写入
-                    if (verReg >= ver) return;
+                    var verStr = reg.GetValue("Version") + "";
+                    if (!String.IsNullOrEmpty(verStr))
+                    {
+                        var verReg = new Version(verStr);
+                        // 如果注册表记录的版本更新，则不写入
+                        if (verReg >= ver) return;
+                    }
+                }
+
+                using (var xs = root.CreateSubKey(name))
+                {
+                    xs.SetValue("", name + "脚本文件");
+                    // 写入版本
+                    xs.SetValue("Version", ver.ToString());
+
+                    using (var shell = xs.CreateSubKey("shell"))
+                    {
+                        reg = shell.CreateSubKey("Vs");
+                        reg.SetValue("", "用VisualStudio打开");
+                        reg.Flush();
+                        reg = reg.CreateSubKey("Command");
+                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
+                        reg.Close();
+
+                        reg = shell.CreateSubKey("open");
+                        reg.SetValue("", "执行脚本(&O)");
+                        reg.Flush();
+                        reg = reg.CreateSubKey("Command");
+                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo", asm.Location));
+                        reg.Close();
+                    }
                 }
             }
-
-            using (var xs = root.CreateSubKey(name))
+            catch (Exception ex)
             {
-                xs.SetValue("", name + "脚本文件");
-                // 写入版本
-                xs.SetValue("Version", ver.ToString());
-
-                using (var shell = xs.CreateSubKey("shell"))
-                {
-                    reg = shell.CreateSubKey("Vs");
-                    reg.SetValue("", "用VisualStudio打开");
-                    reg.Flush();
-                    reg = reg.CreateSubKey("Command");
-                    reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
-                    reg.Close();
-
-                    reg = shell.CreateSubKey("open");
-                    reg.SetValue("", "执行脚本(&O)");
-                    reg.Flush();
-                    reg = reg.CreateSubKey("Command");
-                    reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo", asm.Location));
-                    reg.Close();
-                }
+                if (Config.Debug) XTrace.WriteException(ex);
             }
         }
     }

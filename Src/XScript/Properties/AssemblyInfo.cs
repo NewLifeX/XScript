@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.4.2014.0107")]
 
 /*
- * v1.3.2014.0107   从代码中读取配置
+ * v1.4.2014.0107   从代码中读取配置
  * 
  * v1.3.2014.0104   关联cs文件右键菜单
  * 
