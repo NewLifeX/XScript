@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NewLife.Core\Properties\AssemblyInfo_.cs">
+      <Link>Properties\AssemblyInfo_.cs</Link>
+    </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -77,8 +77,10 @@ namespace NewLife.XScript
                 // 暂停，等待客户查看输出
                 if (!Config.NoStop)
                 {
-                    Console.WriteLine("任意键退出……");
-                    Console.ReadKey();
+                    //Console.WriteLine("任意键退出……");
+                    var key = Console.ReadKey(true);
+                    // 如果按下m键，重新打开菜单
+                    if (key.KeyChar == 'm') Main(new String[0]);
                 }
             }
         }
@@ -89,16 +91,18 @@ namespace NewLife.XScript
 
             var oldcolor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("欢迎使用{0}！", asmx.Title);
-            Console.WriteLine();
+            Console.Write(asmx.Title);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("本工具由新生命开发团队开发，{0}！", asmx.Description);
-            Console.WriteLine("版权所有：{0}", asmx.Asm.GetCustomAttributeValue<AssemblyCopyrightAttribute, String>());
-            Console.WriteLine();
+            Console.WriteLine("由新生命开发团队开发，{0}！", asmx.Description);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("版权所有：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine(asmx.Asm.GetCustomAttributeValue<AssemblyCopyrightAttribute, String>());
+            //Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(".Net版本：");
             Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine("v{0}", Environment.Version);
+            Console.Write("v{0}\t", Environment.Version);
             //Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("编译时间：");
@@ -197,7 +201,7 @@ namespace NewLife.XScript
                     reg.SetValue("", "执行脚本(&O)");
                     reg.Flush();
                     reg = reg.CreateSubKey("Command");
-                    reg.SetValue("", String.Format("\"{0}\" \"%1\"", asm.Location));
+                    reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo", asm.Location));
                     reg.Close();
                 }
             }
