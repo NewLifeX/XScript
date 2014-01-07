@@ -135,7 +135,7 @@ namespace NewLife.XScript
                 // 布尔型
                 if (pi.PropertyType == typeof(Boolean))
                 {
-                    this.SetValue(pi, true);
+                    this.SetValue(pi, value.ToBoolean());
                     flag = true;
                     break;
                 }
