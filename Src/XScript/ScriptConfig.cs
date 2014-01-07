@@ -75,56 +75,85 @@ namespace NewLife.XScript
                 }
 
                 // 去掉前面的/或者-
-                var name = item.Substring(1);
-                var value = "";
-                // 分割名值
-                var p = name.IndexOf("=");
-                if (p > 0)
-                {
-                    value = name.Substring(p + 1).Trim();
-                    name = name.Substring(0, p).Trim();
-                }
-                else
-                {
-                    p = name.IndexOf(":");
-                    if (p > 0)
-                    {
-                        value = name.Substring(p + 1).Trim();
-                        name = name.Substring(0, p).Trim();
-                    }
-                }
-
-                var flag = false;
-                // 遍历属性，匹配赋值
-                foreach (var pi in pis)
-                {
-                    if (!Match(pi, name)) continue;
-
-                    // 布尔型
-                    if (pi.PropertyType == typeof(Boolean))
-                    {
-                        config.SetValue(pi, true);
-                        flag = true;
-                        break;
-                    }
-                    else if (pi.PropertyType == typeof(String))
-                    {
-                        config.SetValue(pi, (value + "").Trim().Trim('\"').Trim());
-                        flag = true;
-                        break;
-                    }
-                    else if (pi.PropertyType == typeof(Int32))
-                    {
-                        config.SetValue(pi, Int32.Parse(value));
-                        flag = true;
-                        break;
-                    }
-                }
-
+                var flag = config.Set(item.Substring(1), pis);
                 if (!flag) throw new XException("不可识别的参数{0}。", item);
             }
 
             return config;
+        }
+
+        /// <summary>从代码中读取配置</summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public ScriptConfig ParseCode(String code)
+        {
+            var config = this;
+            var pis = config.GetType().GetProperties();
+
+            foreach (var item in code.Split(Environment.NewLine))
+            {
+                if (item.IsNullOrWhiteSpace()) continue;
+
+                var line = item.Trim();
+                if (!line.StartsWith("//")) continue;
+
+                // 去掉前面的//
+                var flag = Set(line.Substring(2), pis);
+                if (!flag) throw new XException("不可识别的参数{0}。", item);
+            }
+
+            return config;
+        }
+
+        Boolean Set(String nv, PropertyInfo[] pis)
+        {
+            var name = nv;
+            var value = "";
+            // 分割名值
+            var p = nv.IndexOf("=");
+            if (p > 0)
+            {
+                value = nv.Substring(p + 1).Trim();
+                name = nv.Substring(0, p).Trim();
+            }
+            else
+            {
+                p = nv.IndexOf(":");
+                if (p > 0)
+                {
+                    value = nv.Substring(p + 1).Trim();
+                    name = nv.Substring(0, p).Trim();
+                }
+            }
+
+            var flag = false;
+            // 遍历属性，匹配赋值
+            foreach (var pi in pis)
+            {
+                if (!Match(pi, name)) continue;
+
+                // 布尔型
+                if (pi.PropertyType == typeof(Boolean))
+                {
+                    this.SetValue(pi, true);
+                    flag = true;
+                    break;
+                }
+                else if (pi.PropertyType == typeof(String))
+                {
+                    this.SetValue(pi, (value + "").Trim().Trim('\"').Trim());
+                    flag = true;
+                    break;
+                }
+                else if (pi.PropertyType == typeof(Int32))
+                {
+                    this.SetValue(pi, Int32.Parse(value));
+                    flag = true;
+                    break;
+                }
+            }
+
+            return flag;
         }
 
         /// <summary>名称是否匹配</summary>

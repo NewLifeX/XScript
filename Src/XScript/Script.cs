@@ -44,6 +44,9 @@ namespace NewLife.XScript
                 File.WriteAllText(codefile, se.FinalCode);
             }
 
+            // 从源码读取配置
+            config.ParseCode(se.Code);
+
             // 生成Exe
             if (config.Exe)
                 MakeExe(se, file);
