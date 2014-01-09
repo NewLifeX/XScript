@@ -1,0 +1,42 @@
+﻿[Color:Red]
+脚本格式：
+[Color:Green]
+一、简易模式
+[Color:White]
+    直接书写脚本代码行，不得使用函数。
+    如：
+[Color:Magenta]
+    Console.WriteLine("Hello NewLife!");
+[Color:Green]
+二、完整模式
+[Color:White]
+    代码必须写在方法之中，主函数必须是static void Main()
+    如果没有写命名空间和类名，程序将自动添加
+    如果需要引入命名空间，请务必书写完整的命名空间和类名，确保是完整的类文件
+    如：
+[Color:Magenta]
+    static void Main() {
+        Test();
+    }
+
+    static void Test() {
+        Console.WriteLine("Hello NewLife!");
+    }
+
+[Color:White]
+任意键显示扩展格式……
+[Pause]
+[Color:Red]
+扩展格式（采用双斜杠加关键字开头）：
+[Color:Green]
+1，文件包含
+[Color:White]
+    指令后紧跟文件名，可以用相对路径
+[Color:Magenta]
+    //Include=Test.cs
+[Color:Green]
+2，程序集引用
+[Color:White]
+    指令后可跟多个程序集，分号隔开，可以用项目路径，可以指定目录，将搜索加载所有DLL文件
+[Color:Magenta]
+    //Assembly="aa.dll;bb.dll;C:\X\DLL"

@@ -14,6 +14,10 @@ namespace NewLife.XScript
         /// <summary>脚本配置</summary>
         public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
 
+        private static String _Title;
+        /// <summary>标题</summary>
+        public static String Title { get { return _Title; } set { _Title = value; } }
+
         static void Main(string[] args)
         {
             // 分解参数
@@ -27,9 +31,10 @@ namespace NewLife.XScript
                 Console.ReadKey();
                 return;
             }
+            Script.Config = Config;
 
-            var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
-            Console.Title = asmx.Title;
+            Title = AssemblyX.Create(Assembly.GetExecutingAssembly()).Title;
+            Console.Title = Title;
 
             if (Config.Debug) XTrace.UseConsole();
 
@@ -45,43 +50,82 @@ namespace NewLife.XScript
                 // 显示帮助菜单
                 ShowHelp();
 
-                Console.ReadKey(true);
+                ProcessUser();
             }
             else
             {
-                // 加上源文件路径
-                Console.Title += " " + Config.File;
-
                 if (!Config.NoLogo) ShowCopyright();
 
-                try
+                ProcessFile();
+            }
+        }
+
+        static void ProcessUser()
+        {
+            while (true)
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write("脚本：");
+                var line = Console.ReadLine();
+                if (line.IsNullOrWhiteSpace()) continue;
+
+                line = line.Trim();
+                if (line == "?" || line.EqualIgnoreCase("help"))
+                    ShowDetail();
+                else if (line.EqualIgnoreCase("exit", "quit", "bye"))
+                    break;
+                else
                 {
-                    var file = Config.File;
-                    if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
-
-                    if (Config.Debug) Console.WriteLine("脚本：{0}", file);
-
-                    // 增加源文件路径，便于调试纠错
-                    if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
-                    file = file.GetFullPath();
-
-                    var rs = Script.ProcessFile(file, Config);
-                    if (rs) return;
+                    Console.Title = Title + " " + line;
+                    
+                    try
+                    {
+                        // 判断是不是脚本
+                        if (File.Exists(line))
+                            Script.ProcessFile(line);
+                        else
+                            Script.ProcessCode(line);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    XTrace.WriteException(ex);
-                    if (!Config.Debug) Console.WriteLine(ex.ToString());
-                }
+            }
+        }
 
-                // 暂停，等待客户查看输出
-                if (!Config.NoStop)
-                {
-                    //Console.WriteLine("任意键退出……");
-                    var key = Console.ReadKey(true);
-                    // 如果按下m键，重新打开菜单
-                    if (key.KeyChar == 'm') Main(new String[0]);
-                }
+        static void ProcessFile()
+        {
+            // 加上源文件路径
+            Console.Title = Title + " " + Config.File;
+
+            try
+            {
+                var file = Config.File;
+                if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
+
+                //if (Config.Debug) Console.WriteLine("脚本：{0}", file);
+
+                // 增加源文件路径，便于调试纠错
+                if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
+                file = file.GetFullPath();
+
+                var rs = Script.ProcessFile(file);
+                if (rs) return;
+            }
+            catch (Exception ex)
+            {
+                XTrace.WriteException(ex);
+                if (!Config.Debug) Console.WriteLine(ex.ToString());
+            }
+
+            // 暂停，等待客户查看输出
+            if (!Config.NoStop)
+            {
+                //Console.WriteLine("任意键退出……");
+                var key = Console.ReadKey(true);
+                // 如果按下m键，重新打开菜单
+                if (key.KeyChar == 'm') Main(new String[0]);
             }
         }
 
@@ -113,11 +157,14 @@ namespace NewLife.XScript
             Console.ForegroundColor = oldcolor;
         }
 
-        static void ShowHelp()
+        static void ShowHelp() { ShowText("帮助.txt"); }
+
+        static void ShowDetail() { ShowText("详细.txt"); }
+
+        static void ShowText(String txtName)
         {
-            var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Program).Namespace + ".帮助.txt");
+            var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Program).Namespace + "." + txtName);
             var txt = stream.ToStr();
-            //Console.WriteLine(txt);
             foreach (var item in txt.Split(new String[] { Environment.NewLine }, StringSplitOptions.None))
             {
                 // 改变颜色

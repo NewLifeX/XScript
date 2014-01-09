@@ -20,9 +20,9 @@ namespace NewLife.XScript
         /// <summary>脚本配置</summary>
         public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
 
-        public static Boolean ProcessFile(String file, ScriptConfig config)
+        public static Boolean ProcessFile(String file)
         {
-            Config = config;
+            var config = Config;
 
             var sc = new ScriptCode(file);
             // 加入参数中标明的程序集
@@ -56,6 +56,13 @@ namespace NewLife.XScript
                 Run(se);
 
             return false;
+        }
+
+        public static Boolean ProcessCode(String code)
+        {
+            var se = ScriptEngine.Create(code, true);
+            Run(se);
+            return true;
         }
 
         /// <summary>生成Exe文件</summary>
@@ -248,10 +255,10 @@ namespace NewLife.XScript
             }
         }
 
-        static void Run(ScriptEngine session)
+        static void Run(ScriptEngine se)
         {
             // 预编译
-            session.Compile();
+            se.Compile();
 
             // 考虑到某些要引用的程序集在别的目录
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
@@ -267,7 +274,8 @@ namespace NewLife.XScript
                     sw.Start();
                 }
 
-                session.Invoke();
+                var rs = se.Invoke();
+                if (se.IsExpression) Console.WriteLine("结果：{0}", rs);
 
                 if (!Config.NoTime)
                 {
