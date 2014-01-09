@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using NewLife.Exceptions;
 
@@ -91,7 +92,7 @@ namespace NewLife.XScript
                     if (includeLine) sb.AppendLine(ss[i]);
 
                     var asm = line.Substring("//Assembly=".Length).Trim('\"');
-                    asm = Path.Combine(dir, asm);
+                    //asm = Path.Combine(dir, asm);
 
                     if (!rfs.Contains(asm)) rfs.Add(asm);
                 }
@@ -177,9 +178,20 @@ namespace NewLife.XScript
             foreach (var item in afs)
             {
                 if (item.IsNullOrWhiteSpace()) continue;
+                if (list.Contains(item)) continue;
 
+                if (File.Exists(item))
+                {
+                    list.Add(item);
+                }
+                else if (item.EndsWithIgnoreCase(".dll"))
+                {
+                    // 尝试从GAC加载
+                    var file = Path.GetDirectoryName(typeof(Object).Assembly.CodeBase).CombinePath(item);
+                    if (File.Exists(file)) list.Add(file);
+                }
                 // 有可能是目录，目录要遍历文件
-                if (item.EndsWith("/") || item.EndsWith("\\") || !File.Exists(item))
+                else if (item.EndsWith("/") || item.EndsWith("\\") || !File.Exists(item))
                 {
                     var fs = Directory.GetFiles(item, "*.dll", SearchOption.TopDirectoryOnly);
                     if (fs.Length > 0)
@@ -189,10 +201,6 @@ namespace NewLife.XScript
                             if (!list.Contains(elm)) list.Add(elm);
                         }
                     }
-                }
-                else
-                {
-                    if (!list.Contains(item)) list.Add(item);
                 }
             }
 
