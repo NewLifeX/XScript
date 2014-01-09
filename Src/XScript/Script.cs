@@ -32,6 +32,7 @@ namespace NewLife.XScript
             if (config.Vs) return OpenWithVs(sc);
 
             Environment.CurrentDirectory = Path.GetDirectoryName(file);
+            PathHelper.BaseDirectory = Path.GetDirectoryName(file);
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
 
