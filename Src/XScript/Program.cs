@@ -182,6 +182,20 @@ namespace NewLife.XScript
                         // 如果注册表记录的版本更新，则不写入
                         if (verReg >= ver) return;
                     }
+                    reg.Close();
+                }
+
+                var ico = "";
+                for (int i = 11; i >= 8; i--)
+                {
+                    reg = root.OpenSubKey(String.Format("VisualStudio.cs.{0}.0", i));
+                    if (reg != null)
+                    {
+                        reg = reg.OpenSubKey("DefaultIcon");
+                        if (reg != null) ico = reg.GetValue("") + "";
+                        if (ico.IsNullOrWhiteSpace()) break;
+                        reg.Close();
+                    }
                 }
 
                 using (var xs = root.CreateSubKey(name))
@@ -189,6 +203,7 @@ namespace NewLife.XScript
                     xs.SetValue("", name + "脚本文件");
                     // 写入版本
                     xs.SetValue("Version", ver.ToString());
+                    if (!ico.IsNullOrWhiteSpace()) xs.CreateSubKey("DefaultIcon").SetValue("", ico);
 
                     using (var shell = xs.CreateSubKey("shell"))
                     {
