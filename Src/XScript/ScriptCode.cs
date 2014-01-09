@@ -181,7 +181,7 @@ namespace NewLife.XScript
                 // 有可能是目录，目录要遍历文件
                 if (item.EndsWith("/") || item.EndsWith("\\") || !File.Exists(item))
                 {
-                    var fs = Directory.GetFiles(item, "*.dll", SearchOption.AllDirectories);
+                    var fs = Directory.GetFiles(item, "*.dll", SearchOption.TopDirectoryOnly);
                     if (fs.Length > 0)
                     {
                         foreach (var elm in fs)
