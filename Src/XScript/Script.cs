@@ -122,7 +122,7 @@ namespace NewLife.XScript
             var dir = DataHelper.Hash(codefile.ToLower());
             var proj = Path.GetDirectoryName(asm.Location).CombinePath("Projs", dir, name);
 
-            MakeProj(codefile, proj);
+            MakeProj(sc, proj);
 
             // 找到安装VisualStudio地址，暂时还不支持Express
             var root = Registry.ClassesRoot;
@@ -150,7 +150,7 @@ namespace NewLife.XScript
             return true;
         }
 
-        static void MakeProj(String codefile, String proj)
+        static void MakeProj(ScriptCode sc, String proj)
         {
             if (!File.Exists(proj))
             {
@@ -206,7 +206,30 @@ namespace NewLife.XScript
                 att = doc.CreateAttribute("Include");
                 node.Attributes.Append(att);
             }
-            att.Value = codefile;
+            att.Value = sc.CodeFile;
+
+            // 引用DLL
+            foreach (var item in sc.GetRefArray())
+            {
+                var name = Path.GetFileNameWithoutExtension(item);
+                node = items.SelectSingleNode("ns:Reference[@Include='" + name + "']", nsmgr);
+                if (node == null)
+                {
+                    node = doc.CreateElement("Reference", uri);
+                    items.AppendChild(node);
+
+                    var node2 = doc.CreateElement("HintPath", uri);
+                    node.AppendChild(node2);
+                    node2.InnerText = item;
+                }
+                att = node.Attributes["Include"];
+                if (att == null)
+                {
+                    att = doc.CreateAttribute("Include");
+                    node.Attributes.Append(att);
+                }
+                att.Value = name;
+            }
 
             doc.Save(proj);
 
