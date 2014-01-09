@@ -99,7 +99,8 @@ namespace NewLife.XScript
 
                 // 去掉前面的//
                 var flag = Set(line.Substring(2), pis);
-                if (!flag) throw new XException("不可识别的参数{0}。", item);
+                // 不要抛出异常，有可能是注释
+                //if (!flag) throw new XException("不可识别的参数{0}。", item);
             }
 
             return config;
