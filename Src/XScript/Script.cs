@@ -275,7 +275,14 @@ namespace NewLife.XScript
                 }
 
                 var rs = se.Invoke();
-                if (se.IsExpression) Console.WriteLine("结果：{0}", rs);
+                if (se.IsExpression)
+                {
+                    var old = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.Write("结果：");
+                    Console.ForegroundColor = old;
+                    Console.WriteLine(rs);
+                }
 
                 if (!Config.NoTime)
                 {
@@ -283,7 +290,7 @@ namespace NewLife.XScript
 
                     var old = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("执行时间：{0}", sw.Elapsed);
+                    Console.WriteLine("耗时：{0}", sw.Elapsed);
                     //Console.WriteLine("按c键重复执行，其它键退出！");
                     Console.ForegroundColor = old;
                 }

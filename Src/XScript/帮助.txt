@@ -1,6 +1,6 @@
 ﻿[Color:Red]
 使用方法：
-[Color:White]
+[Color:Gray]
 XScript.exe [源文件] [/NoLogo] [/D]
     /Exe        生成Exe，不执行
     /Vs         用VisualStudio打开编辑
@@ -12,4 +12,3 @@ XScript.exe [源文件] [/NoLogo] [/D]
     /NoTime     不显示执行时间
     /Times=5    执行次数
 [Color:Magenta]
-温馨提醒：XScript会自己添加到资源管理器右键菜单中的“发送到”中，并关联cs文件，便于使用！

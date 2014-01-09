@@ -64,8 +64,9 @@ namespace NewLife.XScript
         {
             while (true)
             {
-                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write("脚本：");
+                Console.ForegroundColor = ConsoleColor.Gray;
                 var line = Console.ReadLine();
                 if (line.IsNullOrWhiteSpace()) continue;
 
@@ -138,17 +139,17 @@ namespace NewLife.XScript
             Console.Write(asmx.Title);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("由新生命开发团队开发，{0}！", asmx.Description);
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("版权所有：");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine(asmx.Asm.GetCustomAttributeValue<AssemblyCopyrightAttribute, String>());
             //Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(".Net版本：");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.Write("v{0}\t", Environment.Version);
             //Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("编译时间：");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine("{0:yyyy-MM-dd HH:mm:ss}", asmx.Compile);
