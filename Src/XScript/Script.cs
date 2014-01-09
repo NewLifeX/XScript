@@ -9,6 +9,7 @@ using NewLife.Reflection;
 using NewLife.Security;
 using NewLife.Log;
 using Microsoft.Win32;
+using System.Text;
 
 namespace NewLife.XScript
 {
@@ -219,7 +220,7 @@ namespace NewLife.XScript
                 txt = txt.Replace("{$SlnGUID}", Guid.NewGuid().ToString().ToUpper());
                 txt = txt.Replace("{$GUID}", guid);
                 txt = txt.Replace("{$Name}", Path.GetFileNameWithoutExtension(proj));
-                File.WriteAllText(sln, txt);
+                File.WriteAllText(sln, txt, Encoding.UTF8);
             }
         }
 
