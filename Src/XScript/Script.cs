@@ -35,6 +35,7 @@ namespace NewLife.XScript
             PathHelper.BaseDirectory = Path.GetDirectoryName(file);
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
+            if (Config.Debug) se.Log = XTrace.Log;
 
             // 引用程序集
             if (sc.Refs.Count > 0) se.ReferencedAssemblies.AddRange(sc.GetRefArray());
@@ -61,6 +62,7 @@ namespace NewLife.XScript
         public static Boolean ProcessCode(String code)
         {
             var se = ScriptEngine.Create(code, true);
+            if (Config.Debug) se.Log = XTrace.Log;
             Run(se);
             return true;
         }
@@ -120,6 +122,7 @@ namespace NewLife.XScript
             if (!String.IsNullOrEmpty(code)) code += Environment.NewLine;
 
             var se = ScriptEngine.Create(sc.ReadCode(false), false);
+            if (Config.Debug) se.Log = XTrace.Log;
             code += se.FinalCode;
             File.WriteAllText(sc.CodeFile, code);
 
@@ -260,9 +263,6 @@ namespace NewLife.XScript
             // 预编译
             se.Compile();
 
-            // 考虑到某些要引用的程序集在别的目录
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-
             var sw = new Stopwatch();
             var times = Config.Times;
             if (times < 1) times = 1;
@@ -295,38 +295,6 @@ namespace NewLife.XScript
                     Console.ForegroundColor = old;
                 }
             }
-        }
-
-        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            var name = args.Name;
-            if (String.IsNullOrEmpty(name)) return null;
-
-            // 遍历现有程序集
-            foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (item.FullName == name) return item;
-            }
-
-            // 查找当前目录的程序集，就是源代码所在目录
-            var p = name.IndexOf(",");
-            if (p >= 0) name = name.Substring(0, p);
-            var fs = Directory.GetFiles(Environment.CurrentDirectory, name + ".dll", SearchOption.AllDirectories);
-            if (fs != null && fs.Length > 0)
-            {
-                // 可能多个，遍历加载
-                foreach (var item in fs)
-                {
-                    try
-                    {
-                        var asm = Assembly.LoadFile(item);
-                        if (asm != null && asm.FullName == args.Name) return asm;
-                    }
-                    catch { }
-                }
-            }
-
-            return null;
         }
     }
 }
