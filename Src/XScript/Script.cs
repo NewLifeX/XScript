@@ -3,13 +3,13 @@ using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml;
+using Microsoft.Win32;
 using NewLife.IO;
+using NewLife.Log;
 using NewLife.Reflection;
 using NewLife.Security;
-using NewLife.Log;
-using Microsoft.Win32;
-using System.Text;
 
 namespace NewLife.XScript
 {
