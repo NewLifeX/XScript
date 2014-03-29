@@ -60,6 +60,7 @@ namespace NewLife.XScript
             }
         }
 
+        /// <summary>处理用户脚本</summary>
         static void ProcessUser()
         {
             while (true)
@@ -78,7 +79,7 @@ namespace NewLife.XScript
                 else
                 {
                     Console.Title = Title + " " + line;
-                    
+
                     try
                     {
                         // 判断是不是脚本
@@ -95,38 +96,71 @@ namespace NewLife.XScript
             }
         }
 
+        /// <summary>处理脚本文件</summary>
         static void ProcessFile()
         {
             // 加上源文件路径
             Console.Title = Title + " " + Config.File;
 
-            try
+            ScriptEngine se = null;
+            while (true)
             {
-                var file = Config.File;
-                if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
+                try
+                {
+                    if (se == null)
+                    {
+                        var file = Config.File;
+                        if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
-                //if (Config.Debug) Console.WriteLine("脚本：{0}", file);
+                        //if (Config.Debug) Console.WriteLine("脚本：{0}", file);
 
-                // 增加源文件路径，便于调试纠错
-                if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
-                file = file.GetFullPath();
+                        // 增加源文件路径，便于调试纠错
+                        if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
+                        file = file.GetFullPath();
 
-                var rs = Script.ProcessFile(file);
-                if (rs) return;
-            }
-            catch (Exception ex)
-            {
-                XTrace.WriteException(ex);
-                if (!Config.Debug) Console.WriteLine(ex.ToString());
-            }
+                        se = Script.ProcessFile(file);
+                        if (se == null) return;
+                    }
+                    else
+                    {
+                        // 多次执行
+                        Script.Run(se);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    XTrace.WriteException(ex);
+                    if (!Config.Debug) Console.WriteLine(ex.ToString());
+                }
 
-            // 暂停，等待客户查看输出
-            if (!Config.NoStop)
-            {
+                // 暂停，等待客户查看输出
+                if (Config.NoStop) return;
+
                 //Console.WriteLine("任意键退出……");
                 var key = Console.ReadKey(true);
                 // 如果按下m键，重新打开菜单
-                if (key.KeyChar == 'm') Main(new String[0]);
+                if (key.KeyChar == 'm')
+                {
+                    //Main(new String[0]);
+                    // 输出版权信息
+                    ShowCopyright();
+
+                    // 显示帮助菜单
+                    ShowHelp();
+
+                    ProcessUser();
+
+                    // 处理用户输入本来就是一个循环，里面退出以后，这里也应该跟着退出
+                    return;
+                }
+
+                // 再次执行
+                if (key.KeyChar == 'c')
+                {
+                    continue;
+                }
+
+                break;
             }
         }
 

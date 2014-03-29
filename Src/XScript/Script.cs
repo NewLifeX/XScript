@@ -20,7 +20,7 @@ namespace NewLife.XScript
         /// <summary>脚本配置</summary>
         public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
 
-        public static Boolean ProcessFile(String file)
+        public static ScriptEngine ProcessFile(String file)
         {
             var config = Config;
 
@@ -29,10 +29,15 @@ namespace NewLife.XScript
             sc.AddRef(config.Assembly);
 
             // 使用VisualStudio打开源码文件进行编辑
-            if (config.Vs) return OpenWithVs(sc);
+            if (config.Vs)
+            {
+                OpenWithVs(sc);
+                return null;
+            }
 
-            Environment.CurrentDirectory = Path.GetDirectoryName(file);
-            PathHelper.BaseDirectory = Path.GetDirectoryName(file);
+            var dir = Path.GetDirectoryName(file);
+            Environment.CurrentDirectory = dir;
+            PathHelper.BaseDirectory = dir;
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
             if (Config.Debug) se.Log = XTrace.Log;
@@ -56,7 +61,7 @@ namespace NewLife.XScript
             else
                 Run(se);
 
-            return false;
+            return se;
         }
 
         public static Boolean ProcessCode(String code)
@@ -258,7 +263,7 @@ namespace NewLife.XScript
             }
         }
 
-        static void Run(ScriptEngine se)
+        public static void Run(ScriptEngine se)
         {
             // 预编译
             se.Compile();
