@@ -123,7 +123,9 @@ namespace NewLife.XScript
         /// <param name="sc"></param>
         static Boolean OpenWithVs(ScriptCode sc)
         {
-            var code = sc.GetRefStr();
+            // 先读取一次，让其分析Assembly引用
+            var code = sc.ReadCode();
+            code = sc.GetRefStr();
             if (!String.IsNullOrEmpty(code)) code += Environment.NewLine;
 
             var se = ScriptEngine.Create(sc.ReadCode(false), false);
