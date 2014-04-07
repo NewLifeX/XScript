@@ -236,7 +236,7 @@ namespace NewLife.XScript
 
                     var node2 = doc.CreateElement("HintPath", uri);
                     node.AppendChild(node2);
-                    node2.InnerText = item;
+                    node2.InnerText = item.GetFullPath();
                 }
                 att = node.Attributes["Include"];
                 if (att == null)
