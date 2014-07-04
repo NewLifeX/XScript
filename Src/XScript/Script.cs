@@ -297,8 +297,9 @@ namespace NewLife.XScript
 
                     var old = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("耗时：{0}", sw.Elapsed);
-                    //Console.WriteLine("按c键重复执行，其它键退出！");
+                    Console.Write("耗时：{0}", sw.Elapsed);
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("  C重复执行，M回主界面，其它键退出");
                     Console.ForegroundColor = old;
                 }
             }

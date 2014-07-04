@@ -187,6 +187,10 @@ namespace NewLife.XScript
             Console.Write("编译时间：");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine("{0:yyyy-MM-dd HH:mm:ss}", asmx.Compile);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("安装路径：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             Console.WriteLine();
 
             Console.ForegroundColor = oldcolor;
