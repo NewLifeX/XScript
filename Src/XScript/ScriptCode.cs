@@ -29,9 +29,9 @@ namespace NewLife.XScript
             // 分析要导入的第三方程序集。默认包含XScript所在目录的所有程序集
             var rf = AppDomain.CurrentDomain.BaseDirectory.EnsureEnd("\\");
             if (!Refs.Contains(rf)) Refs.Add(rf);
-            // 以及源代码所在目录的所有程序集
-            rf = Path.GetDirectoryName(file).EnsureEnd("\\");
-            if (!Refs.Contains(rf)) Refs.Add(rf);
+            //// 以及源代码所在目录的所有程序集
+            //rf = Path.GetDirectoryName(file).EnsureEnd("\\");
+            //if (!Refs.Contains(rf)) Refs.Add(rf);
         }
         #endregion
 
