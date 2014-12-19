@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Xml.Serialization;
-using NewLife.Exceptions;
 using NewLife.Reflection;
 
 namespace NewLife.XScript
