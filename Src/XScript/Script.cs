@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -9,7 +10,6 @@ using Microsoft.Win32;
 using NewLife.IO;
 using NewLife.Log;
 using NewLife.Reflection;
-using System.Linq;
 using NewLife.Security;
 
 namespace NewLife.XScript
@@ -69,7 +69,7 @@ namespace NewLife.XScript
         {
             var se = ScriptEngine.Create(code, true);
             if (Config.Debug) se.Log = XTrace.Log;
-            Run(se);
+            Run(se, false);
             return true;
         }
 
@@ -266,7 +266,7 @@ namespace NewLife.XScript
             }
         }
 
-        public static void Run(ScriptEngine se)
+        public static void Run(ScriptEngine se, Boolean showTip = true)
         {
             // 预编译
             se.Compile();
@@ -312,8 +312,15 @@ namespace NewLife.XScript
                     var old = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("耗时：{0}", sw.Elapsed);
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("  C重复执行，M回主界面，其它键退出");
+                    if (showTip)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine("  C重复执行，M回主界面，其它键退出");
+                    }
+                    else
+                    {
+                        Console.WriteLine();
+                    }
                     Console.ForegroundColor = old;
                 }
             }
