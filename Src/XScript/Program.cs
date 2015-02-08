@@ -276,15 +276,15 @@ namespace NewLife.XScript
                 }
 
                 var ico = "";
-                for (int i = 11; i >= 8; i--)
+                for (int i = 20; i >= 8; i--)
                 {
                     reg = root.OpenSubKey(String.Format("VisualStudio.cs.{0}.0", i));
                     if (reg != null)
                     {
                         reg = reg.OpenSubKey("DefaultIcon");
                         if (reg != null) ico = reg.GetValue("") + "";
-                        if (ico.IsNullOrWhiteSpace()) break;
                         reg.Close();
+                        if (!ico.IsNullOrWhiteSpace()) break;
                     }
                 }
 
