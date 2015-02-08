@@ -287,7 +287,6 @@ namespace NewLife.XScript
                 // 如果Main函数带有参数，则需要传入参数
                 if (se.Method.GetParameters().Length > 0)
                 {
-                    Console.WriteLine(Environment.CommandLine);
                     var ps = Environment.GetCommandLineArgs();
                     if (ps.Length > 1)
                     {
