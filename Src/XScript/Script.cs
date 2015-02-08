@@ -312,7 +312,7 @@ namespace NewLife.XScript
                     var old = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("耗时：{0}", sw.Elapsed);
-                    if (showTip)
+                    if (showTip && !Config.NoStop)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.WriteLine("  C重复执行，M回主界面，其它键退出");

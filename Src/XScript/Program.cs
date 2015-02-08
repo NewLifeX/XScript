@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
@@ -41,6 +42,7 @@ namespace NewLife.XScript
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
             ThreadPool.QueueUserWorkItem(s => SetFileType());
+            ThreadPool.QueueUserWorkItem(s => SetPath());
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -318,6 +320,23 @@ namespace NewLife.XScript
             {
                 if (Config.Debug) XTrace.WriteException(ex);
             }
+        }
+
+        /// <summary>设置安装路径到环境变量Path里面</summary>
+        static void SetPath()
+        {
+            var ps = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(";").OrderBy(e => e).ToList();
+            var asm = Assembly.GetExecutingAssembly();
+            var mypath = Path.GetDirectoryName(asm.Location);
+            foreach (var item in ps)
+            {
+                //Console.WriteLine(item);
+                if (mypath.EqualIgnoreCase(item)) return;
+            }
+            XTrace.WriteLine("设置安装目录到全局Path路径");
+            ps.Add(mypath);
+            ps = ps.OrderBy(e => e).ToList();
+            Environment.SetEnvironmentVariable("Path", String.Join(";", ps.ToArray()), EnvironmentVariableTarget.Machine);
         }
     }
 }
