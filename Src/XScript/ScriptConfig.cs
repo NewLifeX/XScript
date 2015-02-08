@@ -67,9 +67,10 @@ namespace NewLife.XScript
                 // 无标记参数是源文件
                 if (item[0] != '/' && item[0] != '-')
                 {
-                    if (!String.IsNullOrEmpty(config.File)) throw new XException("重复的源文件参数{0}。", item);
+                    //if (!String.IsNullOrEmpty(config.File)) throw new XException("重复的源文件参数{0}。", item);
+                    // 默认第一个源文件作为脚本文件
+                    if (String.IsNullOrEmpty(config.File)) config.File = item;
 
-                    config.File = item;
                     continue;
                 }
 
