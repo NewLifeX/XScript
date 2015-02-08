@@ -304,7 +304,8 @@ namespace NewLife.XScript
                         reg.SetValue("", "执行脚本(&O)");
                         reg.Flush();
                         reg = reg.CreateSubKey("Command");
-                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo", asm.Location));
+                        // 后面多带几个参数，支持"Test.cs /NoStop"这种用法，这种写法虽然很暴力，但是简单直接
+                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo %2 %3 %4 %5", asm.Location));
                         reg.Close();
                     }
                 }
