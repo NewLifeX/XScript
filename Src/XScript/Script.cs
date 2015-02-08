@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using NewLife.IO;
 using NewLife.Log;
 using NewLife.Reflection;
+using System.Linq;
 using NewLife.Security;
 
 namespace NewLife.XScript
@@ -281,7 +282,20 @@ namespace NewLife.XScript
                     sw.Start();
                 }
 
-                var rs = se.Invoke();
+                se.Compile();
+                Object param = null;
+                // 如果Main函数带有参数，则需要传入参数
+                if (se.Method.GetParameters().Length > 0)
+                {
+                    Console.WriteLine(Environment.CommandLine);
+                    var ps = Environment.GetCommandLineArgs();
+                    if (ps.Length > 1)
+                    {
+                        ps = ps.Skip(1).ToArray();
+                        param = ps;
+                    }
+                }
+                var rs = se.Invoke(param);
                 if (se.IsExpression)
                 {
                     var old = Console.ForegroundColor;
