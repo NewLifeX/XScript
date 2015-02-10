@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.Win32;
 using NewLife.Log;
+using NewLife.Net;
 using NewLife.Reflection;
 
 namespace NewLife.XScript
@@ -43,6 +44,7 @@ namespace NewLife.XScript
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
             ThreadPool.QueueUserWorkItem(s => SetFileType());
             ThreadPool.QueueUserWorkItem(s => SetPath());
+            ThreadPool.QueueUserWorkItem(s => AutoUpdate());
 
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
             {
@@ -325,18 +327,43 @@ namespace NewLife.XScript
         /// <summary>设置安装路径到环境变量Path里面</summary>
         static void SetPath()
         {
-            var ps = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(";").OrderBy(e => e).ToList();
+            var epath = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+            var ps = epath.Split(";").OrderBy(e => e).ToList();
             var asm = Assembly.GetExecutingAssembly();
             var mypath = Path.GetDirectoryName(asm.Location);
+            var flag = false;
             foreach (var item in ps)
             {
                 //Console.WriteLine(item);
-                if (mypath.EqualIgnoreCase(item)) return;
+                if (mypath.EqualIgnoreCase(item))
+                {
+                    flag = true;
+                    break;
+                }
             }
-            XTrace.WriteLine("设置安装目录到全局Path路径");
-            ps.Add(mypath);
+            if (!flag)
+            {
+                XTrace.WriteLine("设置安装目录到全局Path路径");
+                ps.Add(mypath);
+            }
             ps = ps.OrderBy(e => e).ToList();
-            Environment.SetEnvironmentVariable("Path", String.Join(";", ps.ToArray()), EnvironmentVariableTarget.Machine);
+            var epath2 = String.Join(";", ps.ToArray());
+            epath2 = Environment.ExpandEnvironmentVariables(epath2);
+            if (!epath.EqualIgnoreCase(epath2))
+                Environment.SetEnvironmentVariable("Path", epath2, EnvironmentVariableTarget.Machine);
+        }
+
+        static void AutoUpdate()
+        {
+            var up = new Upgrade();
+            up.Log = XTrace.Log;
+            up.Name = "XScript";
+            up.Server = "http://www.newlifex.com/showtopic-1334.aspx";
+            if (up.Check())
+            {
+                up.Download();
+                up.Update();
+            }
         }
     }
 }
