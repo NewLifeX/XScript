@@ -146,14 +146,14 @@ namespace NewLife.XScript
             // 找到安装VisualStudio地址，暂时还不支持Express
             var root = Registry.ClassesRoot;
             var vs = "";
-            for (int i = 11; i >= 8; i--)
+            for (int i = 15; i >= 8; i--)
             {
                 var reg = root.OpenSubKey(String.Format("VisualStudio.sln.{0}.0", i));
                 if (reg != null)
                 {
                     reg = reg.OpenSubKey("shell\\Open\\Command");
                     if (reg != null) vs = reg.GetValue("") + "";
-                    if (vs.IsNullOrWhiteSpace()) break;
+                    if (!vs.IsNullOrWhiteSpace()) break;
                 }
             }
             if (vs.IsNullOrWhiteSpace())
