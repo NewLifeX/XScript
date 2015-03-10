@@ -355,10 +355,22 @@ namespace NewLife.XScript
 
         static void AutoUpdate()
         {
+            // 文件保存配置信息
+            var file = "Update.config";
+            // 注意路径，避免写入到脚本文件所在路径
+            file = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).CombinePath(file);
+            if (File.Exists(file))
+            {
+                var last = File.ReadAllText(file).ToDateTime();
+                // 每天只更新一次
+                if (last >= DateTime.Now.Date) return;
+            }
+            File.WriteAllText(file, DateTime.Now.ToFullString());
+
             var up = new Upgrade();
             up.Log = XTrace.Log;
             up.Name = "XScript";
-            up.Server = "http://www.newlifex.com/showtopic-1334.aspx";
+            up.Server = "http://www.newlifex.com/showtopic-369.aspx";
             if (up.Check())
             {
                 up.Download();
