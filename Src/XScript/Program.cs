@@ -368,7 +368,7 @@ namespace NewLife.XScript
             File.WriteAllText(file, DateTime.Now.ToFullString());
 
             var up = new Upgrade();
-            up.Log = XTrace.Log;
+            if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
             up.Server = "http://www.newlifex.com/showtopic-369.aspx";
             if (up.Check())
