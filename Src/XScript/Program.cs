@@ -38,7 +38,11 @@ namespace NewLife.XScript
             Title = AssemblyX.Create(Assembly.GetExecutingAssembly()).Title;
             Console.Title = Title;
 
-            if (Config.Debug) XTrace.UseConsole();
+            if (Config.Debug)
+            {
+                XTrace.Debug = true;
+                XTrace.UseConsole();
+            }
 
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
