@@ -34,10 +34,10 @@ namespace NewLife.XScript
         [XmlElement("D")]
         public Boolean Debug { get { return _Debug; } set { _Debug = value; } }
 
-        private String _Assembly;
-        /// <summary>引用程序集</summary>
-        [XmlElement("R")]
-        public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
+        //private String _Assembly;
+        ///// <summary>引用程序集</summary>
+        //[XmlElement("R")]
+        //public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
 
         private Boolean _NoStop;
         /// <summary>结束时不停止，退出进程</summary>

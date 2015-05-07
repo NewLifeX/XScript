@@ -26,8 +26,8 @@ namespace NewLife.XScript
             var config = Config;
 
             var sc = new ScriptCode(file);
-            // 加入参数中标明的程序集
-            sc.AddRef(config.Assembly);
+            //// 加入参数中标明的程序集
+            //sc.AddRef(config.Assembly);
 
             // 使用VisualStudio打开源码文件进行编辑
             if (config.Vs)

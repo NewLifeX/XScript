@@ -104,18 +104,18 @@ namespace NewLife.XScript
         #endregion
 
         #region 引用程序集
-        /// <summary>添加目录引用</summary>
-        /// <param name="rfs"></param>
-        public void AddRef(String rfs)
-        {
-            if (rfs.IsNullOrWhiteSpace()) return;
+        ///// <summary>添加目录引用</summary>
+        ///// <param name="rfs"></param>
+        //public void AddRef(String rfs)
+        //{
+        //    if (rfs.IsNullOrWhiteSpace()) return;
 
-            var ss = rfs.Split(';');
-            foreach (var item in ss)
-            {
-                if (!Refs.Contains(item)) Refs.Add(item);
-            }
-        }
+        //    var ss = rfs.Split(';');
+        //    foreach (var item in ss)
+        //    {
+        //        if (!Refs.Contains(item)) Refs.Add(item);
+        //    }
+        //}
 
         /// <summary>获取引用DLL数组</summary>
         /// <returns></returns>
@@ -144,26 +144,26 @@ namespace NewLife.XScript
             return sb.ToString();
         }
 
-        /// <summary>分析代码中导入的第三方程序集</summary>
-        /// <param name="code"></param>
-        /// <returns></returns>
-        static String[] ParseAssembly(String code)
-        {
-            var list = new List<String>();
+        ///// <summary>分析代码中导入的第三方程序集</summary>
+        ///// <param name="code"></param>
+        ///// <returns></returns>
+        //static String[] ParseAssembly(String code)
+        //{
+        //    var list = new List<String>();
 
-            var ss = code.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (var item in ss)
-            {
-                if (item.StartsWithIgnoreCase("//Assembly="))
-                {
-                    var name = item.Substring("//Assembly=".Length).Trim();
-                    name = name.Trim('\"');
-                    list.Add(name);
-                }
-            }
+        //    var ss = code.Split(new String[] { Environment.NewLine }, StringSplitOptions.None);
+        //    foreach (var item in ss)
+        //    {
+        //        if (item.StartsWithIgnoreCase("//Assembly="))
+        //        {
+        //            var name = item.Substring("//Assembly=".Length).Trim();
+        //            name = name.Trim('\"');
+        //            list.Add(name);
+        //        }
+        //    }
 
-            return list.ToArray();
-        }
+        //    return list.ToArray();
+        //}
 
         /// <summary>扩展引用程序集，拆分目录</summary>
         /// <param name="afs"></param>

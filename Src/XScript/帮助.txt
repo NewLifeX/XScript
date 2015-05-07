@@ -6,9 +6,9 @@ XScript.exe [源文件] [/NoLogo] [/D]
     /Vs         用VisualStudio打开编辑
     /NoLogo     不显示版权信息
     /D          调试模式
-    /R          引用程序集，多个以分号分隔，支持目录（遍历所有目录的DLL文件）
-                如：/Assembly="aa.dll;bb.dll;C:\X\DLL"
     /NoStop     结束时不停止，退出进程
     /NoTime     不显示执行时间
-    /Times=5    执行次数
+    /Times=1    执行次数
+
+输出要执行计算的代码表达式，输入help或?显示帮助信息
 [Color:Magenta]
