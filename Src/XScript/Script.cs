@@ -37,11 +37,12 @@ namespace NewLife.XScript
             }
 
             var dir = Path.GetDirectoryName(file);
-            Environment.CurrentDirectory = dir;
-            PathHelper.BaseDirectory = dir;
+            //Environment.CurrentDirectory = dir;
+            //PathHelper.BaseDirectory = dir;
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
             if (Config.Debug) se.Log = XTrace.Log;
+            se.WorkingDirectory = dir;
 
             // 引用程序集
             if (sc.Refs.Count > 0) se.ReferencedAssemblies.AddRange(sc.GetRefArray());
@@ -70,6 +71,7 @@ namespace NewLife.XScript
             var se = ScriptEngine.Create(code, true);
             if (Config.Debug) se.Log = XTrace.Log;
             Run(se, false);
+
             return true;
         }
 
