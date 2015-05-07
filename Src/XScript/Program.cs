@@ -359,10 +359,14 @@ namespace NewLife.XScript
 
         static void AutoUpdate()
         {
+            // 稍微等待一下，等主程序执行完成
+            Thread.Sleep(2000);
+
             // 文件保存配置信息
             var file = "Update.config";
             // 注意路径，避免写入到脚本文件所在路径
-            file = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).CombinePath(file);
+            var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            file = root.CombinePath(file);
             if (File.Exists(file))
             {
                 var last = File.ReadAllText(file).ToDateTime();
@@ -375,6 +379,7 @@ namespace NewLife.XScript
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
             up.Server = "http://www.newlifex.com/showtopic-369.aspx";
+            up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
                 up.Download();
