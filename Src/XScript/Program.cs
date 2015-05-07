@@ -20,6 +20,9 @@ namespace NewLife.XScript
         /// <summary>标题</summary>
         public static String Title { get { return _Title; } set { _Title = value; } }
 
+        /// <summary>是否处理脚本文件</summary>
+        private static Boolean _CodeFile;
+
         static void Main(string[] args)
         {
             // 分解参数
@@ -44,13 +47,16 @@ namespace NewLife.XScript
                 XTrace.UseConsole();
             }
 
+            _CodeFile = true;
+            if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
+
             // 发送到菜单
             ThreadPool.QueueUserWorkItem(s => SetSendTo());
             ThreadPool.QueueUserWorkItem(s => SetFileType());
             ThreadPool.QueueUserWorkItem(s => SetPath());
             ThreadPool.QueueUserWorkItem(s => AutoUpdate());
 
-            if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?")
+            if (!_CodeFile)
             {
                 // 输出版权信息
                 ShowCopyright();
@@ -139,6 +145,14 @@ namespace NewLife.XScript
                 {
                     XTrace.WriteException(ex);
                     if (!Config.Debug) Console.WriteLine(ex.ToString());
+                }
+
+                // 此时执行自动更新
+                var up = _upgrade;
+                if (up != null)
+                {
+                    _upgrade = null;
+                    up.Update();
                 }
 
                 // 暂停，等待客户查看输出
@@ -357,10 +371,11 @@ namespace NewLife.XScript
                 Environment.SetEnvironmentVariable("Path", epath2, EnvironmentVariableTarget.Machine);
         }
 
+        static Upgrade _upgrade;
         static void AutoUpdate()
         {
-            // 稍微等待一下，等主程序执行完成
-            Thread.Sleep(2000);
+            //// 稍微等待一下，等主程序执行完成
+            //Thread.Sleep(2000);
 
             // 文件保存配置信息
             var file = "Update.config";
@@ -383,7 +398,11 @@ namespace NewLife.XScript
             if (up.Check())
             {
                 up.Download();
-                up.Update();
+                if (!_CodeFile)
+                    up.Update();
+                else
+                    // 留到脚本执行完成以后自动更新
+                    _upgrade = up;
             }
         }
     }
