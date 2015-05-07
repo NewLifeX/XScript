@@ -39,6 +39,7 @@ namespace NewLife.XScript
             var dir = Path.GetDirectoryName(file);
             //Environment.CurrentDirectory = dir;
             //PathHelper.BaseDirectory = dir;
+            Environment.SetEnvironmentVariable("XScriptFile", file);
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
             if (Config.Debug) se.Log = XTrace.Log;
