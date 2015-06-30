@@ -141,7 +141,7 @@ namespace NewLife.XScript
             var codefile = sc.CodeFile;
             var asm = Assembly.GetExecutingAssembly();
             var name = Path.GetFileNameWithoutExtension(codefile) + ".csproj";
-            var dir = DataHelper.Hash(codefile.ToLower());
+            var dir = codefile.ToLower().MD5();
             var proj = Path.GetDirectoryName(asm.Location).CombinePath("Projs", dir, name);
 
             MakeProj(sc, proj);
