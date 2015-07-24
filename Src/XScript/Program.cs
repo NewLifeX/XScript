@@ -41,11 +41,8 @@ namespace NewLife.XScript
             Title = AssemblyX.Create(Assembly.GetExecutingAssembly()).Title;
             Console.Title = Title;
 
-            if (Config.Debug)
-            {
-                XTrace.Debug = true;
-                XTrace.UseConsole();
-            }
+            if (Config.Debug) XTrace.Debug = true;
+            XTrace.UseConsole();
 
             _CodeFile = true;
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
