@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Net;
 using NewLife.Reflection;
+using NewLife.Threading;
 
 namespace NewLife.XScript
 {
@@ -48,10 +49,10 @@ namespace NewLife.XScript
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
 
             // 发送到菜单
-            ThreadPool.QueueUserWorkItem(s => SetSendTo());
-            ThreadPool.QueueUserWorkItem(s => SetFileType());
-            ThreadPool.QueueUserWorkItem(s => SetPath());
-            ThreadPool.QueueUserWorkItem(s => AutoUpdate());
+            ThreadPoolX.QueueUserWorkItem(s => SetSendTo());
+            ThreadPoolX.QueueUserWorkItem(s => SetFileType());
+            ThreadPoolX.QueueUserWorkItem(s => SetPath());
+            ThreadPoolX.QueueUserWorkItem(s => AutoUpdate());
 
             if (!_CodeFile)
             {
