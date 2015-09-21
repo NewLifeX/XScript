@@ -47,6 +47,9 @@ namespace NewLife.XScript
         /// <summary>不显示执行时间</summary>
         public Boolean NoTime { get { return _NoTime; } set { _NoTime = value; } }
 
+        /// <summary>隐藏窗口</summary>
+        public Boolean Hide { get; set; }
+
         private Int32 _Times = 1;
         /// <summary>执行次数</summary>
         public Int32 Times { get { return _Times; } set { _Times = value; } }

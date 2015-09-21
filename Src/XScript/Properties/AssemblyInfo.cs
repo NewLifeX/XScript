@@ -29,10 +29,12 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“内部版本号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.9.*")]
-[assembly: AssemblyFileVersion("1.9.2015.0507")]
+[assembly: AssemblyVersion("1.10.*")]
+[assembly: AssemblyFileVersion("1.10.2015.0921")]
 
 /*
+ * v1.10.2015.0921  增加Hide参数，启动后隐藏窗口
+ *
  * v1.9.2015.0507   通过环境变量XScriptFile向脚本传递当前脚本完整路径
  * 
  * v1.8.2015.0209   脚本的Main函数可能带有参数，需要使用脚本文件后面附带的参数

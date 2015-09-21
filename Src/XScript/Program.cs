@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Net;
@@ -34,10 +35,16 @@ namespace NewLife.XScript
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadKey();
+                Console.Read();
                 return;
             }
             Script.Config = Config;
+
+            if (Config.Hide)
+            {
+                var ip = Process.GetCurrentProcess().MainWindowHandle;
+                if (ip != IntPtr.Zero) ShowWindow(ip, 0);
+            }
 
             Title = AssemblyX.Create(Assembly.GetExecutingAssembly()).Title;
             Console.Title = Title;
@@ -403,5 +410,12 @@ namespace NewLife.XScript
                     _upgrade = up;
             }
         }
+
+        /// <summary>  设置窗体的显示与隐藏  </summary>  
+        /// <param name="hWnd"></param>  
+        /// <param name="nCmdShow"></param>  
+        /// <returns></returns>  
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
     }
 }

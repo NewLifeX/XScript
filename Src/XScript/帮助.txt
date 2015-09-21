@@ -8,6 +8,7 @@ XScript.exe [源文件] [/NoLogo] [/D]
     /D          调试模式
     /NoStop     结束时不停止，退出进程
     /NoTime     不显示执行时间
+    /Hide       隐藏窗口
     /Times=1    执行次数
 
 输出要执行计算的代码表达式，输入help或?显示帮助信息
