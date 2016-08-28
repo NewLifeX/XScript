@@ -1,0 +1,3 @@
+[submodule "Src/NewLife.Core"]
+	path = Src/NewLife.Core
+	url = https://github.com/NewLifeX/NewLife.Core
