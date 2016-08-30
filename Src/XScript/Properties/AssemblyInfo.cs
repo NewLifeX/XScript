@@ -10,6 +10,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("用于编译执行C#文件脚本")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyCompany("新生命开发团队")]
+[assembly: AssemblyCopyright("©2002-2016 新生命开发团队 http://www.NewLifeX.com")]
+[assembly: AssemblyTrademark("四叶草")]
 
 // 将 ComVisible 设置为 false 使此程序集中的类型
 // 对 COM 组件不可见。如果需要从 COM 访问此程序集中的类型，
@@ -29,10 +32,12 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“内部版本号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.10.*")]
-[assembly: AssemblyFileVersion("1.10.2015.0921")]
+[assembly: AssemblyVersion("2.0.*")]
+[assembly: AssemblyFileVersion("2.0.2016.0830")]
 
 /*
+ * v2.0.2016.0830   升级到.Net 4.5
+ * 
  * v1.10.2015.0921  增加Hide参数，启动后隐藏窗口
  *
  * v1.9.2015.0507   通过环境变量XScriptFile向脚本传递当前脚本完整路径
