@@ -3,3 +3,5 @@ obj
 /XScriptBin
 /Src/.vs/XScript/v14
 /Bin/XScript.vshost.exe
+/Src/packages/NewLife.Core.6.0.6073.30845
+/Bin/XScript.vshost.exe.manifest
