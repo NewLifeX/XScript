@@ -297,7 +297,8 @@ namespace NewLife.XScript
                         param = ps;
                     }
                 }
-                var rs = se.Invoke(param);
+                // param为空时，可能导致内部得到一个带有空元素的数组，导致无法反射调用Main方法
+                var rs = se.Invoke(param != null ? new Object[] { param } : null);
                 if (se.IsExpression)
                 {
                     var old = Console.ForegroundColor;
