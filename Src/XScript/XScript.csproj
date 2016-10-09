@@ -55,9 +55,6 @@
     <Compile Include="Shortcut.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\NewLife.Core\X组件.txt">
-      <Link>X组件.txt</Link>
-    </EmbeddedResource>
     <EmbeddedResource Include="更新信息.txt" />
   </ItemGroup>
   <ItemGroup>

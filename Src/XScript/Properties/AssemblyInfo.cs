@@ -32,10 +32,12 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“内部版本号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.*")]
-[assembly: AssemblyFileVersion("2.0.2016.0830")]
+[assembly: AssemblyVersion("2.1.*")]
+[assembly: AssemblyFileVersion("2.1.2016.1009")]
 
 /*
+ * v2.1.2016.1009   修改自动更新源目录
+ * 
  * v2.0.2016.0830   升级到.Net 4.5
  * 
  * v1.10.2015.0921  增加Hide参数，启动后隐藏窗口

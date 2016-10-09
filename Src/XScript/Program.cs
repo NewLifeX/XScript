@@ -208,7 +208,7 @@ namespace NewLife.XScript
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("程序版本：");
             Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.Write("v{0}\t", asmx.Version);
+            Console.Write("v{0}\t", asmx.FileVersion);
             //Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write("编译时间：");
@@ -242,8 +242,8 @@ namespace NewLife.XScript
                 {
                     var name = item.Substring("[Color:".Length);
                     name = name.TrimEnd(']');
-                    var fix = FieldInfoX.Create(typeof(ConsoleColor), name);
-                    if (fix != null) Console.ForegroundColor = (ConsoleColor)fix.GetValue();
+                    var fi = typeof(ConsoleColor).GetFieldEx(name);
+                    if (fi != null) Console.ForegroundColor = (ConsoleColor)typeof(ConsoleColor).GetValue(fi);
                 }
                 else if (item == "[Pause]")
                 {
@@ -373,7 +373,13 @@ namespace NewLife.XScript
             var epath2 = String.Join(";", ps.ToArray());
             epath2 = Environment.ExpandEnvironmentVariables(epath2);
             if (!epath.EqualIgnoreCase(epath2))
-                Environment.SetEnvironmentVariable("Path", epath2, EnvironmentVariableTarget.Machine);
+            {
+                try
+                {
+                    Environment.SetEnvironmentVariable("Path", epath2, EnvironmentVariableTarget.Machine);
+                }
+                catch { }
+            }
         }
 
         static Upgrade _upgrade;
@@ -398,7 +404,7 @@ namespace NewLife.XScript
             var up = new Upgrade();
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
-            up.Server = "http://www.newlifex.com/showtopic-369.aspx";
+            up.Server = "https://github.com/NewLifeX/XScript";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
