@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace NewLife.XScript
@@ -188,7 +189,7 @@ namespace NewLife.XScript
                     if (File.Exists(file)) list.Add(file);
                 }
                 // 有可能是目录，目录要遍历文件
-                else if (item.EndsWith("/") || item.EndsWith("\\") || !File.Exists(item))
+                else if (item.EndsWith("/") || item.EndsWith("\\") || Directory.Exists(item))
                 {
                     var fs = Directory.GetFiles(item, "*.dll", SearchOption.TopDirectoryOnly);
                     if (fs.Length > 0)
@@ -197,6 +198,21 @@ namespace NewLife.XScript
                         {
                             if (!list.Contains(elm)) list.Add(elm);
                         }
+                    }
+                }
+                // 加载系统程序集
+                else
+                {
+                    //list.Add(item);
+                    try
+                    {
+                        var asm = Assembly.LoadWithPartialName(item);
+                        //Console.WriteLine(asm);
+                        list.Add(asm.Location);
+                    }
+                    catch //(Exception ex)
+                    {
+                        //Log.XTrace.WriteException(ex);
                     }
                 }
             }
