@@ -408,6 +408,15 @@ namespace NewLife.XScript
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
+                up.Log = XTrace.Log;
+
+                // 从github.com下载需要处理Url
+                if (up.Links.Length > 0)
+                {
+                    var url = up.Links[0].Url;
+                    if (url.Contains("github.com") && url.Contains("/blob/")) up.Links[0].Url = url.Replace("/blob/", "/raw/");
+                }
+
                 up.Download();
                 if (!_CodeFile)
                     up.Update();
