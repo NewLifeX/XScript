@@ -8771,6 +8771,15 @@
             <param name="allSub">是否包含所有子孙目录文件</param>
             <returns></returns>
         </member>
+        <member name="M:System.IO.PathHelper.CopyTo(System.IO.DirectoryInfo,System.String,System.String,System.Boolean,System.Action{System.String})">
+            <summary>复制目录中的文件</summary>
+            <param name="di">源目录</param>
+            <param name="destDirName">目标目录</param>
+            <param name="exts">文件扩展列表。比如*.exe;*.dll;*.config</param>
+            <param name="allSub">是否包含所有子孙目录文件</param>
+            <param name="callback">复制每一个文件之前的回调</param>
+            <returns></returns>
+        </member>
         <member name="M:System.IO.PathHelper.CopyToIfNewer(System.IO.DirectoryInfo,System.String,System.String,System.Boolean,System.Action{System.String})">
             <summary>对比源目录和目标目录，复制双方都存在且源目录较新的文件</summary>
             <param name="di">源目录</param>
