@@ -9,14 +9,6 @@ namespace NewLife.Build
     public class ICC : Builder
     {
         #region 属性
-        /// <summary>名称</summary>
-        public String Name { get; set; }
-
-        /// <summary>版本</summary>
-        public String Version { get; set; }
-
-        /// <summary>工具目录</summary>
-        public String ToolPath { get; set; }
         #endregion
 
         #region 初始化

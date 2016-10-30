@@ -20,7 +20,7 @@ namespace NewLife.Build
         public String Name { get; set; }
 
         /// <summary>版本</summary>
-        public Version Version { get; set; } = new Version();
+        public String Version { get; set; }
 
         /// <summary>工具目录</summary>
         public String ToolPath { get; set; }
@@ -36,6 +36,8 @@ namespace NewLife.Build
             {
                 var obj = item.CreateInstance() as Builder;
                 oc.Register<Builder>(obj, obj.Name);
+
+                //oc.Register(typeof(Builder), item, null, item.Name);
             }
         }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Net;
@@ -14,13 +15,11 @@ namespace NewLife.XScript
 {
     class Program
     {
-        private static ScriptConfig _Config;
         /// <summary>脚本配置</summary>
-        public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
+        public static ScriptConfig Config { get; set; }
 
-        private static String _Title;
         /// <summary>标题</summary>
-        public static String Title { get { return _Title; } set { _Title = value; } }
+        public static String Title { get; set; }
 
         /// <summary>是否处理脚本文件</summary>
         private static Boolean _CodeFile;
@@ -60,6 +59,7 @@ namespace NewLife.XScript
             ThreadPoolX.QueueUserWorkItem(s => SetFileType());
             ThreadPoolX.QueueUserWorkItem(s => SetPath());
             ThreadPoolX.QueueUserWorkItem(s => AutoUpdate());
+            Task.Run(() => Build.Builder.All);
 
             if (!_CodeFile)
             {
