@@ -153,6 +153,11 @@ namespace NewLife.XScript
                     XTrace.WriteException(ex);
                     if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
+                finally
+                {
+                    // 处理文件已完成，自动更新任务下载完成后可马上执行更新
+                    _CodeFile = false;
+                }
 
                 // 此时执行自动更新
                 var up = _upgrade;
