@@ -45,6 +45,9 @@ namespace NewLife.XScript
             if (Config.Debug) se.Log = XTrace.Log;
             se.WorkingDirectory = dir;
 
+            // 添加默认命名空间
+            se.NameSpaces.Add("NewLife.Build");
+
             // 引用程序集
             if (sc.Refs.Count > 0) se.ReferencedAssemblies.AddRange(sc.GetRefArray());
 
@@ -71,6 +74,11 @@ namespace NewLife.XScript
         {
             var se = ScriptEngine.Create(code, true);
             if (Config.Debug) se.Log = XTrace.Log;
+
+            // 添加默认命名空间
+            se.NameSpaces.Add("NewLife.Build");
+            se.ReferencedAssemblies.Add("NewLife.Build.dll");
+
             Run(se, false);
 
             return true;
