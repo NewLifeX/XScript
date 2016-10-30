@@ -13,9 +13,6 @@ namespace NewLife.Build
         /// <summary>是否使用最新的MDK 6.4</summary>
         public Boolean CLang { get; set; }
 
-        /// <summary>从ELF格式的axf文件导出bin/hex</summary>
-        public String FromELF { get; set; }
-
         #region 初始化
         private static MDKLocation location = new MDKLocation();
 
@@ -34,26 +31,27 @@ namespace NewLife.Build
         /// <returns></returns>
         public override Boolean Init(Boolean addlib)
         {
-            var root = ToolPath;
+            var basePath = ToolPath;
             if (CLang)
             {
-                root = ToolPath.CombinePath("ARMCLANG\\bin").GetFullPath();
-                if (!Directory.Exists(root)) root = ToolPath.CombinePath("ARMCC\\bin").GetFullPath();
+                basePath = ToolPath.CombinePath("ARMCLANG\\bin").GetFullPath();
+                if (!Directory.Exists(basePath)) basePath = ToolPath.CombinePath("ARMCC\\bin").GetFullPath();
             }
             else
             {
                 // CLang编译器用来检查语法非常棒，但是对代码要求很高，我们有很多代码需要改进，暂时不用
-                root = ToolPath.CombinePath("ARMCC\\bin").GetFullPath();
+                basePath = ToolPath.CombinePath("ARMCC\\bin").GetFullPath();
             }
 
-            Complier = root.CombinePath("armcc.exe");
-            if (!File.Exists(Complier)) Complier = root.CombinePath("armclang.exe");
-            Asm = root.CombinePath("armasm.exe");
-            Link = root.CombinePath("armlink.exe");
-            Ar = root.CombinePath("armar.exe");
-            FromELF = root.CombinePath("fromelf.exe");
-            IncPath = root.CombinePath("..\\include").GetFullPath();
-            LibPath = root.CombinePath("..\\lib").GetFullPath();
+            Complier = basePath.CombinePath("armcc.exe");
+            if (!File.Exists(Complier)) Complier = basePath.CombinePath("armclang.exe");
+            Asm = basePath.CombinePath("armasm.exe");
+            Link = basePath.CombinePath("armlink.exe");
+            Ar = basePath.CombinePath("armar.exe");
+            ObjCopy = basePath.CombinePath("fromelf.exe");
+
+            IncPath = basePath.CombinePath("..\\include").GetFullPath();
+            LibPath = basePath.CombinePath("..\\lib").GetFullPath();
 
             return base.Init();
         }
@@ -94,24 +92,6 @@ namespace NewLife.Build
             {
                 sb.AppendFormat(" {0}", item.Trim());
             }
-
-            return sb.ToString();
-        }
-
-        /// <summary>编译输出</summary>
-        /// <param name="file"></param>
-        protected override String OnCompile(String file)
-        {
-            var sb = new StringBuilder();
-            var objName = GetObjPath(file);
-            if (Preprocess)
-            {
-                sb.AppendFormat(" -E");
-                sb.AppendFormat(" -o \"{0}.{1}\" --omf_browse \"{0}.crf\" --depend \"{0}.d\"", objName, Path.GetExtension(file).TrimStart("."));
-            }
-            else
-                sb.AppendFormat(" -o \"{0}.o\" --omf_browse \"{0}.crf\" --depend \"{0}.d\"", objName);
-            sb.AppendFormat(" -c \"{0}\"", file);
 
             return sb.ToString();
         }
@@ -223,16 +203,13 @@ namespace NewLife.Build
         /// <returns></returns>
         protected override Boolean Dump(String axf, String target)
         {
-            XTrace.WriteLine("生成：{0}", target);
-            Console.WriteLine("");
-
             var cmd = "";
             if (target.EndsWithIgnoreCase(".bin"))
                 cmd = "--bin  -o \"{0}\" \"{1}\"".F(target, axf);
             else
                 cmd = "--i32  -o \"{0}\" \"{1}\"".F(target, axf);
 
-            var rs = FromELF.Run(cmd, 3000, WriteLog);
+            var rs = ObjCopy.Run(cmd, 3000, WriteLog);
 
             return rs != 0;
         }
@@ -330,12 +307,6 @@ namespace NewLife.Build
             {
                 sb.AppendFormat(" {0}", item.Trim());
             }
-
-            foreach (var item in Includes)
-            {
-                sb.AppendFormat(" -I{0}", item);
-            }
-            //if(Directory.Exists(IncPath)) sb.AppendFormat(" -I{0}", IncPath);
 
             return sb.ToString();
         }

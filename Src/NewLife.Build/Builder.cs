@@ -68,6 +68,8 @@ namespace NewLife.Build
         public String Link { get; set; }
         /// <summary>链接静态库</summary>
         public String Ar { get; set; }
+        /// <summary>导出对象</summary>
+        public String ObjCopy { get; set; }
         /// <summary>头文件包含目录</summary>
         public String IncPath { get; set; }
         /// <summary>库文件包含目录</summary>
@@ -263,10 +265,7 @@ namespace NewLife.Build
         /// <summary>汇编程序</summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        protected virtual String OnAssemble(String file)
-        {
-            return null;
-        }
+        protected virtual String OnAssemble(String file) { return null; }
 
         /// <summary>编译所有文件</summary>
         /// <returns></returns>
@@ -503,8 +502,11 @@ namespace NewLife.Build
             // 预处理axf。修改编译信息
             BuildHelper.WriteBuildInfo(axf);
 
-            var bin = name.EnsureEnd(".bin");
-            Dump(axf, bin);
+            var target = name.EnsureEnd(".bin");
+            XTrace.WriteLine("生成：{0}", target);
+            Console.WriteLine("");
+
+            Dump(axf, target);
 
             if (name.Contains("\\")) name = name.Substring("\\", "_");
             if (rs == 0)

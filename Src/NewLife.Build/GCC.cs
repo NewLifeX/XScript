@@ -26,6 +26,25 @@ namespace NewLife.Build
         }
         #endregion
 
+        /// <summary>初始化</summary>
+        /// <param name="addlib"></param>
+        /// <returns></returns>
+        public override Boolean Init(Boolean addlib)
+        {
+            var basePath = ToolPath.CombinePath("bin").GetFullPath();
+
+            Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
+            Asm = basePath.CombinePath("arm-none-eabi-gcc.exe");
+            Link = basePath.CombinePath("armlink.exe");
+            Ar = basePath.CombinePath("arm-none-eabi-ar.exe");
+            ObjCopy = basePath.CombinePath("arm-none-eabi-objcopy.exe");
+
+            IncPath = basePath.CombinePath(@"..\arm-none-eabi\include").GetFullPath();
+            LibPath = basePath.CombinePath(@"..\arm-none-eabi\lib").GetFullPath();
+
+            return base.Init();
+        }
+
         #region 主要编译方法
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
@@ -48,12 +67,12 @@ namespace NewLife.Build
             //sb.AppendFormat("  -D__NO_SYSTEM_INIT -D{0}", Flash);
             //sb.AppendFormat(" -D{0}", Flash);
             //if (GD32) sb.Append(" -DGD32");
+            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
+            if (Tiny) sb.Append(" -DTINY");
             foreach (var item in Defines)
             {
                 sb.AppendFormat(" -D{0}", item);
             }
-            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
-            if (Tiny) sb.Append(" -DTINY");
 
             foreach (var item in ExtCompiles)
             {
@@ -61,6 +80,105 @@ namespace NewLife.Build
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>汇编程序</summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        protected override String OnAssemble(String file)
+        {
+            var sb = new StringBuilder();
+            sb.Append("-ggdb");
+            if (file.EndsWithIgnoreCase(".cpp"))
+                sb.Append(" -std=c++17");
+            sb.AppendFormat(" -mlittle-endian -mthumb -mcpu={0} -mthumb-interwork -O{1}", CPU, Debug ? 0 : 3);
+            sb.AppendFormat(" -ffunction-sections -fdata-sections");
+            sb.AppendFormat(" -fno-exceptions -MD");
+            //sb.AppendFormat(" -D{0}", Flash);
+            //if (GD32) sb.Append(" -DGD32");
+            foreach (var item in Defines)
+            {
+                sb.AppendFormat(" -D{0}", item);
+            }
+            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
+            if (Tiny) sb.Append(" -DTINY");
+            sb.AppendFormat(" -I.");
+            foreach (var item in Includes)
+            {
+                sb.AppendFormat(" -I{0}", item);
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuildLib(String lib)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat(" -r \"{0}\"", lib);
+
+            return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuild(String name)
+        {
+            /*
+             * --cpu Cortex-M3 *.o --library_type=microlib --strict --scatter ".\Obj\SmartOSF1_Debug.sct"
+             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+             * --info sizes --info totals --info unused --info veneers
+             * --list ".\Lis\SmartOSF1_Debug.map"
+             * -o .\Obj\SmartOSF1_Debug.axf
+             *
+             * --cpu Cortex-M0 *.o --library_type=microlib --diag_suppress 6803 --strict --scatter ".\Obj\Smart130.sct"
+             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+             * --info sizes --info totals --info unused --info veneers
+             * --list ".\Lis\Smart130.map"
+             * -o .\Obj\Smart130.axf
+             */
+
+            var lstName = GetListPath(name);
+            var objName = GetObjPath(name);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("--cpu {0} --library_type=microlib --strict", CPU);
+            if (!Scatter.IsNullOrEmpty() && File.Exists(Scatter.GetFullPath()))
+                sb.AppendFormat(" --scatter \"{0}\"", Scatter);
+            else
+                sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
+            //sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
+            //sb.Append(" --info sizes --info totals --info unused --info veneers");
+            sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
+            sb.Append(" --info sizes --info totals --info veneers --diag_suppress L6803 --diag_suppress L6314");
+
+            foreach (var item in ExtBuilds)
+            {
+                sb.AppendFormat(" {0}", item.Trim());
+            }
+
+            var axf = objName.EnsureEnd(".axf");
+            sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
+
+            return sb.ToString();
+        }
+
+        /// <summary>导出目标文件</summary>
+        /// <param name="axf"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected override Boolean Dump(String axf, String target)
+        {
+            var cmd = "";
+            if (target.EndsWithIgnoreCase(".bin"))
+                cmd = "--bin -o \"{0}\" \"{1}\"".F(axf, target);
+            else
+                cmd = "--i32 -o \"{0}\" \"{1}\"".F(axf, target);
+
+            var rs = ObjCopy.Run(cmd, 3000, WriteLog);
+
+            return rs != 0;
         }
         #endregion
     }

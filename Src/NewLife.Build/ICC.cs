@@ -26,6 +26,25 @@ namespace NewLife.Build
         }
         #endregion
 
+        /// <summary>初始化</summary>
+        /// <param name="addlib"></param>
+        /// <returns></returns>
+        public override Boolean Init(Boolean addlib)
+        {
+            var basePath = ToolPath.CombinePath("arm\\bin").GetFullPath();
+
+            Complier = basePath.CombinePath("iccarm.exe").GetFullPath();
+            Asm = basePath.CombinePath("iasmarm.exe");
+            Link = basePath.CombinePath("ilinkarm.exe");
+            Ar = basePath.CombinePath("iarchive.exe");
+            ObjCopy = basePath.CombinePath("ielftool.exe");
+
+            IncPath = basePath.CombinePath(@"arm\include").GetFullPath();
+            LibPath = basePath.CombinePath(@"arm\lib").GetFullPath();
+
+            return base.Init();
+        }
+
         #region 主要编译方法
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
@@ -56,17 +75,109 @@ namespace NewLife.Build
             //var basePath = Complier.CombinePath(@"..\..\..\").GetFullPath();
             //sb.AppendFormat(" --dlib_config \"{0}\\arm\\INC\\c\\DLib_Config_Normal.h\"", basePath);
 
-            foreach (var item in Defines)
-            {
-                sb.AppendFormat(" -D{0}", item);
-            }
-
             foreach (var item in ExtCompiles)
             {
                 sb.AppendFormat(" {0}", item.Trim());
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>汇编程序</summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        protected override String OnAssemble(String file)
+        {
+            /*
+			* -s+ -M<> -w+ -r --cpu Cortex-M3 --fpu None
+			* -s+	标记符大小写敏感
+			* -r	调试输出
+			*/
+            var sb = new StringBuilder();
+            sb.Append("-s+ -M<> -w+ -S");
+            sb.AppendFormat(" --cpu {0}", CPU);
+            if (Cortex >= 4) sb.Append(" --fpu=None");
+            foreach (var item in Defines)
+            {
+                sb.AppendFormat(" -D{0}", item);
+            }
+            if (Debug) sb.Append(" -r");
+            if (Tiny) sb.Append(" -DTINY");
+
+            return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuildLib(String lib)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat(" --create \"{0}\"", lib);
+
+            return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuild(String name)
+        {
+            /*
+             * -o \Exe\application.axf 
+             * --redirect _Printf=_PrintfTiny 
+             * --redirect _Scanf=_ScanfSmallNoMb 
+             * --keep bootloader 
+             * --keep gImage2EntryFun0 
+             * --keep RAM_IMG2_VALID_PATTEN 
+             * --image_input=\ram_1.r.bin,bootloader,LOADER,4
+             * --map \List\application.map 
+             * --log veneers 
+             * --log_file \List\application.log 
+             * --config \image2.icf 
+             * --diag_suppress Lt009,Lp005,Lp006 
+             * --entry Reset_Handler --no_exceptions --no_vfe
+			 */
+            var lstName = GetListPath(name);
+            var objName = GetObjPath(name);
+
+            var sb = new StringBuilder();
+            //sb.AppendFormat("--cpu {0} --library_type=microlib --strict", CPU);
+            var icf = Scatter;
+            if (icf.IsNullOrEmpty()) icf = ".".AsDirectory().GetAllFiles("*.icf", false).FirstOrDefault()?.FullName;
+            if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
+                sb.AppendFormat(" --config \"{0}\"", icf);
+            //else
+            //    sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
+            sb.Append(" --entry Reset_Handler --no_exceptions --no_vfe");
+
+            foreach (var item in ExtBuilds)
+            {
+                sb.AppendFormat(" {0}", item.Trim());
+            }
+
+            var axf = objName.EnsureEnd(".axf");
+            sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
+
+            return sb.ToString();
+        }
+
+        /// <summary>导出目标文件</summary>
+        /// <param name="axf"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected override Boolean Dump(String axf, String target)
+        {
+            XTrace.WriteLine("生成：{0}", target);
+            Console.WriteLine("");
+
+            var cmd = "";
+            if (target.EndsWithIgnoreCase(".bin"))
+                cmd = "--bin  \"{0}\" \"{1}\"".F(axf, target);
+            else
+                cmd = "--ihex \"{0}\" \"{1}\"".F(axf, target);
+
+            var rs = ObjCopy.Run(cmd, 3000, WriteLog);
+
+            return rs != 0;
         }
         #endregion
     }
