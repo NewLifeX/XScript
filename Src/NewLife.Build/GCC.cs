@@ -87,7 +87,7 @@ namespace NewLife.Build
                     ToolPath = reg.GetValue("InstallFolder") + "";
                     if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name;
 
-                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("注册表 {0} {1}", ToolPath, Version);
+                    WriteLog("注册表 {0} {1}", ToolPath, Version);
                 }
             }
             #endregion
@@ -109,7 +109,7 @@ namespace NewLife.Build
                             ToolPath = p;
                             Version = ver;
 
-                            XTrace.WriteLine("本地 {0} {1}", p, ver);
+                            WriteLog("本地 {0} {1}", p, ver);
                         }
                     }
                 }
@@ -128,6 +128,11 @@ namespace NewLife.Build
             if (fi == null || !fi.Exists) return "";
 
             return fi.Name.Substring(fi.Name.LastIndexOf("-") + 1).TrimEnd(".exe");
+        }
+
+        void WriteLog(String format, params Object[] args)
+        {
+            if (XTrace.Debug) XTrace.WriteLine(format, args);
         }
     }
 }

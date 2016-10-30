@@ -367,7 +367,7 @@ namespace NewLife.Build
                     //Version = new Version(ss[0], ss[1]);
                     Version = reg.GetValue("Version") + "";
 
-                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("注册表 {0} {1}", ToolPath, Version);
+                    WriteLog("注册表 {0} {1}", ToolPath, Version);
                 }
             }
             #endregion
@@ -388,7 +388,7 @@ namespace NewLife.Build
                             ToolPath = p;
                             Version = ver;
 
-                            XTrace.WriteLine("本地 {0} {1}", p, ver);
+                            WriteLog("本地 {0} {1}", p, ver);
                         }
                     }
                 }
@@ -438,6 +438,11 @@ namespace NewLife.Build
             }
 
             return "";
+        }
+
+        void WriteLog(String format,params Object[] args)
+        {
+            if (XTrace.Debug) XTrace.WriteLine(format, args);
         }
     }
 }
