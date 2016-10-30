@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Win32;
 using NewLife.Log;
 
@@ -22,6 +23,50 @@ namespace NewLife.Build
 
             Version = location.Version;
             ToolPath = location.ToolPath;
+        }
+        #endregion
+
+        #region 主要编译方法
+        /// <summary>获取编译用的命令行</summary>
+        /// <param name="cpp">是否C++</param>
+        /// <returns></returns>
+        public override String GetCompileCommand(Boolean cpp)
+        {
+            // --debug --endian=little --cpu=Cortex-M3 --enum_is_int -e --char_is_signed --fpu=None 
+            // -Ohz --use_c++_inline 
+            // --dlib_config C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\arm\INC\c\DLib_Config_Normal.h 
+            var sb = new StringBuilder();
+            if (cpp)
+                //sb.Append("--c++ --no_exceptions");
+                sb.Append("--eec++");
+            else
+                sb.Append("--use_c++_inline");
+            // -e打开C++扩展
+            sb.AppendFormat(" --endian=little --cpu={0} -e --silent", CPU);
+            if (Cortex >= 4) sb.Append(" --fpu=None");
+            //sb.Append(" --enable_multibytes");
+            if (Debug) sb.Append(" --debug");
+            // 默认低级优化，发行版-Ohz为代码大小优化，-Ohs为高速度优化
+            if (!Debug) sb.Append(" -Ohz");
+            foreach (var item in Defines)
+            {
+                sb.AppendFormat(" -D {0}", item);
+            }
+            if (Tiny) sb.Append(" -D TINY");
+            //var basePath = Complier.CombinePath(@"..\..\..\").GetFullPath();
+            //sb.AppendFormat(" --dlib_config \"{0}\\arm\\INC\\c\\DLib_Config_Normal.h\"", basePath);
+
+            foreach (var item in Defines)
+            {
+                sb.AppendFormat(" -D{0}", item);
+            }
+
+            foreach (var item in ExtCompiles)
+            {
+                sb.AppendFormat(" {0}", item.Trim());
+            }
+
+            return sb.ToString();
         }
         #endregion
     }
