@@ -224,14 +224,10 @@ namespace NewLife.Build
 
         /// <summary>编译汇编程序</summary>
         /// <param name="file"></param>
+        /// <param name="showCmd"></param>
         /// <returns></returns>
-        public Int32 Assemble(String file)
+        public Int32 Assemble(String file, Boolean showCmd)
         {
-            /*
-             * --cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1"
-             * --pd "__UVISION_VERSION SETA 515" --pd "STM32F10X_HD SETA 1" --list ".\Lis\*.lst" --xref -o "*.o" --depend "*.d"
-             */
-
             var lstName = GetListPath(file);
             var objName = GetObjPath(file);
 
@@ -249,6 +245,14 @@ namespace NewLife.Build
             obj.DirectoryName.EnsureDirectory(false);
 
             var cmd = OnAssemble(file);
+
+            if (showCmd)
+            {
+                Console.Write("汇编参数：");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine(cmd);
+                Console.ResetColor();
+            }
 
             // 先删除目标文件
             if (obj.Exists) obj.Delete();
@@ -295,11 +299,12 @@ namespace NewLife.Build
             var cmd = GetCompileCommand(true);
             var cmd2 = GetCompileCommand(false);
 
-            Console.Write("命令参数：");
+            Console.Write("编译参数：");
             Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine(cmd);
             Console.ResetColor();
 
+            var asm = 0;
             foreach (var item in Files)
             {
                 var rs = 0;
@@ -314,7 +319,8 @@ namespace NewLife.Build
                         rs = Compile(cmd, item);
                         break;
                     case ".s":
-                        rs = Assemble(item);
+                        rs = Assemble(item, asm == 0);
+                        if (rs != -2) asm++;
                         break;
                     default:
                         break;
@@ -392,9 +398,24 @@ namespace NewLife.Build
             XTrace.WriteLine("链接：{0}", name);
 
             var lib = name.EnsureEnd(".lib");
-            var cmd = OnBuildLib(lib);
+            var sb = new StringBuilder();
+            sb.Append(OnBuildLib(lib));
 
-            var rs = Ar.Run(cmd, 3000, WriteLog);
+            Console.Write("链接参数：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine(sb);
+            Console.ResetColor();
+
+            if (Objs.Count < 6) Console.Write("使用对象文件：");
+            foreach (var item in Objs)
+            {
+                sb.Append(" ");
+                sb.Append(item);
+                if (Objs.Count < 6) Console.Write(" {0}", item);
+            }
+            if (Objs.Count < 6) Console.WriteLine();
+
+            var rs = Ar.Run(sb.ToString(), 3000, WriteLog);
             XTrace.WriteLine("链接完成 {0} {1}", rs, lib);
 
             if (name.Contains("\\")) name = name.Substring("\\");
@@ -424,7 +445,12 @@ namespace NewLife.Build
             XTrace.WriteLine("生成：{0}", name);
 
             var sb = new StringBuilder();
-            sb.Append(OnBuildLib(name));
+            sb.Append(OnBuild(name));
+
+            Console.Write("生成参数：");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine(sb);
+            Console.ResetColor();
 
             if (Objs.Count < 6) Console.Write("使用对象文件：");
             foreach (var item in Objs)
@@ -475,7 +501,7 @@ namespace NewLife.Build
             if (rs != 0) return rs;
 
             // 预处理axf。修改编译信息
-            //Helper.WriteBuildInfo(axf);
+            BuildHelper.WriteBuildInfo(axf);
 
             var bin = name.EnsureEnd(".bin");
             Dump(axf, bin);

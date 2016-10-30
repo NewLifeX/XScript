@@ -121,6 +121,11 @@ namespace NewLife.Build
         /// <returns></returns>
         protected override String OnAssemble(String file)
         {
+            /*
+             * --cpu Cortex-M3 -g --apcs=interwork --pd "__MICROLIB SETA 1"
+             * --pd "__UVISION_VERSION SETA 515" --pd "STM32F10X_HD SETA 1" --list ".\Lis\*.lst" --xref -o "*.o" --depend "*.d"
+             */
+
             var lstName = GetListPath(file);
             var objName = GetObjPath(file);
 
@@ -150,14 +155,14 @@ namespace NewLife.Build
             sb.Append("--create -c");
             sb.AppendFormat(" -r \"{0}\"", lib);
 
-            if (Objs.Count < 6) Console.Write("使用对象文件：");
-            foreach (var item in Objs)
-            {
-                sb.Append(" ");
-                sb.Append(item);
-                if (Objs.Count < 6) Console.Write(" {0}", item);
-            }
-            if (Objs.Count < 6) Console.WriteLine();
+            //if (Objs.Count < 6) Console.Write("使用对象文件：");
+            //foreach (var item in Objs)
+            //{
+            //    sb.Append(" ");
+            //    sb.Append(item);
+            //    if (Objs.Count < 6) Console.Write(" {0}", item);
+            //}
+            //if (Objs.Count < 6) Console.WriteLine();
 
             return sb.ToString();
         }
@@ -188,13 +193,13 @@ namespace NewLife.Build
             if (!Scatter.IsNullOrEmpty() && File.Exists(Scatter.GetFullPath()))
             {
                 sb.AppendFormat(" --scatter \"{0}\"", Scatter);
-                Console.WriteLine("使用分散加载文件");
+                //Console.WriteLine("使用分散加载文件");
             }
             else
             {
                 sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
-                Console.WriteLine("未使用分散加载文件");
-                Console.WriteLine("--ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
+                //Console.WriteLine("未使用分散加载文件");
+                //Console.WriteLine("--ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
             }
             //sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
             //sb.Append(" --info sizes --info totals --info unused --info veneers");

@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builder.cs" />
+    <Compile Include="BuildHelper.cs" />
     <Compile Include="GCC.cs" />
     <Compile Include="ICC.cs" />
     <Compile Include="MDK.cs" />
