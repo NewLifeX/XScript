@@ -406,7 +406,7 @@ namespace NewLife.XScript
             var up = new Upgrade();
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
-            up.Server = "https://github.com/NewLifeX/XScript";
+            up.Server = "https://github.com/NewLifeX/XScript/releases";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
