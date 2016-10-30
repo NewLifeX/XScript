@@ -59,7 +59,9 @@ namespace NewLife.XScript
             ThreadPoolX.QueueUserWorkItem(s => SetFileType());
             ThreadPoolX.QueueUserWorkItem(s => SetPath());
             ThreadPoolX.QueueUserWorkItem(s => AutoUpdate());
+#if DEBUG
             Task.Run(() => Build.Builder.All);
+#endif
 
             if (!_CodeFile)
             {

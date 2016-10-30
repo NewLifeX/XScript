@@ -52,9 +52,10 @@ namespace NewLife.Build
         }
     }
 
-    /// <summary>MDK 6.0</summary>
+    /// <summary>MDK 6.0，采用LLVM技术的CLang编译器</summary>
     public class MDK6 : MDK
     {
+        /// <summary>实例化</summary>
         public MDK6()
         {
             Name = "MDK6";
@@ -87,7 +88,7 @@ namespace NewLife.Build
                     //Version = new Version(ss[0], ss[1]);
                     Version = reg.GetValue("Version") + "";
 
-                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("从注册表得到路径{0} {1}！", ToolPath, Version);
+                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("注册表 {0} {1}", ToolPath, Version);
                 }
             }
             #endregion
@@ -108,14 +109,12 @@ namespace NewLife.Build
                             ToolPath = p;
                             Version = ver;
 
-                            if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("从本地磁盘得到路径{0} {1}！", ToolPath, Version);
-
-                            break;
+                            XTrace.WriteLine("本地 {0} {1}", p, ver);
                         }
                     }
                 }
             }
-            if (Version.CompareTo("v5.17") < 0)
+            if (Version.ToLower().CompareTo("v5.17") < 0)
             {
                 XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
 
@@ -154,12 +153,12 @@ namespace NewLife.Build
                         //return new Version(ss[0], ss[1]);
                         //break;
 
-                        return item.Substring("VERSION=".Length);
+                        return item.Substring("VERSION=".Length).Trim();
                     }
                 }
             }
 
-            return null;
+            return "";
         }
     }
 }

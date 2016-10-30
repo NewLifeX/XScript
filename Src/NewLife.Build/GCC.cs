@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Win32;
+using NewLife.Log;
 
 namespace NewLife.Build
 {
@@ -11,11 +13,31 @@ namespace NewLife.Build
         #endregion
 
         #region 初始化
+        private static GCCLocation location = new GCCLocation();
+
         /// <summary>初始化</summary>
         public GCC()
         {
             Name = "GCC";
 
+            Version = location.Version;
+            ToolPath = location.ToolPath;
+        }
+        #endregion
+    }
+
+    class GCCLocation
+    {
+        #region 属性
+        /// <summary>版本</summary>
+        public String Version { get; set; }
+
+        /// <summary>工具目录</summary>
+        public String ToolPath { get; set; }
+        #endregion
+
+        public GCCLocation()
+        {
             #region 从注册表获取目录和版本
             if (String.IsNullOrEmpty(ToolPath))
             {
@@ -25,6 +47,8 @@ namespace NewLife.Build
                 {
                     ToolPath = reg.GetValue("InstallFolder") + "";
                     if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name;
+
+                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("注册表 {0} {1}", ToolPath, Version);
                 }
             }
             #endregion
@@ -39,32 +63,32 @@ namespace NewLife.Build
                     var p = Path.Combine(item.RootDirectory.FullName, @"GCC\arm-none-eabi");
                     if (Directory.Exists(p))
                     {
-                        ToolPath = p.CombinePath(@"..\").GetFullPath();
-                        break;
+                        p = p.CombinePath(@"..\").GetFullPath();
+                        var ver = GetVer(p);
+                        if (ver.CompareTo(Version) > 0)
+                        {
+                            ToolPath = p;
+                            Version = ver;
+
+                            XTrace.WriteLine("本地 {0} {1}", p, ver);
+                        }
                     }
                 }
             }
-            /*if (Version < new Version(5, 17))
-            {
-                var url = "http://www.newlifex.com/showtopic-1456.aspx";
-                var client = new WebClientX(true, true);
-                client.Log = XTrace.Log;
-                var dir = Environment.SystemDirectory.CombinePath("..\\..\\Keil").GetFullPath();
-                var file = client.DownloadLinkAndExtract(url, "GCC", dir);
-                var p = dir.CombinePath("ARM");
-                if (Directory.Exists(p))
-                {
-                    var ver = GetVer(p);
-                    if (ver > Version)
-                    {
-                        ToolPath = p;
-                        Version = ver;
-                    }
-                }
-            }*/
             if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取GCC安装目录！");
             #endregion
         }
-        #endregion
+
+        String GetVer(String path)
+        {
+            // bin\arm-none-eabi-gcc-5.4.1.exe
+            var di = path.CombinePath("bin").AsDirectory();
+            if (!di.Exists) return "";
+
+            var fi = di.GetAllFiles("arm-none-eabi-gcc-*.exe").FirstOrDefault();
+            if (fi == null || !fi.Exists) return "";
+
+            return fi.Name.Substring(fi.Name.LastIndexOf("-") + 1).TrimEnd(".exe");
+        }
     }
 }

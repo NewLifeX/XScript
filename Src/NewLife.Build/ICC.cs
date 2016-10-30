@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
+using NewLife.Log;
 
 namespace NewLife.Build
 {
@@ -12,11 +13,31 @@ namespace NewLife.Build
         #endregion
 
         #region 初始化
+        private static ICCLocation location = new ICCLocation();
+
         /// <summary>初始化</summary>
         public ICC()
         {
             Name = "ICC";
 
+            Version = location.Version;
+            ToolPath = location.ToolPath;
+        }
+        #endregion
+    }
+
+    class ICCLocation
+    {
+        #region 属性
+        /// <summary>版本</summary>
+        public String Version { get; set; }
+
+        /// <summary>工具目录</summary>
+        public String ToolPath { get; set; }
+        #endregion
+
+        public ICCLocation()
+        {
             #region 从注册表获取目录和版本
             if (String.IsNullOrEmpty(ToolPath))
             {
@@ -26,6 +47,8 @@ namespace NewLife.Build
                 {
                     ToolPath = reg.GetValue("LastInstallPath") + "";
                     if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name.Split(" ").Last();
+
+                    if (!String.IsNullOrEmpty(ToolPath)) XTrace.WriteLine("注册表 {0} {1}", ToolPath, Version);
                 }
             }
             #endregion
@@ -43,15 +66,27 @@ namespace NewLife.Build
                     var f = p.AsDirectory().GetAllFiles("iccarm.exe", true).LastOrDefault();
                     if (f != null)
                     {
-                        ToolPath = f.Directory.FullName.CombinePath(@"..\..\").GetFullPath();
-                        if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name.Split(" ").Last();
-                        break;
+                        p = f.Directory.FullName.CombinePath(@"..\..\").GetFullPath();
+                        var ver = GetVer(p);
+                        if (ver.CompareTo(Version) > 0)
+                        {
+                            ToolPath = p;
+                            Version = ver;
+
+                            XTrace.WriteLine("本地 {0} {1}", ToolPath, Version);
+                        }
                     }
                 }
             }
             if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取ICC安装目录！");
             #endregion
         }
-        #endregion
+
+        String GetVer(String path)
+        {
+            if (!path.Contains(".")) return "";
+
+            return path.AsDirectory().Name.Split(" ").LastOrDefault();
+        }
     }
 }
