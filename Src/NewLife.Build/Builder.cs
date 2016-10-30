@@ -64,10 +64,10 @@ namespace NewLife.Build
         public String Complier { get; set; }
         /// <summary>汇编</summary>
         public String Asm { get; set; }
-        /// <summary>链接</summary>
+        /// <summary>链接目标文件</summary>
         public String Link { get; set; }
+        /// <summary>链接静态库</summary>
         public String Ar { get; set; }
-        public String FromELF { get; set; }
         /// <summary>头文件包含目录</summary>
         public String IncPath { get; set; }
         /// <summary>库文件包含目录</summary>
@@ -392,20 +392,9 @@ namespace NewLife.Build
             XTrace.WriteLine("链接：{0}", name);
 
             var lib = name.EnsureEnd(".lib");
-            var sb = new StringBuilder();
-            sb.Append("--create -c");
-            sb.AppendFormat(" -r \"{0}\"", lib);
+            var cmd = OnBuildLib(lib);
 
-            if (Objs.Count < 6) Console.Write("使用对象文件：");
-            foreach (var item in Objs)
-            {
-                sb.Append(" ");
-                sb.Append(item);
-                if (Objs.Count < 6) Console.Write(" {0}", item);
-            }
-            if (Objs.Count < 6) Console.WriteLine();
-
-            var rs = Ar.Run(sb.ToString(), 3000, WriteLog);
+            var rs = Ar.Run(cmd, 3000, WriteLog);
             XTrace.WriteLine("链接完成 {0} {1}", rs, lib);
 
             if (name.Contains("\\")) name = name.Substring("\\");
@@ -418,6 +407,13 @@ namespace NewLife.Build
                 "链接静态库{0}失败".F(name).SpeakAsync();
         }
 
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected virtual String OnBuildLib(String lib)
+        {
+            return null;
+        }
+
         /// <summary>编译目标文件</summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -427,48 +423,8 @@ namespace NewLife.Build
             Console.WriteLine();
             XTrace.WriteLine("生成：{0}", name);
 
-            /*
-             * --cpu Cortex-M3 *.o --library_type=microlib --strict --scatter ".\Obj\SmartOSF1_Debug.sct"
-             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
-             * --info sizes --info totals --info unused --info veneers
-             * --list ".\Lis\SmartOSF1_Debug.map"
-             * -o .\Obj\SmartOSF1_Debug.axf
-             *
-             * --cpu Cortex-M0 *.o --library_type=microlib --diag_suppress 6803 --strict --scatter ".\Obj\Smart130.sct"
-             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
-             * --info sizes --info totals --info unused --info veneers
-             * --list ".\Lis\Smart130.map"
-             * -o .\Obj\Smart130.axf
-             */
-
-            var lstName = GetListPath(name);
-            var objName = GetObjPath(name);
-
             var sb = new StringBuilder();
-            sb.AppendFormat("--cpu {0} --library_type=microlib --strict", CPU);
-            if (!Scatter.IsNullOrEmpty() && File.Exists(Scatter.GetFullPath()))
-            {
-                sb.AppendFormat(" --scatter \"{0}\"", Scatter);
-                Console.WriteLine("使用分散加载文件");
-            }
-            else
-            {
-                sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
-                Console.WriteLine("未使用分散加载文件");
-                Console.WriteLine("--ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
-            }
-            //sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
-            //sb.Append(" --info sizes --info totals --info unused --info veneers");
-            sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
-            sb.Append(" --info sizes --info totals --info veneers --diag_suppress L6803 --diag_suppress L6314");
-
-            foreach (var item in ExtBuilds)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
-
-            var axf = objName.EnsureEnd(".axf");
-            sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
+            sb.Append(OnBuildLib(name));
 
             if (Objs.Count < 6) Console.Write("使用对象文件：");
             foreach (var item in Objs)
@@ -511,46 +467,18 @@ namespace NewLife.Build
                 Console.WriteLine("\t{0}\t{1}", item.Key, item.Value);
             }
 
+            var objName = GetObjPath(name);
+            var axf = objName.EnsureEnd(".axf");
             XTrace.WriteLine("链接：{0}", axf);
 
-            //var rs = Link.Run(sb.ToString(), 3000, WriteLog);
-            var rs = Link.Run(sb.ToString(), 3000, msg =>
-            {
-                if (msg.IsNullOrEmpty()) return;
-
-                // 引用错误可以删除obj文件，下次编译将会得到解决
-                /*var p = msg.IndexOf("Undefined symbol");
-                if(p >= 0)
-                {
-                    foreach(var obj in Objs)
-                    {
-                        if(File.Exists(obj)) File.Delete(obj);
-                        var crf = Path.ChangeExtension(obj, ".crf");
-                        if(File.Exists(crf)) File.Delete(crf);
-                        var dep = Path.ChangeExtension(obj, ".d");
-                        if(File.Exists(dep)) File.Delete(dep);
-                    }
-                }*/
-
-                WriteLog(msg);
-            });
+            var rs = Link.Run(sb.ToString(), 3000, WriteLog);
             if (rs != 0) return rs;
 
             // 预处理axf。修改编译信息
             //Helper.WriteBuildInfo(axf);
 
             var bin = name.EnsureEnd(".bin");
-            XTrace.WriteLine("生成：{0}", bin);
-            Console.WriteLine("");
-            sb.Clear();
-            sb.AppendFormat("--bin  -o \"{0}\" \"{1}\"", bin, axf);
-            rs = FromELF.Run(sb.ToString(), 3000, WriteLog);
-
-            /*var hex = name.EnsureEnd(".hex");
-            XTrace.WriteLine("生成：{0}", hex);
-            sb.Clear();
-            sb.AppendFormat("--i32  -o \"{0}\" \"{1}\"", hex, axf);
-            rs = FromELF.Run(sb.ToString(), 3000, WriteLog);*/
+            Dump(axf, bin);
 
             if (name.Contains("\\")) name = name.Substring("\\", "_");
             if (rs == 0)
@@ -560,6 +488,19 @@ namespace NewLife.Build
 
             return rs;
         }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected virtual String OnBuild(String lib)
+        {
+            return null;
+        }
+
+        /// <summary>导出目标文件</summary>
+        /// <param name="axf"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected virtual Boolean Dump(String axf, String target) { return false; }
         #endregion
 
         #region 辅助方法
@@ -621,7 +562,7 @@ namespace NewLife.Build
         /// <param name="path"></param>
         /// <param name="sub"></param>
         /// <param name="allSub"></param>
-        public void AddIncludes(String path, Boolean sub = true, Boolean allSub = true)
+        public void AddIncludes(String path, Boolean sub = false, Boolean allSub = false)
         {
             path = path.GetFullPath();
             if (!Directory.Exists(path)) return;
@@ -642,7 +583,7 @@ namespace NewLife.Build
                 foreach (var item in path.AsDirectory().GetDirectories("*", opt))
                 {
                     if (item.FullName.Contains(".svn")) continue;
-                    if (item.Name.EqualIgnoreCase("List", "Obj", "ObjRelease", "Log")) continue;
+                    if (item.Name.EqualIgnoreCase("List", "Obj", "ObjD", "Log")) continue;
 
                     if (!Includes.Contains(item.FullName) && HasHeaderFile(item.FullName))
                     {
@@ -662,12 +603,12 @@ namespace NewLife.Build
         /// <param name="path"></param>
         /// <param name="filter"></param>
         /// <param name="allSub"></param>
-        public void AddLibs(String path, String filter = null, Boolean allSub = true)
+        public void AddLibs(String path, String filter = null, Boolean allSub = false)
         {
             path = path.GetFullPath();
             if (!Directory.Exists(path)) return;
 
-            if (filter.IsNullOrEmpty()) filter = "*.lib";
+            if (filter.IsNullOrEmpty()) filter = "*.lib;*.a";
             //var opt = allSub ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             foreach (var item in path.AsDirectory().GetAllFiles(filter, allSub))
             {
@@ -775,7 +716,9 @@ namespace NewLife.Build
         #endregion
 
         #region 日志
-        void WriteLog(String msg)
+        /// <summary>输出日志</summary>
+        /// <param name="msg"></param>
+        protected void WriteLog(String msg)
         {
             if (msg.IsNullOrEmpty()) return;
 
@@ -794,7 +737,7 @@ namespace NewLife.Build
         /// <returns></returns>
         public String FixWord(String msg)
         {
-            if (Words.Count == 0) Init();
+            if (Words.Count == 0) InitWord();
 
             foreach (var item in Words)
             {

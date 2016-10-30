@@ -13,6 +13,9 @@ namespace NewLife.Build
         /// <summary>是否使用最新的MDK 6.4</summary>
         public Boolean CLang { get; set; }
 
+        /// <summary>从ELF格式的axf文件导出bin/hex</summary>
+        public String FromELF { get; set; }
+
         #region 初始化
         private static MDKLocation location = new MDKLocation();
 
@@ -97,7 +100,7 @@ namespace NewLife.Build
 
         /// <summary>编译输出</summary>
         /// <param name="file"></param>
-        protected virtual String OnCompile(String file)
+        protected override String OnCompile(String file)
         {
             var sb = new StringBuilder();
             var objName = GetObjPath(file);
@@ -137,6 +140,96 @@ namespace NewLife.Build
             sb.AppendFormat(" \"{0}\"", file);
 
             return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuildLib(String lib)
+        {
+            var sb = new StringBuilder();
+            sb.Append("--create -c");
+            sb.AppendFormat(" -r \"{0}\"", lib);
+
+            if (Objs.Count < 6) Console.Write("使用对象文件：");
+            foreach (var item in Objs)
+            {
+                sb.Append(" ");
+                sb.Append(item);
+                if (Objs.Count < 6) Console.Write(" {0}", item);
+            }
+            if (Objs.Count < 6) Console.WriteLine();
+
+            return sb.ToString();
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuild(String name)
+        {
+            /*
+             * --cpu Cortex-M3 *.o --library_type=microlib --strict --scatter ".\Obj\SmartOSF1_Debug.sct"
+             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+             * --info sizes --info totals --info unused --info veneers
+             * --list ".\Lis\SmartOSF1_Debug.map"
+             * -o .\Obj\SmartOSF1_Debug.axf
+             *
+             * --cpu Cortex-M0 *.o --library_type=microlib --diag_suppress 6803 --strict --scatter ".\Obj\Smart130.sct"
+             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
+             * --info sizes --info totals --info unused --info veneers
+             * --list ".\Lis\Smart130.map"
+             * -o .\Obj\Smart130.axf
+             */
+
+            var lstName = GetListPath(name);
+            var objName = GetObjPath(name);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("--cpu {0} --library_type=microlib --strict", CPU);
+            if (!Scatter.IsNullOrEmpty() && File.Exists(Scatter.GetFullPath()))
+            {
+                sb.AppendFormat(" --scatter \"{0}\"", Scatter);
+                Console.WriteLine("使用分散加载文件");
+            }
+            else
+            {
+                sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
+                Console.WriteLine("未使用分散加载文件");
+                Console.WriteLine("--ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
+            }
+            //sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
+            //sb.Append(" --info sizes --info totals --info unused --info veneers");
+            sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
+            sb.Append(" --info sizes --info totals --info veneers --diag_suppress L6803 --diag_suppress L6314");
+
+            foreach (var item in ExtBuilds)
+            {
+                sb.AppendFormat(" {0}", item.Trim());
+            }
+
+            var axf = objName.EnsureEnd(".axf");
+            sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
+
+            return sb.ToString();
+        }
+
+        /// <summary>导出目标文件</summary>
+        /// <param name="axf"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        protected override Boolean Dump(String axf, String target)
+        {
+            XTrace.WriteLine("生成：{0}", target);
+            Console.WriteLine("");
+
+            var cmd = "";
+            if (target.EndsWithIgnoreCase(".bin"))
+                cmd = "--bin  -o \"{0}\" \"{1}\"".F(target, axf);
+            else
+                cmd = "--i32  -o \"{0}\" \"{1}\"".F(target, axf);
+
+            var rs = FromELF.Run(cmd, 3000, WriteLog);
+
+            return rs != 0;
         }
         #endregion
 
