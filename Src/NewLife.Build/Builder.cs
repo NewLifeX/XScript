@@ -767,7 +767,7 @@ namespace NewLife.Build
             msg = FixWord(msg);
 
             var clr = GetColor(Thread.CurrentThread.ManagedThreadId);
-            if (msg.StartsWithIgnoreCase("错误", "Error", "致命错误", "Fatal error") || msg.Contains("Error:"))
+            if (msg.StartsWithIgnoreCase("错误", "Error", "致命错误", "Fatal error") || msg.Contains("Error:") || msg.Contains("错误:"))
                 clr = ConsoleColor.Red;
 
             Console.ForegroundColor = clr;
