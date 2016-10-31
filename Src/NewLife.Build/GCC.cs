@@ -37,7 +37,7 @@ namespace NewLife.Build
 
             Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
             Asm = basePath.CombinePath("arm-none-eabi-gcc.exe");
-            Link = basePath.CombinePath("armlink.exe");
+            Link = basePath.CombinePath("arm-none-eabi-gcc.exe");
             Ar = basePath.CombinePath("arm-none-eabi-ar.exe");
             ObjCopy = basePath.CombinePath("arm-none-eabi-objcopy.exe");
 
@@ -68,8 +68,9 @@ namespace NewLife.Build
                 sb.Append("-std=gnu99");
             sb.AppendFormat(" -mlittle-endian -mcpu={0} -mthumb -mthumb-interwork -O{1}", CPU.ToLower(), Debug ? 0 : 3);
             sb.AppendFormat(" -ffunction-sections -fdata-sections -fomit-frame-pointer");
-            sb.AppendFormat(" -fno-exceptions -MD -Wno-pointer-sign -fno-common -fmessage-length=0");
+            sb.AppendFormat(" -fno-exceptions -MD -fno-common -fmessage-length=0");
             if (Linux) sb.Append(" -fno-short-enums -fsigned-char");
+            if (!cpp) sb.Append(" -Wno-pointer-sign");
             if (Debug)
                 sb.Append(" -ggdb -g2");
             else
@@ -140,32 +141,23 @@ namespace NewLife.Build
         protected override String OnBuild(String name)
         {
             /*
-             * --cpu Cortex-M3 *.o --library_type=microlib --strict --scatter ".\Obj\SmartOSF1_Debug.sct"
-             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
-             * --info sizes --info totals --info unused --info veneers
-             * --list ".\Lis\SmartOSF1_Debug.map"
-             * -o .\Obj\SmartOSF1_Debug.axf
-             *
-             * --cpu Cortex-M0 *.o --library_type=microlib --diag_suppress 6803 --strict --scatter ".\Obj\Smart130.sct"
-             * --summary_stderr --info summarysizes --map --xref --callgraph --symbols
-             * --info sizes --info totals --info unused --info veneers
-             * --list ".\Lis\Smart130.map"
-             * -o .\Obj\Smart130.axf
+             * -mcpu=cortex-m3 -mthumb -g --specs=nano.specs -nostartfiles 
+             * -Wl,-Map=$(BIN_DIR)/application.map -Os -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning
+             * $(LFLAGS) -o $(BIN_DIR)/$(TARGET).axf  $(OBJ_LIST) $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T./rlx8195A-symbol-v02-img2.ld
              */
 
             var lstName = GetListPath(name);
             var objName = GetObjPath(name);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("--cpu {0} --library_type=microlib --strict", CPU);
-            if (!Scatter.IsNullOrEmpty() && File.Exists(Scatter.GetFullPath()))
-                sb.AppendFormat(" --scatter \"{0}\"", Scatter);
-            else
-                sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
-            //sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
-            //sb.Append(" --info sizes --info totals --info unused --info veneers");
-            sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
-            sb.Append(" --info sizes --info totals --info veneers --diag_suppress L6803 --diag_suppress L6314");
+            sb.AppendFormat("-mcpu={0} -mthumb --specs=nano.specs -nostartfiles", CPU.ToLower());
+            sb.AppendFormat(" -Os -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler");
+            if (Debug) sb.Append(" -g");
+            if (Linux) sb.Append(" -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning");
+            var icf = Scatter;
+            if (icf.IsNullOrEmpty()) icf = ".".AsDirectory().GetAllFiles("*.ld", false).FirstOrDefault()?.Name;
+            if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
+                sb.AppendFormat(" -T\"{0}\"", icf);
 
             foreach (var item in ExtBuilds)
             {
@@ -173,7 +165,7 @@ namespace NewLife.Build
             }
 
             var axf = objName.EnsureEnd(".axf");
-            sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
+            sb.AppendFormat(" -Wl,-Map=\"{0}.map\" -o \"{1}\"", lstName, axf);
 
             return sb.ToString();
         }
