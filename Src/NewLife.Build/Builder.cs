@@ -758,13 +758,50 @@ namespace NewLife.Build
             if (msg.IsNullOrEmpty()) return;
 
             // 截取前面部分
-            if (!_Root.IsNullOrEmpty() && msg.StartsWithIgnoreCase(_Root)) msg = msg.Substring(_Root.Length);
+            if (!_Root.IsNullOrEmpty())
+            {
+                if (msg.StartsWithIgnoreCase(_Root)) msg = msg.Substring(_Root.Length);
+                if (msg.Contains(_Root)) msg = msg.Replace(_Root, null);
+            }
 
             msg = FixWord(msg);
+
+            var clr = GetColor(Thread.CurrentThread.ManagedThreadId);
             if (msg.StartsWithIgnoreCase("错误", "Error", "致命错误", "Fatal error") || msg.Contains("Error:"))
-                XTrace.Log.Error(msg);
-            else
-                XTrace.WriteLine(msg);
+                clr = ConsoleColor.Red;
+
+            Console.ForegroundColor = clr;
+            Console.WriteLine(msg);
+            Console.ResetColor();
+        }
+
+        static Dictionary<Int32, ConsoleColor> dic = new Dictionary<Int32, ConsoleColor>();
+        static ConsoleColor[] colors = new ConsoleColor[] {
+            ConsoleColor.Green, ConsoleColor.Cyan, ConsoleColor.Magenta, ConsoleColor.White, ConsoleColor.Yellow,
+            ConsoleColor.DarkGreen, ConsoleColor.DarkCyan, ConsoleColor.DarkMagenta, ConsoleColor.DarkRed, ConsoleColor.DarkYellow };
+        private ConsoleColor GetColor(Int32 threadid)
+        {
+            if (threadid == 1) return ConsoleColor.Gray;
+
+            // 好像因为dic.TryGetValue也会引发线程冲突，真是悲剧！
+            lock (dic)
+            {
+                ConsoleColor cc;
+                var key = threadid;
+                if (!dic.TryGetValue(key, out cc))
+                {
+                    //lock (dic)
+                    {
+                        //if (!dic.TryGetValue(key, out cc))
+                        {
+                            cc = colors[dic.Count % colors.Length];
+                            dic[key] = cc;
+                        }
+                    }
+                }
+
+                return cc;
+            }
         }
 
         /// <summary>片段字典集合</summary>

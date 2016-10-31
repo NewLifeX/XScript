@@ -212,7 +212,7 @@ namespace NewLife.Build
             ss[" discards "] = " 抛弃 ";
             ss[" qualifier "] = " 修饰 ";
             ss["from pointer target type"] = "从指针";
-            ss[" redefined "] = " 重复定义 ";
+            ss[" redefined"] = " 重复定义";
             ss["this is the location of the previous definition"] = "这是前一个定义";
             ss["makes integer from pointer without a cast"] = "整数未强转为指针";
         }
