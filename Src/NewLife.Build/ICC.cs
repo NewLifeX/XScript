@@ -219,17 +219,21 @@ namespace NewLife.Build
                 if (!Directory.Exists(p)) p = Path.Combine(item.RootDirectory.FullName, @"Program Files (x86)\IAR Systems");
                 if (Directory.Exists(p))
                 {
-                    var f = p.AsDirectory().GetAllFiles("iccarm.exe", true).LastOrDefault();
-                    if (f != null)
+                    var di = p.AsDirectory().GetDirectories().LastOrDefault();
+                    if (di != null && di.Exists)
                     {
-                        p = f.Directory.FullName.CombinePath(@"..\..\").GetFullPath();
-                        var ver = GetVer(p);
-                        if (ver.CompareTo(Version) > 0)
+                        var f = di.FullName.CombinePath("arm\\bin\\iccarm.exe").AsFile();
+                        if (f != null && f.Exists)
                         {
-                            ToolPath = p;
-                            Version = ver;
+                            p = f.Directory.FullName.CombinePath(@"..\..\").GetFullPath();
+                            var ver = GetVer(p);
+                            if (ver.CompareTo(Version) > 0)
+                            {
+                                ToolPath = p;
+                                Version = ver;
 
-                            WriteLog("本地 {0} {1}", ToolPath, Version);
+                                WriteLog("本地 {0} {1}", ToolPath, Version);
+                            }
                         }
                     }
                 }
