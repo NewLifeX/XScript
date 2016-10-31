@@ -34,10 +34,17 @@ namespace NewLife.Build
             var oc = ObjectContainer.Current;
             foreach (var item in typeof(Builder).GetAllSubclasses(true))
             {
-                var obj = item.CreateInstance() as Builder;
-                oc.Register<Builder>(obj, obj.Name);
+                try
+                {
+                    var obj = item.CreateInstance() as Builder;
+                    oc.Register<Builder>(obj, obj.Name);
 
-                //oc.Register(typeof(Builder), item, null, item.Name);
+                    //oc.Register(typeof(Builder), item, null, item.Name);
+                }
+                catch (Exception ex)
+                {
+                    if (XTrace.Debug) XTrace.WriteException(ex);
+                }
             }
         }
 
