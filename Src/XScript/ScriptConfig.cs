@@ -100,8 +100,8 @@ namespace NewLife.XScript
                 var line = item.Trim();
                 if (!line.StartsWith("//")) continue;
 
-                // 去掉前面的//
-                var flag = Set(line.Substring(2), pis);
+                //// 去掉前面的//
+                //var flag = Set(line.Substring(2), pis);
                 // 不要抛出异常，有可能是注释
                 //if (!flag) throw new XException("不可识别的参数{0}。", item);
             }
