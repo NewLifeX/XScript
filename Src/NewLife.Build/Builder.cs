@@ -757,6 +757,9 @@ namespace NewLife.Build
         {
             if (msg.IsNullOrEmpty()) return;
 
+            // 截取前面部分
+            if (!_Root.IsNullOrEmpty() && msg.StartsWithIgnoreCase(_Root)) msg = msg.Substring(_Root.Length);
+
             msg = FixWord(msg);
             if (msg.StartsWithIgnoreCase("错误", "Error", "致命错误", "Fatal error") || msg.Contains("Error:"))
                 XTrace.Log.Error(msg);
@@ -786,6 +789,9 @@ namespace NewLife.Build
         protected virtual void InitWord()
         {
             var ss = Words;
+            ss["warning:"] = "警告:";
+            ss["error:"] = "错误:";
+            ss["note:"] = "提示:";
             ss["Fatal error"] = "致命错误";
             ss["fatal error"] = "致命错误";
             ss["Could not open file"] = "无法打开文件";

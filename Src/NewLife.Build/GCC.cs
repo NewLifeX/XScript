@@ -195,6 +195,27 @@ namespace NewLife.Build
             return rs != 0;
         }
         #endregion
+
+        /// <summary>初始化关键字</summary>
+        protected override void InitWord()
+        {
+            base.InitWord();
+
+            var ss = Words;
+            ss["implicit declaration of function"] = "隐式声明函数";
+            ss["In function"] = "在函数";
+            ss["passing argument"] = "传递参数";
+            ss["from incompatible pointer type"] = "从不兼容指针类型";
+            ss["expected "] = "要求 ";
+            ss["but argument is of type"] = "但参数类型是";
+            //ss[" of "] = " 于 ";
+            ss[" discards "] = " 抛弃 ";
+            ss[" qualifier "] = " 修饰 ";
+            ss["from pointer target type"] = "从指针";
+            ss[" redefined "] = " 重复定义 ";
+            ss["this is the location of the previous definition"] = "这是前一个定义";
+            ss["makes integer from pointer without a cast"] = "整数未强转为指针";
+        }
     }
 
     class GCCLocation
