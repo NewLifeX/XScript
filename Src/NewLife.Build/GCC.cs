@@ -31,6 +31,8 @@ namespace NewLife.Build
         /// <returns></returns>
         public override Boolean Init(Boolean addlib)
         {
+            if (ToolPath != location.ToolPath) Version = location.GetVer(ToolPath);
+
             var basePath = ToolPath.CombinePath("bin").GetFullPath();
 
             Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
@@ -54,12 +56,24 @@ namespace NewLife.Build
             // -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O0   -mcpu=cortex-m3 -mthumb
             // -I. -IstLib/inc -IstCM3 -DDEBUG=1 -DARM_MATH_CM3 -DSTM32F103VE -Dstm32_flash_layout -DSTM32F10X_HD
             // -c LEDBlink.cpp -o Debug/LEDBlink.o -MD -MF Debug/LEDBlink.dep
+
+            // arm-none-eabi-gcc -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -mcpu=cortex-m3 -mthumb -g2 -w -O2 
+            // -Wno-pointer-sign -fno-common -fmessage-length=0  -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums 
+            // -mcpu=cortex-m3 -DF_CPU=166000000L -std=gnu99 -fsigned-char
+
             var sb = new StringBuilder();
-            sb.Append("-ggdb");
-            if (cpp) sb.Append(" -std=c++17");
-            sb.AppendFormat(" -mlittle-endian -mthumb -mcpu={0} -mthumb-interwork -O{1}", CPU, Debug ? 0 : 3);
-            sb.AppendFormat(" -ffunction-sections -fdata-sections");
-            sb.AppendFormat(" -fno-exceptions -MD");
+            if (cpp)
+                sb.Append("-std=c++17");
+            else
+                sb.Append("-std=gnu99");
+            sb.AppendFormat(" -mlittle-endian -mcpu={0} -mthumb -mthumb-interwork -O{1}", CPU.ToLower(), Debug ? 0 : 3);
+            sb.AppendFormat(" -ffunction-sections -fdata-sections -fomit-frame-pointer");
+            sb.AppendFormat(" -fno-exceptions -MD -Wno-pointer-sign -fno-common -fmessage-length=0");
+            if (Linux) sb.Append(" -fno-short-enums -fsigned-char");
+            if (Debug)
+                sb.Append(" -ggdb -g2");
+            else
+                sb.Append(" -w");
             //sb.AppendFormat(" -fno-exceptions --specs=nano.specs --specs=rdimon.specs -o");
             //sb.AppendFormat(" -L. -L./ldscripts -T gcc.ld");
             //sb.AppendFormat(" -Wl,--gc-sections");
@@ -236,7 +250,7 @@ namespace NewLife.Build
             #endregion
         }
 
-        String GetVer(String path)
+        public String GetVer(String path)
         {
             // bin\arm-none-eabi-gcc-5.4.1.exe
             var di = path.CombinePath("bin").AsDirectory();
