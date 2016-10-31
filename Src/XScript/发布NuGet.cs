@@ -32,7 +32,7 @@ namespace NewLife.Reflection
 
             // 处理.Net 2.0
             var node = root.SelectSingleNode("//id");
-            var id = node.InnerText;
+            //var id = node.InnerText;
             node.InnerText = name + ".Fx20";
 
             node = root.SelectSingleNode("//title");

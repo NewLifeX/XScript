@@ -34,6 +34,8 @@ namespace NewLife.Build
             var basePath = ToolPath;
             if (CLang)
             {
+                if (!location.Version2.IsNullOrEmpty()) Version = location.Version2;
+
                 basePath = ToolPath.CombinePath("ARMCLANG\\bin").GetFullPath();
                 if (!Directory.Exists(basePath)) basePath = ToolPath.CombinePath("ARMCC\\bin").GetFullPath();
             }
@@ -319,6 +321,9 @@ namespace NewLife.Build
         /// <summary>版本</summary>
         public String Version { get; set; }
 
+        /// <summary>版本2</summary>
+        public String Version2 { get; set; }
+
         /// <summary>工具目录</summary>
         public String ToolPath { get; set; }
         #endregion
@@ -338,7 +343,9 @@ namespace NewLife.Build
                     //Version = new Version(ss[0], ss[1]);
                     Version = reg.GetValue("Version") + "";
 
-                    WriteLog("注册表 {0} {1}", ToolPath, Version);
+                    Version2 = GetVer(ToolPath, false);
+
+                    WriteLog("注册表 {0} {1} {2}", ToolPath, Version, Version2);
                 }
             }
             #endregion
@@ -353,13 +360,14 @@ namespace NewLife.Build
                     var p = Path.Combine(item.RootDirectory.FullName, "Keil\\ARM");
                     if (Directory.Exists(p))
                     {
-                        var ver = GetVer(p);
+                        var ver = GetVer(p, false);
                         if (ver.CompareTo(Version) > 0)
                         {
                             ToolPath = p;
                             Version = ver;
+                            Version2 = GetVer(p, true);
 
-                            WriteLog("本地 {0} {1}", p, ver);
+                            WriteLog("本地 {0} {1} ｛2｝｝", p, ver, Version2);
                         }
                     }
                 }
@@ -376,11 +384,12 @@ namespace NewLife.Build
                 var p = dir.CombinePath("ARM");
                 if (Directory.Exists(p))
                 {
-                    var ver = GetVer(p);
+                    var ver = GetVer(p, false);
                     if (ver.CompareTo(Version) > 0)
                     {
                         ToolPath = p;
                         Version = ver;
+                        Version2 = GetVer(p, true);
                     }
                 }
             }
@@ -388,30 +397,35 @@ namespace NewLife.Build
             #endregion
         }
 
-        String GetVer(String path)
+        String GetVer(String path, Boolean clang)
         {
             var p = Path.Combine(path, "..\\Tools.ini");
             if (File.Exists(p))
             {
-                foreach (var item in File.ReadAllLines(p))
-                {
-                    if (String.IsNullOrEmpty(item)) continue;
-                    if (item.StartsWith("VERSION=", StringComparison.OrdinalIgnoreCase))
-                    {
-                        //var s = item.Substring("VERSION=".Length).Trim().Trim('V', 'v', 'a', 'b', 'c');
-                        //var ss = s.SplitAsInt(".");
-                        //return new Version(ss[0], ss[1]);
-                        //break;
+                //foreach (var item in File.ReadAllLines(p))
+                //{
+                //    if (String.IsNullOrEmpty(item)) continue;
+                //    if (item.StartsWith("VERSION=", StringComparison.OrdinalIgnoreCase))
+                //    {
+                //        //var s = item.Substring("VERSION=".Length).Trim().Trim('V', 'v', 'a', 'b', 'c');
+                //        //var ss = s.SplitAsInt(".");
+                //        //return new Version(ss[0], ss[1]);
+                //        //break;
 
-                        return item.Substring("VERSION=".Length).Trim();
-                    }
-                }
+                //        return item.Substring("VERSION=".Length).Trim();
+                //    }
+                //}
+                var dic = File.ReadAllText(p).SplitAsDictionary("=", Environment.NewLine);
+                var v = "";
+                if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out v)) return v.Trim('\"');
+                if (!clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_CM0", out v)) return v.Trim('\"');
+                if (dic.TryGetValue("VERSION", out v)) return v;
             }
 
             return "";
         }
 
-        void WriteLog(String format,params Object[] args)
+        void WriteLog(String format, params Object[] args)
         {
             if (XTrace.Debug) XTrace.WriteLine(format, args);
         }
