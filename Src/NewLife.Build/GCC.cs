@@ -100,7 +100,7 @@ namespace NewLife.Build
         protected override String OnAssemble(String file)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("-mthumb -mcpu={0} -mthumb", CPU.ToLower());
+            sb.AppendFormat("-mthumb -mcpu={0}", CPU.ToLower());
             // 汇编的警告意义不大
             //if (Debug) sb.Append(" -W -Wall -g");
             sb.AppendFormat(" -I.");
@@ -137,8 +137,10 @@ namespace NewLife.Build
 
             var sb = new StringBuilder();
             //sb.AppendFormat("-mcpu={0} -mthumb --specs=nano.specs", CPU.ToLower());
-            sb.AppendFormat("-mcpu={0} -mthumb", CPU.ToLower());
-            sb.AppendFormat(" -Os -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler");
+            sb.AppendFormat("-mcpu={0} -mthumb --specs=nosys.specs", CPU.ToLower());
+            sb.AppendFormat(" -Os -Wl,--cref -Wl,--entry=Reset_Handler");
+            // 删除未使用段，编译优化
+            sb.AppendFormat(" -Wl,--gc-sections -ffunction-sections -fdata-sections");
             if (Debug) sb.Append(" -g");
             if (Linux) sb.Append(" -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning");
             var icf = Scatter;
@@ -217,9 +219,9 @@ namespace NewLife.Build
         {
             var cmd = "";
             if (target.EndsWithIgnoreCase(".bin"))
-                cmd = "--bin -o \"{0}\" \"{1}\"".F(axf, target);
+                cmd = "-O binary \"{0}\" \"{1}\"".F(axf, target);
             else
-                cmd = "--i32 -o \"{0}\" \"{1}\"".F(axf, target);
+                cmd = "-O ihex \"{0}\" \"{1}\"".F(axf, target);
 
             var rs = ObjCopy.Run(cmd, 3000, WriteLog);
 
@@ -252,6 +254,15 @@ namespace NewLife.Build
             ss["cannot find entry symbol"] = "找不到符号";
             ss["undefined reference to"] = "未定义引用";
             ss["defaulting to"] = "默认";
+            ss["unused parameter"] = "未使用参数";
+            ss["unused variable"] = "未使用变量";
+            ss["deleting object of polymorphic class type"] = "删除没有虚析构的多态类对象";
+            ss["which has non-virtual destructor might cause undefined behaviour"] = "可能导致未知情况";
+            ss["comparison between signed and unsigned integer expressions"] = "比较整数与无符号整数";
+            ss["In copy constructor"] = "在拷贝构造函数";
+            ss["base class"] = "基类";
+            ss["should be explicitly initialized in the copy constructor"] = "应该在拷贝构造函数中被明确初始化";
+            ss["In member function"] = "在成员函数";
         }
     }
 
