@@ -404,10 +404,14 @@ namespace NewLife.Build
         /// <param name="name"></param>
         public void BuildLib(String name = null)
         {
+            var ext = Path.GetExtension(name);
+            if (!ext.IsNullOrEmpty()) name = name.TrimEnd(ext);
+
             name = GetOutputName(name);
             XTrace.WriteLine("链接：{0}", name);
 
-            var lib = name.EnsureEnd(".lib");
+            if (ext.IsNullOrEmpty()) ext = ".lib";
+            var lib = name.EnsureEnd(ext);
             var sb = new StringBuilder();
             sb.Append(OnBuildLib(lib));
 
@@ -450,6 +454,9 @@ namespace NewLife.Build
         /// <returns></returns>
         public Int32 Build(String name = null)
         {
+            var ext = Path.GetExtension(name);
+            if (!ext.IsNullOrEmpty()) name = name.TrimEnd(ext);
+
             name = GetOutputName(name);
             Console.WriteLine();
             XTrace.WriteLine("生成：{0}", name);
@@ -471,6 +478,45 @@ namespace NewLife.Build
             }
             if (Objs.Count < 6) Console.WriteLine();
 
+            LoadLib(sb);
+
+            var objName = GetObjPath(name);
+            var axf = objName.EnsureEnd(".axf");
+            XTrace.WriteLine("链接：{0}", axf);
+
+            var rs = Link.Run(sb.ToString(), 3000, WriteLog);
+            if (rs != 0) return rs;
+
+            // 预处理axf。修改编译信息
+            BuildHelper.WriteBuildInfo(axf);
+
+            if (ext.IsNullOrEmpty()) ext = ".bin";
+            var target = name.EnsureEnd(ext);
+            XTrace.WriteLine("生成：{0}", target);
+            Console.WriteLine("");
+
+            Dump(axf, target);
+
+            if (name.Contains("\\")) name = name.Substring("\\", "_");
+            if (rs == 0)
+                "编译目标{0}完成".F(name).SpeakAsync();
+            else
+                "编译目标{0}失败".F(name).SpeakAsync();
+
+            return rs;
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected virtual String OnBuild(String lib)
+        {
+            return null;
+        }
+
+        /// <summary>加载库文件</summary>
+        /// <param name="sb"></param>
+        protected virtual void LoadLib(StringBuilder sb)
+        {
             var dic = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in Libs)
             {
@@ -502,37 +548,6 @@ namespace NewLife.Build
                 sb.Append(item.Value);
                 Console.WriteLine("\t{0}\t{1}", item.Key, item.Value);
             }
-
-            var objName = GetObjPath(name);
-            var axf = objName.EnsureEnd(".axf");
-            XTrace.WriteLine("链接：{0}", axf);
-
-            var rs = Link.Run(sb.ToString(), 3000, WriteLog);
-            if (rs != 0) return rs;
-
-            // 预处理axf。修改编译信息
-            BuildHelper.WriteBuildInfo(axf);
-
-            var target = name.EnsureEnd(".bin");
-            XTrace.WriteLine("生成：{0}", target);
-            Console.WriteLine("");
-
-            Dump(axf, target);
-
-            if (name.Contains("\\")) name = name.Substring("\\", "_");
-            if (rs == 0)
-                "编译目标{0}完成".F(name).SpeakAsync();
-            else
-                "编译目标{0}失败".F(name).SpeakAsync();
-
-            return rs;
-        }
-
-        /// <summary>链接静态库</summary>
-        /// <returns></returns>
-        protected virtual String OnBuild(String lib)
-        {
-            return null;
         }
 
         /// <summary>导出目标文件</summary>
@@ -661,7 +676,7 @@ namespace NewLife.Build
             }
         }
 
-        class LibFile
+        internal class LibFile
         {
             /// <summary>名称</summary>
             public String Name { get; set; }
@@ -693,7 +708,7 @@ namespace NewLife.Build
                 if (!file.IsNullOrEmpty())
                 {
                     file = Path.GetFileNameWithoutExtension(file);
-                    name = file.TrimStart("Build_", "编译_", "Build", "编译").TrimEnd(".cs");
+                    name = file.TrimStart("Build_", "编译_", "Build", "编译").TrimEnd(".cs", "_GCC", "_ICC");
                 }
             }
             if (name.IsNullOrEmpty())

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,9 @@ namespace NewLife.Build
             var basePath = ToolPath.CombinePath("bin").GetFullPath();
 
             Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
-            Asm = basePath.CombinePath("arm-none-eabi-gcc.exe");
+            //Asm = basePath.CombinePath(@"..\arm-none-eabi\bin\as.exe");
+            Asm = basePath.CombinePath("arm-none-eabi-as.exe");
+            //Link = basePath.CombinePath("arm-none-eabi-ld.exe");
             Link = basePath.CombinePath("arm-none-eabi-gcc.exe");
             Ar = basePath.CombinePath("arm-none-eabi-ar.exe");
             ObjCopy = basePath.CombinePath("arm-none-eabi-objcopy.exe");
@@ -66,22 +69,16 @@ namespace NewLife.Build
                 sb.Append("-std=c++17");
             else
                 sb.Append("-std=gnu99");
-            sb.AppendFormat(" -mlittle-endian -mcpu={0} -mthumb -mthumb-interwork -O{1}", CPU.ToLower(), Debug ? 0 : 3);
+            sb.AppendFormat(" -mcpu={0} -mthumb -O{1}", CPU.ToLower(), Debug ? 0 : 3);
             sb.AppendFormat(" -ffunction-sections -fdata-sections -fomit-frame-pointer");
             sb.AppendFormat(" -fno-exceptions -MD -fno-common -fmessage-length=0");
             if (Linux) sb.Append(" -fno-short-enums -fsigned-char");
             if (!cpp) sb.Append(" -Wno-pointer-sign");
+            // 调试版打开所有警告
             if (Debug)
-                sb.Append(" -ggdb -g2");
+                sb.Append(" -W -Wall -g2");
             else
                 sb.Append(" -w");
-            //sb.AppendFormat(" -fno-exceptions --specs=nano.specs --specs=rdimon.specs -o");
-            //sb.AppendFormat(" -L. -L./ldscripts -T gcc.ld");
-            //sb.AppendFormat(" -Wl,--gc-sections");
-            //sb.AppendFormat(" -fwide-exec-charset=UTF-8");
-            //sb.AppendFormat("  -D__NO_SYSTEM_INIT -D{0}", Flash);
-            //sb.AppendFormat(" -D{0}", Flash);
-            //if (GD32) sb.Append(" -DGD32");
             if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
             if (Tiny) sb.Append(" -DTINY");
             foreach (var item in Defines)
@@ -103,20 +100,9 @@ namespace NewLife.Build
         protected override String OnAssemble(String file)
         {
             var sb = new StringBuilder();
-            sb.Append("-ggdb");
-            if (file.EndsWithIgnoreCase(".cpp"))
-                sb.Append(" -std=c++17");
-            sb.AppendFormat(" -mlittle-endian -mthumb -mcpu={0} -mthumb-interwork -O{1}", CPU, Debug ? 0 : 3);
-            sb.AppendFormat(" -ffunction-sections -fdata-sections");
-            sb.AppendFormat(" -fno-exceptions -MD");
-            //sb.AppendFormat(" -D{0}", Flash);
-            //if (GD32) sb.Append(" -DGD32");
-            foreach (var item in Defines)
-            {
-                sb.AppendFormat(" -D{0}", item);
-            }
-            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
-            if (Tiny) sb.Append(" -DTINY");
+            sb.AppendFormat("-mthumb -mcpu={0} -mthumb", CPU.ToLower());
+            // 汇编的警告意义不大
+            //if (Debug) sb.Append(" -W -Wall -g");
             sb.AppendFormat(" -I.");
             foreach (var item in Includes)
             {
@@ -150,7 +136,8 @@ namespace NewLife.Build
             var objName = GetObjPath(name);
 
             var sb = new StringBuilder();
-            sb.AppendFormat("-mcpu={0} -mthumb --specs=nano.specs -nostartfiles", CPU.ToLower());
+            //sb.AppendFormat("-mcpu={0} -mthumb --specs=nano.specs", CPU.ToLower());
+            sb.AppendFormat("-mcpu={0} -mthumb", CPU.ToLower());
             sb.AppendFormat(" -Os -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler");
             if (Debug) sb.Append(" -g");
             if (Linux) sb.Append(" -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning");
@@ -166,8 +153,60 @@ namespace NewLife.Build
 
             var axf = objName.EnsureEnd(".axf");
             sb.AppendFormat(" -Wl,-Map=\"{0}.map\" -o \"{1}\"", lstName, axf);
+            //sb.AppendFormat(" -o \"{0}\"", axf);
 
             return sb.ToString();
+        }
+
+        /// <summary>加载库文件</summary>
+        /// <param name="sb"></param>
+        protected override void LoadLib(StringBuilder sb)
+        {
+            var dic = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in Libs)
+            {
+                var lib = new LibFile(item);
+                // 调试版/发行版 优先选用最佳匹配版本
+                var old = "";
+                // 不包含，直接增加
+                if (!dic.TryGetValue(lib.Name, out old))
+                {
+                    dic.Add(lib.Name, lib.FullName);
+                }
+                // 已包含，并且新版本更合适，替换
+                else
+                {
+                    //Console.WriteLine("{0} Debug={1} Tiny={2}", lib.FullName, lib.Debug, lib.Tiny);
+                    var lib2 = new LibFile(old);
+                    if (!(lib2.Debug == Debug && lib2.Tiny == Tiny) &&
+                    (lib.Debug == Debug && lib.Tiny == Tiny))
+                    {
+                        dic[lib.Name] = lib.FullName;
+                    }
+                }
+            }
+
+            var hs = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
+            Console.WriteLine("使用静态库：");
+            foreach (var item in dic)
+            {
+                if (!item.Value.EndsWithIgnoreCase(".a")) continue;
+
+                Console.WriteLine("\t{0}\t{1}", item.Key, item.Value);
+
+                var fi = Path.GetFileName(item.Value);
+                if (!fi.StartsWith("lib") || !fi.EndsWith(".a")) continue;
+
+                var dir = Path.GetDirectoryName(item.Value);
+                if (!hs.Contains(dir))
+                {
+                    hs.Add(dir);
+
+                    sb.AppendFormat(" -L{0}", dir);
+                }
+
+                sb.AppendFormat(" -l{0}", fi.TrimStart("lib").TrimEnd(".a"));
+            }
         }
 
         /// <summary>导出目标文件</summary>
