@@ -207,6 +207,9 @@ namespace NewLife.Build
             ss[" redefined"] = " 重复定义";
             ss["this is the location of the previous definition"] = "这是前一个定义";
             ss["makes integer from pointer without a cast"] = "整数未强转为指针";
+            ss["conflicting types for"] = "类型冲突";
+            ss["previous declaration of"] = "前一个声明";
+            ss["was here"] = "在";
         }
     }
 
