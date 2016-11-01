@@ -150,8 +150,11 @@ namespace NewLife.XScript
                 }
                 catch (Exception ex)
                 {
+                    // 获取内部异常
+                    if (ex is TargetInvocationException) ex = (ex as TargetInvocationException).InnerException;
+
                     XTrace.WriteException(ex);
-                    if (!Config.Debug) Console.WriteLine(ex.ToString());
+                    //if (!Config.Debug) Console.WriteLine(ex.ToString());
                 }
                 finally
                 {
