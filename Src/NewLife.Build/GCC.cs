@@ -210,6 +210,9 @@ namespace NewLife.Build
             ss["conflicting types for"] = "类型冲突";
             ss["previous declaration of"] = "前一个声明";
             ss["was here"] = "在";
+            ss["cannot find entry symbol"] = "找不到符号";
+            ss["undefined reference to"] = "未定义引用";
+            ss["defaulting to"] = "默认";
         }
     }
 

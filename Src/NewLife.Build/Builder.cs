@@ -263,10 +263,14 @@ namespace NewLife.Build
                 Console.ResetColor();
             }
 
+            var sb = new StringBuilder();
+            sb.Append(cmd);
+            sb.AppendFormat(" \"{0}\" -o \"{1}.o\"", file, objName);
+
             // 先删除目标文件
             if (obj.Exists) obj.Delete();
 
-            return Asm.Run(cmd, 100, WriteLog);
+            return Asm.Run(sb.ToString(), 100, WriteLog);
         }
 
         /// <summary>汇编程序</summary>
@@ -357,7 +361,7 @@ namespace NewLife.Build
             }
 
             Console.WriteLine("等待编译完成：");
-            //var left = Console.CursorLeft;
+            var left = Console.CursorLeft;
             var list2 = new List<String>(list);
             var end = DateTime.Now.AddSeconds(10);
             var fs = 0;
@@ -371,8 +375,8 @@ namespace NewLife.Build
                         list2.RemoveAt(i);
                     }
                 }
-                //Console.CursorLeft = left;
-                Console.WriteLine();
+                Console.CursorLeft = left;
+                //Console.WriteLine();
                 Console.Write("\t {0}/{1} = {2:p}", fs, Files.Count, (Double)fs / Files.Count);
 
                 if (DateTime.Now > end)
