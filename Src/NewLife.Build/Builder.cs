@@ -151,6 +151,9 @@ namespace NewLife.Build
         /// <summary>是否使用Linux标准</summary>
         public Boolean Linux { get; set; }
 
+        /// <summary>分步编译。优先选用与目录同名的静态库</summary>
+        public Boolean Partial { get; set; }
+
         /// <summary>定义集合</summary>
         public ICollection<String> Defines { get; private set; } = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
 
@@ -167,10 +170,10 @@ namespace NewLife.Build
         public ICollection<String> Libs { get; private set; } = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>扩展编译集合</summary>
-        public ICollection<String> ExtCompiles { get; private set; } = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
+        public String ExtCompiles { get; set; }
 
         /// <summary>扩展编译集合</summary>
-        public ICollection<String> ExtBuilds { get; private set; } = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
+        public String ExtBuilds { get; set; }
         #endregion
 
         #region 主要编译方法
@@ -285,22 +288,25 @@ namespace NewLife.Build
             Objs.Clear();
             var count = 0;
 
+            if (Files.Count == 0) return 0;
+
             // 计算根路径，输出的对象文件以根路径下子路径的方式存放
             var di = Files.First().AsFile().Directory;
-            _Root = di.FullName;
+            var root = di.FullName;
             foreach (var item in Files)
             {
-                while (!item.StartsWithIgnoreCase(_Root))
+                while (!item.StartsWithIgnoreCase(root))
                 {
                     di = di.Parent;
                     if (di == null) break;
 
-                    _Root = di.FullName;
+                    root = di.FullName;
                 }
                 if (di == null) break;
             }
-            _Root = _Root.EnsureEnd("\\");
-            Console.WriteLine("根目录：{0}", _Root);
+            root = root.EnsureEnd("\\");
+            Console.WriteLine("根目录：{0}", root);
+            _Root = root;
 
             // 提前创建临时目录
             var obj = GetObjPath(null);
@@ -406,8 +412,10 @@ namespace NewLife.Build
 
         /// <summary>编译静态库</summary>
         /// <param name="name"></param>
-        public void BuildLib(String name = null)
+        public Int32 BuildLib(String name = null)
         {
+            if (Objs.Count == 0) return 0;
+
             var ext = Path.GetExtension(name);
             if (!ext.IsNullOrEmpty()) name = name.TrimEnd(ext);
 
@@ -433,6 +441,8 @@ namespace NewLife.Build
             }
             if (Objs.Count < 6) Console.WriteLine();
 
+            LoadLib(sb);
+
             var rs = Ar.Run(sb.ToString(), 3000, WriteLog);
             XTrace.WriteLine("链接完成 {0} {1}", rs, lib);
 
@@ -444,6 +454,8 @@ namespace NewLife.Build
                 "链接静态库{0}完成".F(name).SpeakAsync();
             else
                 "链接静态库{0}失败".F(name).SpeakAsync();
+
+            return rs;
         }
 
         /// <summary>链接静态库</summary>
@@ -458,6 +470,8 @@ namespace NewLife.Build
         /// <returns></returns>
         public Int32 Build(String name = null)
         {
+            if (Objs.Count == 0) return 0;
+
             var ext = Path.GetExtension(name);
             if (!ext.IsNullOrEmpty()) name = name.TrimEnd(ext);
 
@@ -575,6 +589,7 @@ namespace NewLife.Build
 
             var count = 0;
 
+            // 要排除的集合
             var excs = new HashSet<String>((excludes + "").Split(",", ";"), StringComparer.OrdinalIgnoreCase);
 
             path = path.GetFullPath().EnsureEnd("\\");
@@ -582,6 +597,9 @@ namespace NewLife.Build
             foreach (var item in path.AsDirectory().GetAllFiles(exts, allSub))
             {
                 if (!item.Extension.EqualIgnoreCase(".c", ".cpp", ".s")) continue;
+
+                // 检查指定目录下是否有同名静态库
+                if (Partial && CheckPartial(item.Directory, path)) continue;
 
                 //Console.Write("添加：{0}\t", item.FullName);
 
@@ -614,6 +632,32 @@ namespace NewLife.Build
             }
 
             return count;
+        }
+
+        /// <summary>检查指定目录下是否有同名静态库</summary>
+        /// <param name="di"></param>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        private Boolean CheckPartial(DirectoryInfo di, String root)
+        {
+            var fi = di.GetAllFiles("*.lib;*.a").FirstOrDefault();
+            if (fi != null && fi.Exists)
+            {
+                if (!Libs.Contains(fi.FullName))
+                {
+                    var lib = new LibFile(fi.FullName);
+                    WriteLog("发现静态库：{0, -12} {1}".F(lib.Name, fi.FullName));
+                    Libs.Add(fi.FullName);
+                }
+                return true;
+            }
+
+            var p = di.Parent;
+            if (p == null || p == di) return false;
+            // 截止到当前目录
+            if (p.FullName.EnsureEnd("\\").EqualIgnoreCase(root.GetFullPath().EnsureEnd("\\"))) return false;
+
+            return CheckPartial(p, root);
         }
 
         /// <summary>添加包含目录</summary>

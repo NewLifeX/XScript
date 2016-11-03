@@ -90,10 +90,7 @@ namespace NewLife.Build
                 sb.AppendFormat(" -D{0}", item);
             }
 
-            foreach (var item in ExtCompiles)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -187,10 +184,7 @@ namespace NewLife.Build
             sb.Append(" --summary_stderr --info summarysizes --map --xref --callgraph --symbols");
             sb.Append(" --info sizes --info totals --info veneers --diag_suppress L6803 --diag_suppress L6314");
 
-            foreach (var item in ExtBuilds)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtBuilds.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtBuilds.Trim());
 
             var axf = objName.EnsureEnd(".axf");
             sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);
@@ -309,10 +303,7 @@ namespace NewLife.Build
                 sb.AppendFormat(" -D{0}", item);
             }
 
-            foreach (var item in ExtCompiles)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }

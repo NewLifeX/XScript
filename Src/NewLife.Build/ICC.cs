@@ -75,10 +75,7 @@ namespace NewLife.Build
             //var basePath = Complier.CombinePath(@"..\..\..\").GetFullPath();
             //sb.AppendFormat(" --dlib_config \"{0}\\arm\\INC\\c\\DLib_Config_Normal.h\"", basePath);
 
-            foreach (var item in ExtCompiles)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -149,10 +146,7 @@ namespace NewLife.Build
             //    sb.AppendFormat(" --ro-base 0x08000000 --rw-base 0x20000000 --first __Vectors");
             sb.Append(" --entry Reset_Handler --no_exceptions --no_vfe");
 
-            foreach (var item in ExtBuilds)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtBuilds.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtBuilds.Trim());
 
             var axf = objName.EnsureEnd(".axf");
             sb.AppendFormat(" --list \"{0}.map\" -o \"{1}\"", lstName, axf);

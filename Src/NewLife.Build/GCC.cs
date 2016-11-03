@@ -111,10 +111,7 @@ namespace NewLife.Build
                 sb.AppendFormat(" -D{0}", item);
             }
 
-            foreach (var item in ExtCompiles)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -169,7 +166,7 @@ namespace NewLife.Build
             if (!Entry.IsNullOrEmpty()) sb.AppendFormat(" -Wl,--entry={0}", Entry);
             sb.AppendFormat(" -Wl,--cref");
             // 为每个函数和数据项分配独立的段
-            sb.Append(" -ffunction-sections -fdata-sections");
+            //sb.Append(" -ffunction-sections -fdata-sections");
             // 删除未使用段
             sb.AppendFormat(" -Wl,--gc-sections");
             // Linux风格，4字节枚举、有符号字符
@@ -184,10 +181,7 @@ namespace NewLife.Build
             if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
                 sb.AppendFormat(" -T\"{0}\"", icf);
 
-            foreach (var item in ExtBuilds)
-            {
-                sb.AppendFormat(" {0}", item.Trim());
-            }
+            if(!ExtBuilds.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtBuilds.Trim());
 
             var axf = objName.EnsureEnd(".axf");
             sb.AppendFormat(" -Wl,-Map=\"{0}.map\" -o \"{1}\"", lstName, axf);
