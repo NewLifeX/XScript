@@ -311,7 +311,10 @@ namespace NewLife.Build
 
             Console.Write("编译参数：");
             Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.WriteLine(cmd);
+            if (Files.Any(e => e.EndsWithIgnoreCase(".cpp", ".cxx")))
+                Console.WriteLine(cmd);
+            if (Files.Any(e => e.EndsWithIgnoreCase(".c")))
+                Console.WriteLine(cmd2);
             Console.ResetColor();
 
             var asm = 0;
@@ -326,6 +329,7 @@ namespace NewLife.Build
                         rs = Compile(cmd2, item);
                         break;
                     case ".cpp":
+                    case ".cxx":
                         rs = Compile(cmd, item);
                         break;
                     case ".s":
