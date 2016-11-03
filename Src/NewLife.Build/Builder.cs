@@ -824,7 +824,7 @@ namespace NewLife.Build
         }
 
         /// <summary>片段字典集合</summary>
-        public Dictionary<String, String> Words { get; set; } = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<String, String> Words { get; set; } = new Dictionary<String, String>();
 
         /// <summary>函数输出日志</summary>
         /// <param name="msg"></param>
@@ -835,10 +835,26 @@ namespace NewLife.Build
 
             foreach (var item in Words)
             {
-                msg = msg.Replace(item.Key, item.Value);
+                //msg = msg.Replace(item.Key, item.Value);
+                msg = Replace(msg, item.Key, item.Value);
             }
 
             return msg;
+        }
+
+        private String Replace(String str, String oldValue, String newValue)
+        {
+            var p = 0;
+            while (true)
+            {
+                p = str.IndexOf(oldValue, p, StringComparison.OrdinalIgnoreCase);
+                if (p < 0) break;
+
+                str = str.Substring(0, p) + newValue + str.Substring(p + oldValue.Length);
+                p += newValue.Length;
+            }
+
+            return str;
         }
 
         /// <summary>初始化关键字</summary>
@@ -855,7 +871,7 @@ namespace NewLife.Build
             ss["Undefined symbol"] = "未定义标记";
             ss["referred from"] = "引用自";
             ss["Program Size"] = "程序大小";
-            ss["Finished"] = "程序大小";
+            ss["Finished "] = "完成 ";
             ss["declared at"] = "声明于";
         }
         #endregion

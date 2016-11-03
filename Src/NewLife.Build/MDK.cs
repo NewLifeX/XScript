@@ -223,7 +223,6 @@ namespace NewLife.Build
 
             var ss = Words;
             ss["Fatal error"] = "致命错误";
-            ss["fatal error"] = "致命错误";
             ss["Could not open file"] = "无法打开文件";
             ss["No such file or directory"] = "文件或目录不存在";
             ss["Undefined symbol"] = "未定义标记";
