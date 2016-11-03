@@ -12,6 +12,11 @@ namespace NewLife.Build
     public class GCC : Builder
     {
         #region 属性
+        /// <summary>nano.specs/nosys.specs</summary>
+        public String Specs { get; set; } = "nano.specs";
+
+        /// <summary>入口函数。链接目标文件时使用</summary>
+        public String Entry { get; set; }
         #endregion
 
         #region 初始化
@@ -47,7 +52,7 @@ namespace NewLife.Build
             IncPath = basePath.CombinePath(@"..\arm-none-eabi\include").GetFullPath();
             LibPath = basePath.CombinePath(@"..\arm-none-eabi\lib").GetFullPath();
 
-            return base.Init();
+            return base.Init(addlib);
         }
 
         #region 主要编译方法
@@ -65,14 +70,34 @@ namespace NewLife.Build
             // -mcpu=cortex-m3 -DF_CPU=166000000L -std=gnu99 -fsigned-char
 
             var sb = new StringBuilder();
+            // 指定编译语言
             if (cpp)
                 sb.Append("-std=c++17");
             else
                 sb.Append("-std=gnu99");
-            sb.AppendFormat(" -mcpu={0} -mthumb -O{1}", CPU.ToLower(), Debug ? 0 : 3);
-            sb.AppendFormat(" -ffunction-sections -fdata-sections -fomit-frame-pointer");
-            sb.AppendFormat(" -fno-exceptions -MD -fno-common -fmessage-length=0");
+            // 指定CPU和指令集
+            sb.AppendFormat(" -mcpu={0} -mthumb", CPU.ToLower());
+            // 指定优化等级
+            /*
+             * gcc默认提供了5级优 化选项的集合: 
+             * -O0:无优化(默认) 
+             * -O和-O1:使用能减少目标文 件 大小以及执行时间并且不会使编译时间明显增加的优化.在编译大型程序的时候会显著增加编译时内存的使用. 
+             * -O2: 包含-O1的优化并增加了不需要在目标文件大小和执行速度上进行折衷的优化.编译器不执行循环展开以及函数内联.此选项将增加编译时间和目标文件的执行性能. 
+             * -Os:专门优化目标文件大小,执行所有的不增加目标文件大小的-O2优化选项.并且执行专门减小目标文件大小的优化选项. 
+             * -O3: 打开所有-O2的优化选项并且增加 -finline-functions, -funswitch-loops,-fpredictive-commoning, -fgcse-after-reload and -ftree-vectorize优化选项. 
+             */
+            sb.AppendFormat(" -O{0}", Debug ? 0 : 3);
+            // 为每个函数和数据项分配独立的段
+            sb.Append(" -ffunction-sections -fdata-sections");
+            // omit- frame-pointer:可能的情况下不产生栈帧
+            sb.Append(" -fomit-frame-pointer");
+            // 不使用异常
+            sb.Append(" -fno-exceptions");
+            // 禁止将未初始化的全局变量放入到common段，而是放入bss段，初始为0
+            sb.Append(" -fno-common");
+            // Linux风格，4字节枚举、有符号字符
             if (Linux) sb.Append(" -fno-short-enums -fsigned-char");
+            // C语言指针无符号
             if (!cpp) sb.Append(" -Wno-pointer-sign");
             // 调试版打开所有警告
             if (Debug)
@@ -136,13 +161,24 @@ namespace NewLife.Build
             var objName = GetObjPath(name);
 
             var sb = new StringBuilder();
-            //sb.AppendFormat("-mcpu={0} -mthumb --specs=nano.specs", CPU.ToLower());
-            sb.AppendFormat("-mcpu={0} -mthumb --specs=nosys.specs", CPU.ToLower());
-            sb.AppendFormat(" -Os -Wl,--cref -Wl,--entry=Reset_Handler");
-            // 删除未使用段，编译优化
-            sb.AppendFormat(" -Wl,--gc-sections -ffunction-sections -fdata-sections");
-            if (Debug) sb.Append(" -g");
+            // 指定CPU和指令集
+            sb.AppendFormat("-mcpu={0} -mthumb", CPU.ToLower());
+            // 指定优化等级
+            sb.AppendFormat(" -O{0}", Debug ? 0 : 3);
+            if (!Specs.IsNullOrEmpty()) sb.AppendFormat(" --specs={0}", Specs);
+            if (!Entry.IsNullOrEmpty()) sb.AppendFormat(" -Wl,--entry={0}", Entry);
+            sb.AppendFormat(" -Wl,--cref");
+            // 为每个函数和数据项分配独立的段
+            sb.Append(" -ffunction-sections -fdata-sections");
+            // 删除未使用段
+            sb.AppendFormat(" -Wl,--gc-sections");
+            // Linux风格，4字节枚举、有符号字符
             if (Linux) sb.Append(" -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning");
+            // 调试版打开所有警告
+            if (Debug)
+                sb.Append(" -W -Wall -g2");
+            else
+                sb.Append(" -w");
             var icf = Scatter;
             if (icf.IsNullOrEmpty()) icf = ".".AsDirectory().GetAllFiles("*.ld", false).FirstOrDefault()?.Name;
             if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
