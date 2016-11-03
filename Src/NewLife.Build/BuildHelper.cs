@@ -10,7 +10,7 @@ using Microsoft.Win32;
 namespace NewLife.Build
 {
     /// <summary>编译助手</summary>
-    public class BuildHelper
+    public static class BuildHelper
     {
         static Int32 Main2(String[] args)
         {
@@ -295,6 +295,24 @@ namespace NewLife.Build
                 File.Copy(fi, my, true);
             }
             catch { }
+        }
+
+        /// <summary>从当前目录向上查找指定名称目录</summary>
+        /// <param name="dir"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static String FindUp(this String dir, String name)
+        {
+            var di = dir.AsDirectory();
+            while (di != null)
+            {
+                if (di.Name.EqualIgnoreCase(name)) return di.FullName;
+
+                if (di == di.Parent) return null;
+                di = di.Parent;
+            }
+
+            return null;
         }
     }
 }
