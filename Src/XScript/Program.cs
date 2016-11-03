@@ -414,7 +414,8 @@ namespace NewLife.XScript
             var up = new Upgrade();
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
-            up.Server = "https://github.com/NewLifeX/XScript/releases";
+            //up.Server = "https://git.oschina.net/NewLifeX/XScript";
+            up.Server = "http://www.newlifex.com/showtopic-369.aspx";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
@@ -424,7 +425,8 @@ namespace NewLife.XScript
                 if (up.Links.Length > 0)
                 {
                     var url = up.Links[0].Url;
-                    if (url.Contains("github.com") && url.Contains("/blob/")) up.Links[0].Url = url.Replace("/blob/", "/raw/");
+                    if ((url.Contains("github.com") || url.Contains("git."))
+                        && url.Contains("/blob/")) up.Links[0].Url = url.Replace("/blob/", "/raw/");
                 }
 
                 up.Download();
