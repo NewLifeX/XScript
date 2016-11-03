@@ -700,7 +700,7 @@ namespace NewLife.Build
                 Name = Path.GetFileNameWithoutExtension(file);
                 Debug = Name.EndsWith("D");
                 Tiny = Name.EndsWith("T");
-                Name = Name.TrimEnd("D", "T");
+                Name = Name.TrimEnd('D', 'T');
             }
         }
 
