@@ -259,6 +259,12 @@ namespace NewLife.Build
             ss["nonstandard form for taking the address of a member function"] = "获取成员函数地址不标准（&Class::Method）";
             ss["argument of type"] = "实参类型";
             ss["is incompatible with parameter of type"] = "不兼容形参类型";
+            ss["last line of file ends without a newline"] = "文件结尾需要一行空行";
+            ss["declared implicitly"] = "隐式声明";
+            ss["Deprecated declaration"] = "拒绝声明";
+            ss["give arg types"] = "指定参数类型";
+            ss["assignment in condition"] = "在条件语句中赋值";
+            ss["declaration may not appear after executable statement in block"] = "声明不应该出现在语句块之后";
         }
     }
 
