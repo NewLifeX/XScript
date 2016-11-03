@@ -42,7 +42,7 @@ namespace NewLife.Build
             IncPath = basePath.CombinePath(@"arm\include").GetFullPath();
             LibPath = basePath.CombinePath(@"arm\lib").GetFullPath();
 
-            return base.Init();
+            return base.Init(addlib);
         }
 
         #region 主要编译方法

@@ -55,7 +55,7 @@ namespace NewLife.Build
             IncPath = basePath.CombinePath("..\\include").GetFullPath();
             LibPath = basePath.CombinePath("..\\lib").GetFullPath();
 
-            return base.Init();
+            return base.Init(addlib);
         }
 
         #region 主要编译方法
