@@ -164,8 +164,10 @@ namespace NewLife.Build
             var cmd = "";
             if (target.EndsWithIgnoreCase(".bin"))
                 cmd = "--bin  \"{0}\" \"{1}\"".F(axf, target);
-            else
+            else if (target.EndsWithIgnoreCase(".hex"))
                 cmd = "--ihex \"{0}\" \"{1}\"".F(axf, target);
+            else
+                return false;
 
             var rs = ObjCopy.Run(cmd, 3000, WriteLog);
 
