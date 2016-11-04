@@ -181,8 +181,6 @@ namespace NewLife.Build
             if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
                 sb.AppendFormat(" -T\"{0}\"", icf);
 
-            if(!ExtBuilds.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtBuilds.Trim());
-
             var axf = objName.EnsureEnd(".axf");
             sb.AppendFormat(" -Wl,-Map=\"{0}.map\" -o \"{1}\"", lstName, axf);
             //sb.AppendFormat(" -o \"{0}\"", axf);

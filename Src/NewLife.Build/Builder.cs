@@ -498,6 +498,8 @@ namespace NewLife.Build
 
             LoadLib(sb);
 
+            if (!ExtBuilds.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtBuilds.Trim());
+
             var objName = GetObjPath(name);
             var axf = objName.EnsureEnd(".axf");
             XTrace.WriteLine("链接：{0}", axf);
@@ -924,6 +926,7 @@ namespace NewLife.Build
             ss["Finished "] = "完成 ";
             ss["declared at"] = "声明于";
             ss["identifier "] = "标记 ";
+            ss["In function"] = "在函数";
             ss["function "] = "函数 ";
             ss["was declared but never referenced"] = "被声明但从未被引用";
             ss["expected a "] = "预期一个";
