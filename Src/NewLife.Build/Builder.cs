@@ -36,10 +36,11 @@ namespace NewLife.Build
             {
                 try
                 {
-                    var obj = item.CreateInstance() as Builder;
-                    oc.Register<Builder>(obj, obj.Name);
+                    //var obj = item.CreateInstance() as Builder;
+                    //oc.Register<Builder>(obj, obj.Name);
 
-                    //oc.Register(typeof(Builder), item, null, item.Name);
+                    var name = item.GetDisplayName() ?? item.Name;
+                    oc.Register(typeof(Builder), item, null, name);
                 }
                 catch (Exception ex)
                 {
@@ -184,6 +185,25 @@ namespace NewLife.Build
         /// <returns></returns>
         public abstract String GetCompileCommand(Boolean cpp);
 
+        /// <summary>检查源码文件是否需要编译</summary>
+        /// <param name="src"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        private Boolean Check(String src, FileInfo obj)
+        {
+            if (!obj.Exists) return true;
+            if (obj.LastWriteTime < src.AsFile().LastWriteTime) return true;
+
+            if (RebuildTime == 0) return false;
+            if (RebuildTime > 0)
+            {
+                // 单独验证源码文件的修改时间不够，每小时无论如何都编译一次新的
+                if (obj.LastWriteTime.AddMinutes(RebuildTime) > DateTime.Now) return false;
+            }
+
+            return true;
+        }
+
         /// <summary>编译源文件</summary>
         /// <param name="cmd"></param>
         /// <param name="file"></param>
@@ -194,14 +214,7 @@ namespace NewLife.Build
 
             // 如果文件太新，则不参与编译
             var obj = (objName + ".o").AsFile();
-            if (obj.Exists)
-            {
-                if (RebuildTime > 0 && obj.LastWriteTime > file.AsFile().LastWriteTime)
-                {
-                    // 单独验证源码文件的修改时间不够，每小时无论如何都编译一次新的
-                    if (obj.LastWriteTime.AddMinutes(RebuildTime) > DateTime.Now) return -2;
-                }
-            }
+            if (!Check(file, obj)) return -2;
 
             obj.DirectoryName.EnsureDirectory(false);
 
@@ -245,14 +258,7 @@ namespace NewLife.Build
 
             // 如果文件太新，则不参与编译
             var obj = (objName + ".o").AsFile();
-            if (obj.Exists)
-            {
-                if (obj.LastWriteTime > file.AsFile().LastWriteTime)
-                {
-                    // 单独验证源码文件的修改时间不够，每小时无论如何都编译一次新的
-                    if (obj.LastWriteTime.AddHours(1) > DateTime.Now) return -2;
-                }
-            }
+            if (!Check(file, obj)) return -2;
 
             obj.DirectoryName.EnsureDirectory(false);
 

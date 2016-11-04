@@ -351,6 +351,7 @@ namespace NewLife.XScript
                     }
                 }
             }
+            catch (UnauthorizedAccessException) { }
             catch (Exception ex)
             {
                 if (Config.Debug) XTrace.WriteException(ex);
