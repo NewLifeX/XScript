@@ -185,6 +185,8 @@ namespace NewLife.Build
             sb.AppendFormat(" -Wl,-Map=\"{0}.map\" -o \"{1}\"", lstName, axf);
             //sb.AppendFormat(" -o \"{0}\"", axf);
 
+            sb.Append(" -Xlinker \"-(\"");
+
             return sb.ToString();
         }
 
@@ -222,8 +224,6 @@ namespace NewLife.Build
             {
                 if (!item.Value.EndsWithIgnoreCase(".a")) continue;
 
-                Console.WriteLine("\t{0}\t{1}", item.Key, item.Value);
-
                 var fi = Path.GetFileName(item.Value);
                 if (!fi.StartsWith("lib") || !fi.EndsWith(".a")) continue;
 
@@ -234,9 +234,22 @@ namespace NewLife.Build
 
                     sb.AppendFormat(" -L{0}", dir);
                 }
+            }
+            var n = 0;
+            foreach (var item in dic)
+            {
+                if (!item.Value.EndsWithIgnoreCase(".a")) continue;
+
+                var fi = Path.GetFileName(item.Value);
+                if (!fi.StartsWith("lib") || !fi.EndsWith(".a")) continue;
+
+                Console.WriteLine("\t{0}\t{1}", item.Key, item.Value);
+
+                //if (n++ == 0) sb.Append(" -Xlinker \"-(\"");
 
                 sb.AppendFormat(" -l{0}", fi.TrimStart("lib").TrimEnd(".a"));
             }
+            if(n>0) sb.Append(" -Xlinker \"-)\"");
         }
 
         /// <summary>导出目标文件</summary>
