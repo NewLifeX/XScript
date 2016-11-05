@@ -391,8 +391,15 @@ namespace NewLife.Build
                         list2.RemoveAt(i);
                     }
                 }
-                Console.CursorLeft = left;
-                //Console.WriteLine();
+                try
+                {
+                    // 如果外部把编译结果输出到文本文件，那么这里会抛出异常
+                    Console.CursorLeft = left;
+                }
+                catch
+                {
+                    Console.WriteLine();
+                }
                 Console.Write("\t {0}/{1} = {2:p}", fs, Files.Count, (Double)fs / Files.Count);
 
                 if (DateTime.Now > end)
