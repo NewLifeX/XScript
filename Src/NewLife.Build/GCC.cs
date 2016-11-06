@@ -142,7 +142,7 @@ namespace NewLife.Build
         protected override String OnBuildLib(String lib)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat(" -q \"{0}\"", lib);
+            sb.AppendFormat(" -r \"{0}\"", lib);
 
             return sb.ToString();
         }
