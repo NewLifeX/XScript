@@ -297,22 +297,7 @@ namespace NewLife.Build
             if (Files.Count == 0) return 0;
 
             // 计算根路径，输出的对象文件以根路径下子路径的方式存放
-            var di = Files.First().AsFile().Directory;
-            var root = di.FullName;
-            foreach (var item in Files)
-            {
-                while (!item.StartsWithIgnoreCase(root))
-                {
-                    di = di.Parent;
-                    if (di == null) break;
-
-                    root = di.FullName;
-                }
-                if (di == null) break;
-            }
-            root = root.EnsureEnd("\\");
-            Console.WriteLine("根目录：{0}", root);
-            _Root = root;
+            GetRoot();
 
             // 提前创建临时目录
             var obj = GetObjPath(null);
@@ -357,7 +342,8 @@ namespace NewLife.Build
                 if (rs == 0 || rs == -1)
                 {
                     var fi = item;
-                    if (fi.StartsWith(_Root)) fi = fi.Substring(_Root.Length);
+                    var root = _Root;
+                    if (fi.StartsWith(root)) fi = fi.Substring(root.Length);
                     Console.Write("编译：{0}\t", fi);
                     var old = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -763,6 +749,38 @@ namespace NewLife.Build
             }
         }
 
+        private void GetRoot()
+        {
+            // 计算根路径，输出的对象文件以根路径下子路径的方式存放
+            var di = Files.First().AsFile().Directory;
+            var root = di.FullName;
+            foreach (var item in Files)
+            {
+                while (!item.StartsWithIgnoreCase(root))
+                {
+                    di = di.Parent;
+                    if (di == null) break;
+
+                    root = di.FullName;
+                }
+                if (di == null) break;
+            }
+            foreach (var item in Libs)
+            {
+                while (!item.StartsWithIgnoreCase(root))
+                {
+                    di = di.Parent;
+                    if (di == null) break;
+
+                    root = di.FullName;
+                }
+                if (di == null) break;
+            }
+            root = root.EnsureEnd("\\");
+            Console.WriteLine("根目录：{0}", root);
+            _Root = root;
+        }
+
         private String GetOutputName(String name)
         {
             if (name.IsNullOrEmpty())
@@ -840,10 +858,11 @@ namespace NewLife.Build
             if (msg.IsNullOrEmpty()) return;
 
             // 截取前面部分
-            if (!_Root.IsNullOrEmpty())
+            var root = _Root;
+            if (!root.IsNullOrEmpty())
             {
-                if (msg.StartsWithIgnoreCase(_Root)) msg = msg.Substring(_Root.Length);
-                if (msg.Contains(_Root)) msg = msg.Replace(_Root, null);
+                if (msg.StartsWithIgnoreCase(root)) msg = msg.Substring(root.Length);
+                if (msg.Contains(root)) msg = msg.Replace(root, null);
             }
 
             msg = FixWord(msg);

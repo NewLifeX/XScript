@@ -17,6 +17,9 @@ namespace NewLife.Build
 
         /// <summary>入口函数。链接目标文件时使用</summary>
         public String Entry { get; set; }
+
+        /// <summary>链接时输出详细过程</summary>
+        public Boolean LinkVerbose { get; set; }
         #endregion
 
         #region 初始化
@@ -139,7 +142,7 @@ namespace NewLife.Build
         protected override String OnBuildLib(String lib)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat(" -r \"{0}\"", lib);
+            sb.AppendFormat(" -q \"{0}\"", lib);
 
             return sb.ToString();
         }
@@ -163,8 +166,12 @@ namespace NewLife.Build
             // 指定优化等级
             sb.AppendFormat(" -O{0}", Debug ? 0 : 3);
             if (!Specs.IsNullOrEmpty()) sb.AppendFormat(" --specs={0}", Specs);
+            // 只链接静态库，不找动态库
+            sb.Append(" -static");
             if (!Entry.IsNullOrEmpty()) sb.AppendFormat(" -Wl,--entry={0}", Entry);
-            sb.AppendFormat(" -Wl,--cref");
+            sb.Append(" -Wl,--cref");
+            // 链接时输出详细过程
+            if(LinkVerbose) sb.Append(" -Wl,--verbose");
             // 为每个函数和数据项分配独立的段
             //sb.Append(" -ffunction-sections -fdata-sections");
             // 删除未使用段
@@ -176,6 +183,7 @@ namespace NewLife.Build
                 sb.Append(" -W -Wall -g2");
             else
                 sb.Append(" -w");
+
             var icf = Scatter;
             if (icf.IsNullOrEmpty()) icf = ".".AsDirectory().GetAllFiles("*.ld", false).FirstOrDefault()?.Name;
             if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
