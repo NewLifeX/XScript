@@ -363,7 +363,13 @@ namespace NewLife.Build
             }
 
             Console.WriteLine("等待编译完成：");
-            var left = Console.CursorLeft;
+            var left = 0;
+            try
+            {
+                // 如果外部把编译结果输出到文本文件，那么这里会抛出异常
+                left = Console.CursorLeft;
+            }
+            catch { }
             var list2 = new List<String>(list);
             var end = DateTime.Now.AddSeconds(10);
             var fs = 0;
