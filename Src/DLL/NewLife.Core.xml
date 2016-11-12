@@ -1376,6 +1376,9 @@
             <param name="name">名称</param>
             <param name="value">数值</param>
         </member>
+        <member name="M:NewLife.Extension.SpeakProvider.CheckVoice">
+            <summary>检查是否安装了语音库</summary>
+        </member>
         <member name="T:NewLife.IO.EncodingHelper">
             <summary>编码助手</summary>
         </member>
@@ -3945,6 +3948,9 @@
         </member>
         <member name="P:NewLife.Net.UdpSession.Remote">
             <summary>远程地址</summary>
+        </member>
+        <member name="P:NewLife.Net.UdpSession.Timeout">
+            <summary>超时。默认3000ms</summary>
         </member>
         <member name="P:NewLife.Net.UdpSession.NewLife#Net#ISocketSession#Server">
             <summary>Socket服务器。当前通讯所在的Socket服务器，其实是TcpServer/UdpServer</summary>
