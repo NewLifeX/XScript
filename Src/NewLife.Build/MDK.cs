@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Win32;
@@ -23,6 +24,8 @@ namespace NewLife.Build
 
             Version = location.Version;
             ToolPath = location.ToolPath;
+
+            RebuildTime = 7 * 24 * 60;
         }
         #endregion
 
@@ -93,6 +96,14 @@ namespace NewLife.Build
             if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
+        }
+
+        /// <summary>编译输出</summary>
+        /// <param name="file"></param>
+        protected override String OnCompile(String file)
+        {
+            var objName = GetObjPath(file);
+            return base.OnCompile(file) + " --depend \"{0}.d\"".F(objName);
         }
 
         /// <summary>汇编程序</summary>
@@ -207,6 +218,40 @@ namespace NewLife.Build
             var rs = ObjCopy.Run(cmd, 3000, WriteLog);
 
             return rs != 0;
+        }
+        #endregion
+
+        #region 检查是否需要重新编译
+        /// <summary>检查源码文件是否需要编译</summary>
+        /// <param name="src"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override Boolean Check(String src, FileInfo obj)
+        {
+            if (base.Check(src, obj)) return true;
+
+            // 检查依赖文件
+            var dp = Path.ChangeExtension(obj.FullName, ".d");
+            if (File.Exists(dp))
+            {
+                var depends = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
+                // 分析所有被依赖文件的最后更新时间
+                foreach (var item in File.ReadAllLines(dp))
+                {
+                    if (item.IsNullOrEmpty()) continue;
+
+                    var header = item.Substring(".o: ");
+                    if (!header.IsNullOrEmpty() && !depends.Contains(header))
+                    {
+                        // 如果头文件修改过，需要重新编译
+                        if (obj.LastWriteTime < header.AsFile().LastWriteTime) return true;
+
+                        depends.Add(header);
+                    }
+                }
+            }
+
+            return false;
         }
         #endregion
 

@@ -189,7 +189,7 @@ namespace NewLife.Build
         /// <param name="src"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        private Boolean Check(String src, FileInfo obj)
+        protected virtual Boolean Check(String src, FileInfo obj)
         {
             if (!obj.Exists) return true;
             if (obj.LastWriteTime < src.AsFile().LastWriteTime) return true;
