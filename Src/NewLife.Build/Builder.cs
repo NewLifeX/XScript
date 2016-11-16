@@ -771,17 +771,18 @@ namespace NewLife.Build
                 }
                 if (di == null) break;
             }
-            foreach (var item in Libs)
-            {
-                while (!item.StartsWithIgnoreCase(root))
-                {
-                    di = di.Parent;
-                    if (di == null) break;
+            // 使用源码路径计算根路径，而不使用库路径
+            //foreach (var item in Libs)
+            //{
+            //    while (!item.StartsWithIgnoreCase(root))
+            //    {
+            //        di = di.Parent;
+            //        if (di == null) break;
 
-                    root = di.FullName;
-                }
-                if (di == null) break;
-            }
+            //        root = di.FullName;
+            //    }
+            //    if (di == null) break;
+            //}
             root = root.EnsureEnd("\\");
             Console.WriteLine("根目录：{0}", root);
             _Root = root;
