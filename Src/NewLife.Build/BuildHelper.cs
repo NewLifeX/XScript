@@ -308,6 +308,9 @@ namespace NewLife.Build
             {
                 if (di.Name.EqualIgnoreCase(name)) return di.FullName;
 
+                // 复杂目录拼接，常用于相对目录
+                if (Directory.Exists(di.FullName.CombinePath(name))) return di.FullName;
+
                 if (di == di.Parent) return null;
                 di = di.Parent;
             }
