@@ -244,7 +244,13 @@ namespace NewLife.Build
                     if (!header.IsNullOrEmpty() && !depends.Contains(header))
                     {
                         // 如果头文件修改过，需要重新编译
-                        if (obj.LastWriteTime < header.AsFile().LastWriteTime) return true;
+                        if (obj.LastWriteTime < header.AsFile().LastWriteTime)
+                        {
+                            // 输出被修改了的头文件
+                            if (header.StartsWithIgnoreCase(_Root)) header = header.Substring(_Root.Length);
+                            Console.Write(header + " ");
+                            return true;
+                        }
 
                         depends.Add(header);
                     }

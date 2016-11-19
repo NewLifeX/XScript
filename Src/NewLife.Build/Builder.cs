@@ -147,7 +147,7 @@ namespace NewLife.Build
         }
 
         /// <summary>重新编译时间，默认60分钟</summary>
-        public Int32 RebuildTime { get; set; } = 60;
+        public Int32 RebuildTime { get; set; } = 0;
 
         /// <summary>是否使用Linux标准</summary>
         public Boolean Linux { get; set; }
@@ -178,7 +178,8 @@ namespace NewLife.Build
         #endregion
 
         #region 主要编译方法
-        private String _Root;
+        /// <summary>根路径</summary>
+        protected String _Root;
 
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>

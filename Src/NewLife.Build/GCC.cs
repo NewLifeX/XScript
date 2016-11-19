@@ -107,6 +107,8 @@ namespace NewLife.Build
                 sb.Append(" -W -Wall -g2");
             else
                 sb.Append(" -w");
+            // 输出依赖文件
+            sb.Append(" -MD");
             if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
             if (Tiny) sb.Append(" -DTINY");
             foreach (var item in Defines)
@@ -171,7 +173,7 @@ namespace NewLife.Build
             if (!Entry.IsNullOrEmpty()) sb.AppendFormat(" -Wl,--entry={0}", Entry);
             sb.Append(" -Wl,--cref");
             // 链接时输出详细过程
-            if(LinkVerbose) sb.Append(" -Wl,--verbose");
+            if (LinkVerbose) sb.Append(" -Wl,--verbose");
             // 为每个函数和数据项分配独立的段
             //sb.Append(" -ffunction-sections -fdata-sections");
             // 删除未使用段
@@ -257,7 +259,7 @@ namespace NewLife.Build
 
                 sb.AppendFormat(" -l{0}", fi.TrimStart("lib").TrimEnd(".a"));
             }
-            if(n>0) sb.Append(" -Xlinker \"-)\"");
+            if (n > 0) sb.Append(" -Xlinker \"-)\"");
         }
 
         /// <summary>导出目标文件</summary>
@@ -277,6 +279,50 @@ namespace NewLife.Build
             var rs = ObjCopy.Run(cmd, 3000, WriteLog);
 
             return rs != 0;
+        }
+        #endregion
+
+        #region 检查是否需要重新编译
+        /// <summary>检查源码文件是否需要编译</summary>
+        /// <param name="src"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        protected override Boolean Check(String src, FileInfo obj)
+        {
+            if (base.Check(src, obj)) return true;
+
+            // 检查依赖文件
+            var dp = Path.ChangeExtension(obj.FullName, ".d");
+            if (File.Exists(dp))
+            {
+                var depends = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
+                // 分析所有被依赖文件的最后更新时间
+                foreach (var item in File.ReadAllLines(dp))
+                {
+                    if (item.IsNullOrEmpty()) continue;
+
+                    var header = item.Substring(" ").TrimEnd("\\").Trim();
+                    foreach (var elm in header.Split(" "))
+                    {
+                        header = elm;
+                        if (!header.IsNullOrEmpty() && !depends.Contains(header))
+                        {
+                            // 如果头文件修改过，需要重新编译
+                            if (obj.LastWriteTime < header.AsFile().LastWriteTime)
+                            {
+                                // 输出被修改了的头文件
+                                if (header.StartsWithIgnoreCase(_Root)) header = header.Substring(_Root.Length);
+                                Console.Write(header + " ");
+                                return true;
+                            }
+
+                            depends.Add(header);
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
         #endregion
 
