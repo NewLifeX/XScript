@@ -54,7 +54,25 @@ namespace NewLife.Build
         /// <returns></returns>
         public static Builder Create(String name)
         {
-            return ObjectContainer.Current.Resolve<Builder>(name);
+            try
+            {
+                var builder = ObjectContainer.Current.Resolve<Builder>(name);
+                if (builder == null)
+                {
+                    // 猜测大小写错误
+                    var b = ObjectContainer.Current.ResolveAll(typeof(Builder)).FirstOrDefault(m => (m.Identity + "").EqualIgnoreCase(name));
+                    var msg = "无法找到编译器 {0}".F(name);
+                    if (b != null) msg = "{0}，你需要的可能是 {1}".F(msg, b.Identity);
+                    throw new Exception(msg);
+                }
+
+                return builder;
+            }
+            catch (Exception ex)
+            {
+                while (ex.InnerException != null) ex = ex.InnerException;
+                throw ex;
+            }
         }
 
         /// <summary>所有编译器</summary>
