@@ -49,6 +49,8 @@
     <Compile Include="Builder.cs" />
     <Compile Include="BuildHelper.cs" />
     <Compile Include="GCC.cs" />
+    <Compile Include="GCCArm.cs" />
+    <Compile Include="GCCXtensa.cs" />
     <Compile Include="ICC.cs" />
     <Compile Include="MDK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

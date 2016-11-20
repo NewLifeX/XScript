@@ -23,15 +23,12 @@ namespace NewLife.Build
         #endregion
 
         #region 初始化
-        private static GCCLocation location = new GCCLocation();
+        private static GCCLocation location;
 
         /// <summary>初始化</summary>
         public GCC()
         {
             Name = "GCC";
-
-            Version = location.Version;
-            ToolPath = location.ToolPath;
         }
         #endregion
 
@@ -40,20 +37,14 @@ namespace NewLife.Build
         /// <returns></returns>
         public override Boolean Init(Boolean addlib)
         {
-            if (ToolPath != location.ToolPath) Version = location.GetVer(ToolPath);
+            // 子类没有查找，才轮到父类
+            if (ToolPath.IsNullOrEmpty())
+            {
+                if (location == null) location = new GCCLocation();
 
-            var basePath = ToolPath.CombinePath("bin").GetFullPath();
-
-            Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
-            //Asm = basePath.CombinePath(@"..\arm-none-eabi\bin\as.exe");
-            Asm = basePath.CombinePath("arm-none-eabi-as.exe");
-            //Link = basePath.CombinePath("arm-none-eabi-ld.exe");
-            Link = basePath.CombinePath("arm-none-eabi-gcc.exe");
-            Ar = basePath.CombinePath("arm-none-eabi-ar.exe");
-            ObjCopy = basePath.CombinePath("arm-none-eabi-objcopy.exe");
-
-            IncPath = basePath.CombinePath(@"..\arm-none-eabi\include").GetFullPath();
-            LibPath = basePath.CombinePath(@"..\arm-none-eabi\lib").GetFullPath();
+                Version = location.Version;
+                ToolPath = location.ToolPath;
+            }
 
             return base.Init(addlib);
         }
@@ -376,18 +367,18 @@ namespace NewLife.Build
         public GCCLocation()
         {
             #region 从注册表获取目录和版本
-            if (String.IsNullOrEmpty(ToolPath))
-            {
-                var reg = Registry.LocalMachine.OpenSubKey(@"Software\ARM\GNU Tools for ARM Embedded Processors");
-                if (reg == null) reg = Registry.LocalMachine.OpenSubKey(@"Software\Wow6432Node\ARM\GNU Tools for ARM Embedded Processors");
-                if (reg != null)
-                {
-                    ToolPath = reg.GetValue("InstallFolder") + "";
-                    if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name;
+            //if (String.IsNullOrEmpty(ToolPath))
+            //{
+            //    var reg = Registry.LocalMachine.OpenSubKey(@"Software\ARM\GNU Tools for ARM Embedded Processors");
+            //    if (reg == null) reg = Registry.LocalMachine.OpenSubKey(@"Software\Wow6432Node\ARM\GNU Tools for ARM Embedded Processors");
+            //    if (reg != null)
+            //    {
+            //        ToolPath = reg.GetValue("InstallFolder") + "";
+            //        if (ToolPath.Contains(".")) Version = ToolPath.AsDirectory().Name;
 
-                    WriteLog("注册表 {0} {1}", ToolPath, Version);
-                }
-            }
+            //        WriteLog("注册表 {0} {1}", ToolPath, Version);
+            //    }
+            //}
             #endregion
 
             #region 扫描所有根目录，获取MDK安装目录
@@ -397,10 +388,10 @@ namespace NewLife.Build
                 {
                     if (!item.IsReady) continue;
 
-                    var p = Path.Combine(item.RootDirectory.FullName, @"GCC\arm-none-eabi");
+                    var p = Path.Combine(item.RootDirectory.FullName, "GCC");
                     if (Directory.Exists(p))
                     {
-                        p = p.CombinePath(@"..\").GetFullPath();
+                        p = p.GetFullPath();
                         var ver = GetVer(p);
                         if (ver.CompareTo(Version) > 0)
                         {
@@ -422,7 +413,7 @@ namespace NewLife.Build
             var di = path.CombinePath("bin").AsDirectory();
             if (!di.Exists) return "";
 
-            var fi = di.GetAllFiles("arm-none-eabi-gcc-*.exe").FirstOrDefault();
+            var fi = di.GetAllFiles("*-gcc-*.exe").FirstOrDefault();
             if (fi == null || !fi.Exists) return "";
 
             return fi.Name.Substring(fi.Name.LastIndexOf("-") + 1).TrimEnd(".exe");
