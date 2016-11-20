@@ -30,16 +30,16 @@ namespace NewLife.Build
 
             var basePath = ToolPath.CombinePath("bin").GetFullPath();
 
-            Complier = basePath.CombinePath("arm-none-eabi-gcc.exe").GetFullPath();
-            //Asm = basePath.CombinePath(@"..\arm-none-eabi\bin\as.exe");
-            Asm = basePath.CombinePath("arm-none-eabi-as.exe");
-            //Link = basePath.CombinePath("arm-none-eabi-ld.exe");
-            Link = basePath.CombinePath("arm-none-eabi-gcc.exe");
-            Ar = basePath.CombinePath("arm-none-eabi-ar.exe");
-            ObjCopy = basePath.CombinePath("arm-none-eabi-objcopy.exe");
+            Complier = basePath.CombinePath("xtensa-lx106-elf-gcc.exe").GetFullPath();
+            //Asm = basePath.CombinePath(@"..\xtensa-lx106-elf\bin\as.exe");
+            Asm = basePath.CombinePath("xtensa-lx106-elf-as.exe");
+            //Link = basePath.CombinePath("xtensa-lx106-elf-ld.exe");
+            Link = basePath.CombinePath("xtensa-lx106-elf-gcc.exe");
+            Ar = basePath.CombinePath("xtensa-lx106-elf-ar.exe");
+            ObjCopy = basePath.CombinePath("xtensa-lx106-elf-objcopy.exe");
 
-            IncPath = basePath.CombinePath(@"..\arm-none-eabi\include").GetFullPath();
-            LibPath = basePath.CombinePath(@"..\arm-none-eabi\lib").GetFullPath();
+            IncPath = basePath.CombinePath(@"..\xtensa-lx106-elf\include").GetFullPath();
+            LibPath = basePath.CombinePath(@"..\xtensa-lx106-elf\lib").GetFullPath();
 
             return base.Init(addlib);
         }
@@ -100,7 +100,7 @@ namespace NewLife.Build
 
         public String GetVer(String path)
         {
-            // bin\arm-none-eabi-gcc-5.4.1.exe
+            // bin\xtensa-lx106-elf-gcc-5.4.1.exe
             var di = path.CombinePath("bin").AsDirectory();
             if (!di.Exists) return "";
 

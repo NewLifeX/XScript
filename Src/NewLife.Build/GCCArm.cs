@@ -44,9 +44,34 @@ namespace NewLife.Build
 
             return base.Init(addlib);
         }
+
+        #region 主要编译方法
+        /// <summary>获取编译用的命令行</summary>
+        /// <param name="cpp">是否C++</param>
+        /// <returns></returns>
+        public override String GetCompileCommand(Boolean cpp)
+        {
+            return base.GetCompileCommand(cpp) + " -mthumb";
+        }
+
+        /// <summary>汇编程序</summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        protected override String OnAssemble(String file)
+        {
+            return base.OnAssemble(file) + " -mthumb";
+        }
+
+        /// <summary>链接静态库</summary>
+        /// <returns></returns>
+        protected override String OnBuild(String name)
+        {
+            return base.OnBuild(name) + " -mthumb";
+        }
+        #endregion
     }
 
-    class GCCArmLocation
+        class GCCArmLocation
     {
         #region 属性
         /// <summary>版本</summary>

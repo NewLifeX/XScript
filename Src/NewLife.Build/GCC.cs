@@ -70,7 +70,7 @@ namespace NewLife.Build
             else
                 sb.Append("-std=gnu99");
             // 指定CPU和指令集
-            sb.AppendFormat(" -mcpu={0} -mthumb", CPU.ToLower());
+            sb.AppendFormat(" -mcpu={0}", CPU.ToLower());
             // 指定优化等级
             /*
              * gcc默认提供了5级优 化选项的集合: 
@@ -118,7 +118,7 @@ namespace NewLife.Build
         protected override String OnAssemble(String file)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("-mthumb -mcpu={0}", CPU.ToLower());
+            sb.AppendFormat("-mcpu={0}", CPU.ToLower());
             // 汇编的警告意义不大
             //if (Debug) sb.Append(" -W -Wall -g");
             sb.AppendFormat(" -I.");
@@ -155,7 +155,7 @@ namespace NewLife.Build
 
             var sb = new StringBuilder();
             // 指定CPU和指令集
-            sb.AppendFormat("-mcpu={0} -mthumb", CPU.ToLower());
+            sb.AppendFormat("-mcpu={0}", CPU.ToLower());
             // 指定优化等级
             sb.AppendFormat(" -O{0}", Debug ? 0 : 3);
             if (!Specs.IsNullOrEmpty()) sb.AppendFormat(" --specs={0}", Specs);
