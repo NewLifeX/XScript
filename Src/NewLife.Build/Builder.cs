@@ -146,23 +146,10 @@ namespace NewLife.Build
         public Boolean Preprocess { get; set; }
 
         /// <summary>处理器。默认M0</summary>
-        public String CPU { get; set; } = "Cortex-M0";
+        public String CPU { get; set; }
 
         /// <summary>分散加载文件</summary>
         public String Scatter { get; set; }
-
-        private Int32 _Cortex;
-        /// <summary>Cortex版本。默认0</summary>
-        public Int32 Cortex
-        {
-            get { return _Cortex; }
-            set
-            {
-                _Cortex = value;
-                CPU = "Cortex-M{0}".F(value);
-                if (value == 4) CPU += ".fp";
-            }
-        }
 
         /// <summary>重新编译时间，默认60分钟</summary>
         public Int32 RebuildTime { get; set; } = 0;

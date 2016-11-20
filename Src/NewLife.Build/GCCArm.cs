@@ -19,6 +19,8 @@ namespace NewLife.Build
 
             Version = location.Version;
             ToolPath = location.ToolPath;
+
+            CPU = "Cortex-M0";
         }
         #endregion
 
@@ -71,7 +73,7 @@ namespace NewLife.Build
         #endregion
     }
 
-        class GCCArmLocation
+    class GCCArmLocation
     {
         #region 属性
         /// <summary>版本</summary>

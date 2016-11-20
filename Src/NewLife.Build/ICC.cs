@@ -62,7 +62,7 @@ namespace NewLife.Build
                 sb.Append("--use_c++_inline");
             // -e打开C++扩展
             sb.AppendFormat(" --endian=little --cpu={0} -e --silent", CPU);
-            if (Cortex >= 4) sb.Append(" --fpu=None");
+            if (CPU.TrimStart("Cortex-M").ToInt() >= 4) sb.Append("--fpu=None");
             //sb.Append(" --enable_multibytes");
             if (Debug) sb.Append(" --debug");
             // 默认低级优化，发行版-Ohz为代码大小优化，-Ohs为高速度优化
@@ -93,7 +93,7 @@ namespace NewLife.Build
             var sb = new StringBuilder();
             sb.Append("-s+ -M<> -w+ -S");
             sb.AppendFormat(" --cpu {0}", CPU);
-            if (Cortex >= 4) sb.Append(" --fpu=None");
+            if (CPU.TrimStart("Cortex-M").ToInt() >= 4) sb.Append(" --fpu=None");
             foreach (var item in Defines)
             {
                 sb.AppendFormat(" -D{0}", item);
