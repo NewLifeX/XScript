@@ -320,13 +320,12 @@ namespace NewLife.Build
         /// <summary>初始化关键字</summary>
         protected override void InitWord()
         {
-            base.InitWord();
-
             var ss = Words;
             ss["implicit declaration of function"] = "隐式声明函数";
             ss["In function"] = "在函数";
             ss["passing argument"] = "传递参数";
             ss["from incompatible pointer type"] = "从不兼容指针类型";
+            ss["expected class-name before '{' token"] = "要求符号'{'之前是类名";
             ss["expected "] = "要求 ";
             ss["but argument is of type"] = "但参数类型是";
             //ss[" of "] = " 于 ";
@@ -351,6 +350,12 @@ namespace NewLife.Build
             ss["base class"] = "基类";
             ss["should be explicitly initialized in the copy constructor"] = "应该在拷贝构造函数中被明确初始化";
             ss["In member function"] = "在成员函数";
+            ss["does not name a type"] = "不是类名";
+            ss["has not been declared"] = "未声明";
+            ss["was not declared in this scope"] = "在当前作用域未声明";
+            ss["has no member named"] = "没有成员";
+
+            base.InitWord();
         }
     }
 

@@ -264,8 +264,6 @@ namespace NewLife.Build
         /// <summary>初始化关键字</summary>
         protected override void InitWord()
         {
-            base.InitWord();
-
             var ss = Words;
             ss["Fatal error"] = "致命错误";
             ss["Could not open file"] = "无法打开文件";
@@ -310,6 +308,8 @@ namespace NewLife.Build
             ss["give arg types"] = "指定参数类型";
             ss["assignment in condition"] = "在条件语句中赋值";
             ss["declaration may not appear after executable statement in block"] = "声明不应该出现在语句块之后";
+
+            base.InitWord();
         }
     }
 

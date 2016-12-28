@@ -957,10 +957,10 @@ namespace NewLife.Build
         {
             var ss = Words;
             ss["warning:"] = "警告:";
-            ss["error:"] = "错误:";
             ss["note:"] = "提示:";
             ss["Fatal error"] = "致命错误";
             ss["fatal error"] = "致命错误";
+            ss["error:"] = "错误:";
             ss[" warnings"] = "警告";
             ss[" errors"] = "错误";
             ss["Could not open file"] = "无法打开文件";
