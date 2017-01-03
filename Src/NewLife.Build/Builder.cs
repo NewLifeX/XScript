@@ -794,7 +794,10 @@ namespace NewLife.Build
             _Root = root;
         }
 
-        private String GetOutputName(String name)
+        /// <summary>获取输出名</summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public String GetOutputName(String name)
         {
             if (name.IsNullOrEmpty())
             {
