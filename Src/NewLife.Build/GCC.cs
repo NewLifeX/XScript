@@ -134,6 +134,9 @@ namespace NewLife.Build
         /// <returns></returns>
         protected override String OnBuildLib(String lib)
         {
+            // 提前删除
+            if (File.Exists(lib)) File.Delete(lib);
+
             var sb = new StringBuilder();
             sb.AppendFormat(" -r \"{0}\"", lib);
 
@@ -354,6 +357,7 @@ namespace NewLife.Build
             ss["has not been declared"] = "未声明";
             ss["was not declared in this scope"] = "在当前作用域未声明";
             ss["has no member named"] = "没有成员";
+            ss["multiple definition of"] = "多重定义";
 
             base.InitWord();
         }
