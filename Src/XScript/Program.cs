@@ -416,7 +416,8 @@ namespace NewLife.XScript
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
             //up.Server = "https://git.oschina.net/NewLifeX/XScript";
-            up.Server = "http://www.newlifex.com/showtopic-369.aspx";
+            //up.Server = "http://www.newlifex.com/showtopic-369.aspx";
+            up.Server = "http://x.newlifex.com";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
