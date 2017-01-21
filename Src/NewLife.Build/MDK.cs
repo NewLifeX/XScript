@@ -102,8 +102,19 @@ namespace NewLife.Build
         /// <param name="file"></param>
         protected override String OnCompile(String file)
         {
+            var sb = new StringBuilder();
             var objName = GetObjPath(file);
-            return base.OnCompile(file) + " --depend \"{0}.d\"".F(objName);
+            if (Preprocess)
+            {
+                sb.AppendFormat(" -E");
+                sb.AppendFormat(" -o \"{0}.{1}\"", objName, Path.GetExtension(file).TrimStart("."));
+            }
+            else
+                sb.AppendFormat(" -o \"{0}.o\"", objName);
+            sb.AppendFormat(" -c \"{0}\"", file);
+            if (!CLang) sb.AppendFormat(" --depend \"{0}.d\"", objName);
+
+            return sb.ToString();
         }
 
         /// <summary>汇编程序</summary>
