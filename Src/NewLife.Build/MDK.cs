@@ -319,6 +319,12 @@ namespace NewLife.Build
             ss["give arg types"] = "指定参数类型";
             ss["assignment in condition"] = "在条件语句中赋值";
             ss["declaration may not appear after executable statement in block"] = "声明不应该出现在语句块之后";
+            ss["incomplete type is not allowed"] = "不允许使用不完整的类型";
+            ss["object of abstract class type"] = "实例化抽象类";
+            ss["has no overrider"] = "没有重写";
+            ss["pointer to incomplete class type is not allowed"] = "不允许使用不完整类型的指针";
+
+            ss["is not allowed"] = "不允许";
 
             base.InitWord();
         }

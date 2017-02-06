@@ -966,6 +966,7 @@ namespace NewLife.Build
             ss["error:"] = "错误:";
             ss[" warnings"] = "警告";
             ss[" errors"] = "错误";
+            ss[" error"] = "错误";
             ss["Could not open file"] = "无法打开文件";
             ss["No such file or directory"] = "文件或目录不存在";
             ss["Undefined symbol"] = "未定义标记";
@@ -975,12 +976,14 @@ namespace NewLife.Build
             ss["declared at"] = "声明于";
             ss["identifier "] = "标记 ";
             ss["In function"] = "在函数";
+            ss["pure virtual function"] = "纯虚函数";
             ss["function "] = "函数 ";
             ss["was declared but never referenced"] = "被声明但从未被引用";
             ss["expected a "] = "预期一个";
             ss["expected an expression"] = "预期一个表达式";
             ss[", line "] = ", 行 ";
             ss["variable "] = "变量";
+            ss["is ambiguous"] = "不明确";
         }
         #endregion
     }
