@@ -9,3 +9,4 @@ obj
 *.user
 /Src/NewLife.Build/bin
 *.nuspec
+/Test

@@ -1,0 +1,478 @@
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Text;
+using NewLife.Log;
+using NewLife.Reflection;
+
+namespace NewLife.Build
+{
+    /// <summary>JLink操作封装</summary>
+    public class JLink : DisposeBase
+    {
+        #region 构造
+        /// <summary>实例化</summary>
+        public JLink()
+        {
+            Open();
+            SetSpeed(-50);
+
+            //EnableLogCom(this.GetType().GetMethodEx(nameof(DebugCom)).MethodHandle.Value);
+
+            XTrace.WriteLine(GetCompileDateTime());
+            XTrace.WriteLine(GetFirmwareString());
+            XTrace.WriteLine(GetHardwareVersion());
+            XTrace.WriteLine(GetFeatureString());
+        }
+
+        private void DebugCom(String msg)
+        {
+            XTrace.WriteLine(msg);
+        }
+
+        /// <summary>销毁</summary>
+        /// <param name="disposing"></param>
+        protected override void OnDispose(Boolean disposing)
+        {
+            base.OnDispose(disposing);
+
+            try
+            {
+                Close();
+            }
+            catch (Exception ex)
+            {
+                XTrace.WriteException(ex);
+            }
+        }
+        #endregion
+
+        #region 主要方法
+        const UInt32 WP = 0x01;
+        const UInt32 SLB = 0x02;
+        const UInt32 WPL = 0x03;
+        const UInt32 CLB = 0x04;
+        const UInt32 EA = 0x08;
+        const UInt32 SGPB = 0x0B;
+        const UInt32 CGPB = 0x0D;
+        const UInt32 SSB = 0x0F;
+        const UInt32 EFC_BASE = 0xFFFFFF00;
+        const UInt32 PAGE_SIZE = 128;
+
+        /// <summary>向Flash发送命令</summary>
+        /// <param name="command"></param>
+        /// <param name="page"></param>
+        public void FlashCommand(UInt32 command, UInt32 page)
+        {
+            WriteU32(EFC_BASE + 0x64, (UInt32)((command & 0x0F) | (page & 0x3FF) << 8) | (0x5A << 24));
+
+            while (true)
+            {
+                var status = ReadUInt32(EFC_BASE + 0x64);
+
+                if ((status & 1) == 1) break;
+            }
+        }
+
+        private void dumpMemory(UInt32 address, UInt32 size)
+        {
+            for (UInt32 i = 0; i < size; i += 16)
+            {
+                var buf = Read(address + i, 16);
+                XTrace.WriteLine("Dump 0x{0:X8} : {1}", address + i, buf.ToHex());
+            }
+
+
+        }
+
+        /// <summary>写入Flash</summary>
+        /// <param name="address"></param>
+        /// <param name="size"></param>
+        /// <param name="buffer"></param>
+        public void FlashWrite(UInt32 address, UInt32 size, Byte[] buffer)
+        {
+            address &= 0x000FFFFF;
+
+            var p = 0;
+            var remain = (size + 3) / 4;
+            while (remain > 0)
+            {
+                var page = address / PAGE_SIZE;
+                var count = ((page + 1) * PAGE_SIZE - address) / 4;
+                if (count > remain) count = remain;
+
+                // 写数据
+                for (int i = 0; i < count; i++)
+                {
+                    WriteU32(address, buffer[p]);
+
+                    address += 4;
+                    p += 4;
+                }
+                FlashCommand(WP, page);
+
+                remain -= count;
+            }
+        }
+
+        /// <summary>擦除Flash</summary>
+        public void EraseFlash()
+        {
+            dumpMemory(0, 16);
+            FlashCommand(EA, 0);
+            dumpMemory(0, 16);
+        }
+
+        void Init()
+        {
+            while (true)
+            {
+                var status = Halt();
+                ClearError();
+                if (status == 0) break;
+            }
+
+            ResetPullsRESET(1);
+            ResetPullsTRST(1);
+            Reset();
+            WriteU32(0xFFFFFC20, 0x00000601);
+            WriteU32(0xFFFFFC2C, 0x00191C05);
+            WriteU32(0xFFFFFC30, 0x00000007);
+        }
+
+        void MapRam(Boolean flag)
+        {
+            WriteU32(0, 0);
+
+            var dataBefore = ReadUInt32(0);
+
+            var dataWrite = ~dataBefore;
+            WriteU32(0, dataWrite);
+
+            var dataAfter = ReadUInt32(0);
+            if (flag)
+            {
+                if (dataAfter != dataWrite)
+                {
+                    WriteU32(0xffffff00, 0x00000001);
+                }
+            }
+            else
+            {
+                if (dataAfter == dataWrite)
+                {
+                    WriteU32(0xffffff00, 0x00000001);
+                }
+            }
+
+        }
+
+        void InitFlash()
+        {
+            Init();
+
+            WriteU32(EFC_BASE + 0x60, 0x00320180);
+
+            MapRam(false);
+
+            EraseFlash();
+        }
+
+        //void FlashDownload(ELF* elf)
+        //{
+        //    InitialiseForFlashing();
+
+
+        //    printf("Downloading...");
+        //    fflush(stdout);
+
+        //    // Don't erase before writing   
+        //    WriteU32(EFC_BASE + 0x60, ReadU32(EFC_BASE + 0x60) | (1 << 7));
+
+        //    for (int i = 0; i < elf->header.e_phnum; i++)
+        //    {
+        //        Elf32_Phdr* hdr = &elf->programHeaders[i];
+        //        // Don't put anything in low memory - it is mapped either to ram or flash, or something   
+        //        // that has no size   
+        //        if ((hdr->p_type == PT_LOAD) && (hdr->p_filesz > 0) && (hdr->p_paddr >= 0x00100000))
+        //        {
+        //            void* buffer = elf->ProgramSegment(i);
+        //            //          SwapWords((unsigned char*)buffer, hdr->p_memsz);   
+        //            FlashWrite(hdr->p_paddr, hdr->p_filesz, buffer);
+        //            delete[] buffer;
+        //        }
+        //    }
+        //    fprintf(stdout, "...Done\n");
+
+        //}
+        #endregion
+
+        #region 连接
+        /// <summary>是否连接</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_IsConnected", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Boolean IsConnected();
+
+        ///// <summary>启用日志</summary>
+        ///// <returns></returns>
+        //[DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_EnableLog", CallingConvention = CallingConvention.Cdecl)]
+        //public extern static Boolean EnableLog(Boolean flag);
+
+        /// <summary>启用日志</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_EnableLogCom", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Boolean EnableLogCom(IntPtr debugCom);
+
+        /// <summary>清除错误</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ClrError", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Boolean ClearError();
+
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetCompileDateTime", CallingConvention = CallingConvention.Cdecl)]
+        extern static IntPtr GetCompileDateTime_();
+        /// <summary>获取编译日期</summary>
+        /// <returns></returns>
+        public static String GetCompileDateTime()
+        {
+            var ip = GetCompileDateTime_();
+            return Marshal.PtrToStringAnsi(ip);
+        }
+
+        ///// <summary>获取编译日期</summary>
+        ///// <returns></returns>
+        //[DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetDebugInfo", CallingConvention = CallingConvention.Cdecl)]
+        //public extern static String GetDebugInfo(Int32 param1, Int32 param2);
+
+        ///// <summary>获取编译日期</summary>
+        ///// <returns></returns>
+        //[DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetDeviceFamily", CallingConvention = CallingConvention.Cdecl)]
+        //public extern static String GetDeviceFamily();
+
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetFeatureString", CallingConvention = CallingConvention.Cdecl)]
+        extern static Int32 GetFeatureString_(StringBuilder sb);
+        /// <summary>获取功能信息</summary>
+        /// <returns></returns>
+        public static String GetFeatureString()
+        {
+            var sb = new StringBuilder();
+            GetFeatureString_(sb);
+            return sb.ToString();
+        }
+
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetFirmwareString", CallingConvention = CallingConvention.Cdecl)]
+        extern static Int32 GetFirmwareStringg_(StringBuilder sb, Int32 count);
+        /// <summary>获取功能信息</summary>
+        /// <returns></returns>
+        public static String GetFirmwareString()
+        {
+            var sb = new StringBuilder(256);
+            GetFirmwareStringg_(sb, 256);
+            return sb.ToString();
+        }
+
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetHardwareVersion", CallingConvention = CallingConvention.Cdecl)]
+        extern static IntPtr GetHardwareVersion_();
+        /// <summary>获取编译日期</summary>
+        /// <returns></returns>
+        public static String GetHardwareVersion()
+        {
+            var ip = GetHardwareVersion_();
+            return Marshal.PtrToStringAnsi(ip);
+        }
+        #endregion
+
+        #region 打开关闭测试
+        /// <summary>打开</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Open", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Open();
+
+        /// <summary>是否打开</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_IsOpen", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Boolean IsOpen();
+
+        /// <summary>关闭</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Close", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Close();
+
+        /// <summary>测试</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Test", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Test();
+        #endregion
+
+        #region 执行挂起
+        /// <summary>执行</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Go", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Go();
+
+        /// <summary>执行</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GoEx", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 GoEx(Int32 param1, Int32 param2);
+
+        /// <summary>执行</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GoHalt", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 GoHalt();
+
+        /// <summary>挂起</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Halt", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Halt();
+
+        /// <summary>是否挂起</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_IsHalted", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 IsHalted();
+        #endregion
+
+        #region 重置
+        /// <summary>设置重置类型</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_SetResetType", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 SetResetType(Int32 type);
+
+        /// <summary>设置重置延迟</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_SetResetDelay", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 SetResetDelay(Int32 delay);
+
+        /// <summary>重置</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_Reset", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Reset();
+
+        /// <summary>重置</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ResetNoHalt", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ResetNoHalt();
+
+        /// <summary>重置</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ResetPullsRESET", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ResetPullsRESET(Int32 param);
+
+        /// <summary>重置</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ResetPullsTRST", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ResetPullsTRST(Int32 param);
+        #endregion
+
+        #region 选择
+        /// <summary>选择</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_TIF_Select", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 Select(Int32 is_swd_intf);
+
+        /// <summary>获取可用</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_TIF_GetAvailable", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 GetAvailable(Int32 param);
+        #endregion
+
+        #region 速度
+        /// <summary>设置速度</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_SetSpeed", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 SetSpeed(Int32 jlink_speed);
+
+        /// <summary>设置最大速度</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_SetMaxSpeed", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 SetMaxSpeed();
+
+        /// <summary>获取速度</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetSpeed", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 GetSpeed();
+        #endregion
+
+        #region 读取
+        /// <summary>读取</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadMem", CallingConvention = CallingConvention.Cdecl)]
+        extern static Int32 ReadMem(UInt32 memaddr, Int32 size, Byte[] buffer);
+        /// <summary>读取</summary>
+        /// <param name="addr"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static Byte[] Read(UInt32 addr, Int32 size)
+        {
+            var buf = new Byte[size];
+            var rs = ReadMem(addr, size, buf);
+            if (rs == buf.Length) return buf;
+
+            return buf.ReadBytes(0, rs);
+        }
+
+        /// <summary>读取</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadMemU8", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ReadMemU8(UInt32 memaddr, Int32 size, Byte[] buffer, Int32 flag);
+
+        /// <summary>读取</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadMemU16", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ReadMemU16(UInt32 memaddr, Int32 size, UInt16[] buffer, Int32 flag);
+
+        /// <summary>读取</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadMemU32", CallingConvention = CallingConvention.Cdecl)]
+        extern static Int32 ReadMemU32(UInt32 memaddr, Int32 size, ref UInt32 data, Int32 flag);
+
+        /// <summary>读取</summary>
+        /// <param name="addr"></param>
+        public static UInt32 ReadUInt32(UInt32 addr)
+        {
+            UInt32 rs = 0;
+            ReadMemU32(addr, 1, ref rs, 0);
+
+            return rs;
+        }
+        #endregion
+
+        #region 写入
+        /// <summary>写入</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteMem", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 WriteMem(UInt32 memaddr, Int32 size, Byte[] buffer);
+
+        /// <summary>写入</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteU8", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 WriteU8(UInt32 memaddr, Byte data);
+
+        /// <summary>写入</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteU16", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 WriteU16(UInt32 memaddr, UInt16 data);
+
+        /// <summary>写入</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteU32", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 WriteU32(UInt32 memaddr, UInt32 data);
+        #endregion
+
+        #region 读写寄存器
+        /// <summary>读取寄存器</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadReg", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ReadReg(Int32 RegIndex);
+
+        /// <summary>写入寄存器</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteReg", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 WriteReg(Int32 RegIndex, Int32 RegValue);
+        #endregion
+
+        #region 执行命令
+        /// <summary>执行命令</summary>
+        /// <returns></returns>
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ExecCommand", CallingConvention = CallingConvention.Cdecl)]
+        public extern static Int32 ExecCommand(String pbCommand, Int32 param1 = 0, Int32 param2 = 0);
+        #endregion
+    }
+}
