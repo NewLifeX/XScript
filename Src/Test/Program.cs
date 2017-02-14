@@ -47,6 +47,9 @@ namespace Test
 
             var buf = File.ReadAllBytes("user.bin");
             jk.Write(0x9800B000, buf);
+
+            //JLink.Reset();
+            JLink.ResetNoHalt();
         }
     }
 }

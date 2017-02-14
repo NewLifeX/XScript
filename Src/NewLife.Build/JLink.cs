@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Reflection;
 
@@ -12,6 +13,21 @@ namespace NewLife.Build
     public class JLink : DisposeBase
     {
         #region 构造
+        static JLink()
+        {
+            var dll = FindDLL();
+            if (!dll.IsNullOrEmpty())
+            {
+                var dir = Path.GetDirectoryName(dll);
+                XTrace.WriteLine("发现JLink：{0}", dll);
+
+                SetDllDirectory(dir);
+            }
+        }
+
+        [DllImport("kernel32.dll")]
+        static extern int SetDllDirectory(String pathName);
+
         /// <summary>实例化</summary>
         public JLink()
         {
@@ -462,7 +478,7 @@ namespace NewLife.Build
         /// <returns></returns>
         public Byte[] Read(UInt32 addr, UInt32 size, UInt32 blocksize = 1024)
         {
-            WriteLog("Read 0x{0:X8} 0x{1:X8}({1:n0})", addr, size);
+            WriteLog("Read 0x{0:X8} 0x{1:X8}({2:n0}k)", addr, size, size / 1024);
 
             var ms = new MemoryStream();
             var buf = new Byte[blocksize];
@@ -538,7 +554,7 @@ namespace NewLife.Build
         public UInt32 Write(UInt32 addr, Byte[] buffer, UInt32 blocksize = 1024)
         {
             var size = (UInt32)buffer.Length;
-            WriteLog("Write 0x{0:X8} 0x{1:X8}({1:n0})", addr, size);
+            WriteLog("Write 0x{0:X8} 0x{1:X8}({2:n0}k)", addr, size, size / 1024);
 
             var ms = new MemoryStream(buffer);
             //var buf = new Byte[blocksize];
@@ -626,6 +642,38 @@ namespace NewLife.Build
 
             JLink.WriteU32(0x40000014, 0x01);
             Thread.Sleep(10);
+        }
+
+        private static String FindDLL()
+        {
+            // 本地检查
+            var p = "JLinkARM.dll".GetFullPath();
+            if (File.Exists(p)) return p;
+
+            // 从注册表查找
+            var root = Registry.LocalMachine;
+            var reg = root.OpenSubKey(@"SOFTWARE\SEGGER\J-Link");
+            if (reg == null) reg = root.OpenSubKey(@"SOFTWARE\Wow6432Node\SEGGER\J-Link");
+            if (reg != null)
+            {
+                p = reg.GetValue("InstallPath") + "";
+                if (!p.IsNullOrEmpty())
+                {
+                    p = p.CombinePath("JLinkARM.dll");
+                    if (File.Exists(p)) return p;
+                }
+            }
+
+            // 从默认安装目录查找
+            p = Environment.SystemDirectory.CombinePath(@"..\..\Program Files\SEGGER\JLink");
+            p = p.CombinePath("JLinkARM.dll");
+            if (File.Exists(p)) return p;
+
+            p = Environment.SystemDirectory.CombinePath(@"..\..\Program Files (x86)\SEGGER\JLink");
+            p = p.CombinePath("JLinkARM.dll");
+            if (File.Exists(p)) return p;
+
+            return null;
         }
         #endregion
 
