@@ -529,7 +529,49 @@ namespace NewLife.Build
         /// <summary>写入</summary>
         /// <returns></returns>
         [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_WriteMem", CallingConvention = CallingConvention.Cdecl)]
-        public extern static Int32 WriteMem(UInt32 memaddr, Int32 size, Byte[] buffer);
+        extern static UInt32 WriteMem(UInt32 memaddr, UInt32 size, Byte[] buffer);
+        /// <summary>写入</summary>
+        /// <param name="addr"></param>
+        /// <param name="buffer"></param>
+        /// <param name="blocksize"></param>
+        /// <returns></returns>
+        public UInt32 Write(UInt32 addr, Byte[] buffer, UInt32 blocksize = 1024)
+        {
+            var size = (UInt32)buffer.Length;
+            WriteLog("Write 0x{0:X8} 0x{1:X8}({1:n0})", addr, size);
+
+            var ms = new MemoryStream(buffer);
+            //var buf = new Byte[blocksize];
+
+            // 头部对齐
+            var bs = addr % blocksize;
+            if (bs > 0)
+            {
+                bs = blocksize - bs;
+                if (bs > size) bs = size;
+                WriteLog("WriteBlock 0x{0:X8} 0x{1:X8}({1:n0})", addr, bs);
+                var rs = WriteMem(addr, bs, ms.ReadBytes(bs));
+                //if (rs > 0)
+                {
+                    addr += bs;
+                    size -= bs;
+                }
+            }
+            // 循环读取
+            while (size > 0)
+            {
+                bs = blocksize;
+                if (bs > size) bs = size;
+                WriteLog("WriteBlock 0x{0:X8} 0x{1:X8}({1:n0})", addr, bs);
+                var rs = WriteMem(addr, bs, ms.ReadBytes(bs));
+                //if (rs == 0) break;
+
+                addr += bs;
+                size -= bs;
+            }
+
+            return size;
+        }
 
         /// <summary>写入</summary>
         /// <returns></returns>
@@ -564,6 +606,27 @@ namespace NewLife.Build
         /// <returns></returns>
         [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ExecCommand", CallingConvention = CallingConvention.Cdecl)]
         public extern static Int32 ExecCommand(String pbCommand, Int32 param1 = 0, Int32 param2 = 0);
+        #endregion
+
+        #region 辅助
+        /// <summary>初始化RTL8710的SpiFlash</summary>
+        public void RTL8710SpiFlash()
+        {
+            JLink.WriteU32(0x40000230, 0x0000d3c4);
+            JLink.WriteU32(0x40000210, 0x00200113);
+            JLink.WriteU32(0x400002C0, 0x00110001);
+
+            JLink.WriteU32(0x40006008, 0);
+            JLink.WriteU32(0x4000602C, 0);
+            JLink.WriteU32(0x40006010, 1);
+            JLink.WriteU32(0x40006014, 2);
+            JLink.WriteU32(0x40006018, 0);
+            JLink.WriteU32(0x4000601C, 0);
+            JLink.WriteU32(0x4000604C, 0);
+
+            JLink.WriteU32(0x40000014, 0x01);
+            Thread.Sleep(10);
+        }
         #endregion
 
         #region 日志

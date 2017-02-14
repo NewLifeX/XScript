@@ -40,30 +40,13 @@ namespace Test
             var addr = 0x98000000;
 
             // 配置SpiFlash
-            if (addr >= 0x98000000)
-            {
-                JLink.WriteU32(0x40000230, 0x0000d3c4);
-                JLink.WriteU32(0x40000210, 0x00200113);
-                JLink.WriteU32(0x400002C0, 0x00110001);
+            if (addr >= 0x98000000) jk.RTL8710SpiFlash();
 
-                JLink.WriteU32(0x40006008, 0);
-                JLink.WriteU32(0x4000602C, 0);
-                JLink.WriteU32(0x40006010, 1);
-                JLink.WriteU32(0x40006014, 2);
-                JLink.WriteU32(0x40006018, 0);
-                JLink.WriteU32(0x4000601C, 0);
-                JLink.WriteU32(0x4000604C, 0);
+            //var buf = jk.Read(addr, 512 * 1024);
+            //File.WriteAllBytes("rom.bin", buf);
 
-                JLink.WriteU32(0x40000014, 0x01);
-                Thread.Sleep(10);
-            }
-
-            //JLink.SetSpeed(4000000 / 1000);
-            var sp = JLink.GetSpeed();
-            Console.WriteLine("速度：{0}", sp);
-
-            var buf = jk.Read(addr, 512 * 1024);
-            File.WriteAllBytes("rom.bin", buf);
+            var buf = File.ReadAllBytes("user.bin");
+            jk.Write(0x9800B000, buf);
         }
     }
 }

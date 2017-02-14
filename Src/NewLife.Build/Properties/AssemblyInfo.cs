@@ -32,11 +32,13 @@ using System.Runtime.InteropServices;
 //可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”: :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.*")]
-[assembly: AssemblyFileVersion("1.1.11.14")]
+[assembly: AssemblyVersion("1.2.*")]
+[assembly: AssemblyFileVersion("1.2.2017.0214")]
 
 /*
- * v1.1.11.14   MDK编译时检查依赖关系，头文件被修改时也能确保重新编译
+ * v1.2.2017.0214   增加JLink封装，支持烧写固件
  * 
- * v1.0.10.31   创建
+ * v1.1.2016.1114   MDK编译时检查依赖关系，头文件被修改时也能确保重新编译
+ * 
+ * v1.0.2016.1031   创建
  */
