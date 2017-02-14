@@ -32,20 +32,7 @@ namespace Test
         {
             //JLink.EnableLog(true);
             var jk = new JLink();
-
-            JLink.ExecCommand("device=Cortex-M3");
-            JLink.Select(1);
-            JLink.SetSpeed(1000);
-            JLink.Reset();
-            JLink.Halt();
-
-            Thread.Sleep(100);
-
-            if (JLink.IsConnected())
-            {
-                Console.WriteLine("未连接！");
-                return;
-            }
+            if (!jk.Connect()) return;
 
             // 开始写入
             JLink.WriteU32(0x40000230, 0x0000d3c4);
@@ -62,7 +49,7 @@ namespace Test
 
             JLink.WriteU32(0x40000014, 0x01);
 
-            JLink.SetSpeed(4000000 / 1000);
+            //JLink.SetSpeed(4000000 / 1000);
             var sp = JLink.GetSpeed();
             Console.WriteLine("速度：{0}", sp);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using NewLife.Log;
 using NewLife.Reflection;
 
@@ -14,14 +15,15 @@ namespace NewLife.Build
         public JLink()
         {
             Open();
-            SetSpeed(-50);
+            SetSpeed(50000);
 
             //EnableLogCom(this.GetType().GetMethodEx(nameof(DebugCom)).MethodHandle.Value);
 
             XTrace.WriteLine(GetCompileDateTime());
             XTrace.WriteLine(GetFirmwareString());
-            XTrace.WriteLine(GetHardwareVersion());
+            //XTrace.WriteLine(GetHardwareVersion());
             XTrace.WriteLine(GetFeatureString());
+            //XTrace.WriteLine(GetId());
         }
 
         private void DebugCom(String msg)
@@ -47,6 +49,33 @@ namespace NewLife.Build
         #endregion
 
         #region 主要方法
+        /// <summary>连接</summary>
+        /// <returns></returns>
+        public Boolean Connect()
+        {
+            if (IsConnected()) return true;
+
+            ExecCommand("device=Cortex-M3");
+            Select(1);
+            //SetSpeed(1000);
+
+            Reset();
+            Halt();
+
+            for (int i = 0; i < 10; i++)
+            {
+                Thread.Sleep(10);
+
+                if (IsConnected()) return true;
+            }
+
+            XTrace.WriteLine("未连接！");
+
+            return false;
+        }
+        #endregion
+
+        #region Flash操作
         const UInt32 WP = 0x01;
         const UInt32 SLB = 0x02;
         const UInt32 WPL = 0x03;
@@ -276,6 +305,16 @@ namespace NewLife.Build
         public static String GetHardwareVersion()
         {
             var ip = GetHardwareVersion_();
+            return Marshal.PtrToStringAnsi(ip);
+        }
+
+        [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_GetId", CallingConvention = CallingConvention.Cdecl)]
+        extern static IntPtr GetId_();
+        /// <summary>获取编译日期</summary>
+        /// <returns></returns>
+        public static String GetId()
+        {
+            var ip = GetId_();
             return Marshal.PtrToStringAnsi(ip);
         }
         #endregion
