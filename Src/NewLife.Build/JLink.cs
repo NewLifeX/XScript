@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -14,21 +15,11 @@ namespace NewLife.Build
         /// <summary>实例化</summary>
         public JLink()
         {
-            Open();
-            SetSpeed(50000);
-
-            //EnableLogCom(this.GetType().GetMethodEx(nameof(DebugCom)).MethodHandle.Value);
-
-            XTrace.WriteLine(GetCompileDateTime());
-            XTrace.WriteLine(GetFirmwareString());
-            //XTrace.WriteLine(GetHardwareVersion());
-            XTrace.WriteLine(GetFeatureString());
-            //XTrace.WriteLine(GetId());
         }
 
         private void DebugCom(String msg)
         {
-            XTrace.WriteLine(msg);
+            WriteLog(msg);
         }
 
         /// <summary>销毁</summary>
@@ -53,7 +44,24 @@ namespace NewLife.Build
         /// <returns></returns>
         public Boolean Connect()
         {
-            if (IsConnected()) return true;
+            //if (!IsConnected())
+            //{
+            //    WriteLog("未连接！");
+            //    return false;
+            //}
+
+            if (IsOpen()) return true;
+
+            Open();
+            SetSpeed(50000);
+
+            //EnableLogCom(this.GetType().GetMethodEx(nameof(DebugCom)).MethodHandle.Value);
+
+            WriteLog(GetCompileDateTime());
+            WriteLog(GetFirmwareString());
+            //WriteLog(GetHardwareVersion());
+            WriteLog(GetFeatureString());
+            //WriteLog(GetId());
 
             ExecCommand("device=Cortex-M3");
             Select(1);
@@ -69,7 +77,7 @@ namespace NewLife.Build
                 if (IsConnected()) return true;
             }
 
-            XTrace.WriteLine("未连接！");
+            WriteLog("未连接！");
 
             return false;
         }
@@ -107,7 +115,7 @@ namespace NewLife.Build
             for (UInt32 i = 0; i < size; i += 16)
             {
                 var buf = Read(address + i, 16);
-                XTrace.WriteLine("Dump 0x{0:X8} : {1}", address + i, buf.ToHex());
+                WriteLog("Dump 0x{0:X8} : {1}", address + i, buf.ToHex());
             }
 
 
@@ -433,18 +441,62 @@ namespace NewLife.Build
         /// <summary>读取</summary>
         /// <returns></returns>
         [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ReadMem", CallingConvention = CallingConvention.Cdecl)]
-        extern static Int32 ReadMem(UInt32 memaddr, Int32 size, Byte[] buffer);
+        extern static UInt32 ReadMem(UInt32 memaddr, UInt32 size, Byte[] buffer);
+        ///// <summary>读取</summary>
+        ///// <param name="addr"></param>
+        ///// <param name="size"></param>
+        ///// <returns></returns>
+        //public static Byte[] Read(UInt32 addr, Int32 size)
+        //{
+        //    var buf = new Byte[size];
+        //    var rs = ReadMem(addr, size, buf);
+        //    if (rs == buf.Length) return buf;
+
+        //    return buf.ReadBytes(0, rs);
+        //}
+
         /// <summary>读取</summary>
         /// <param name="addr"></param>
         /// <param name="size"></param>
+        /// <param name="blocksize"></param>
         /// <returns></returns>
-        public static Byte[] Read(UInt32 addr, Int32 size)
+        public Byte[] Read(UInt32 addr, UInt32 size, UInt32 blocksize = 1024)
         {
-            var buf = new Byte[size];
-            var rs = ReadMem(addr, size, buf);
-            if (rs == buf.Length) return buf;
+            WriteLog("Read 0x{0:X8} 0x{1:X8}({1:n0})", addr, size);
 
-            return buf.ReadBytes(0, rs);
+            var ms = new MemoryStream();
+            var buf = new Byte[blocksize];
+
+            // 头部对齐
+            var bs = addr % blocksize;
+            if (bs > 0)
+            {
+                bs = blocksize - bs;
+                if (bs > size) bs = size;
+                WriteLog("ReadBlock 0x{0:X8} 0x{1:X8}({1:n0})", addr, bs);
+                var rs = ReadMem(addr, bs, buf);
+                //if (rs > 0)
+                {
+                    ms.Write(buf, 0, (Int32)bs);
+                    addr += bs;
+                    size -= bs;
+                }
+            }
+            // 循环读取
+            while (size > 0)
+            {
+                bs = blocksize;
+                if (bs > size) bs = size;
+                WriteLog("ReadBlock 0x{0:X8} 0x{1:X8}({1:n0})", addr, bs);
+                var rs = ReadMem(addr, bs, buf);
+                //if (rs == 0) break;
+
+                ms.Write(buf, 0, (Int32)bs);
+                addr += bs;
+                size -= bs;
+            }
+
+            return ms.ToArray();
         }
 
         /// <summary>读取</summary>
@@ -512,6 +564,16 @@ namespace NewLife.Build
         /// <returns></returns>
         [DllImport("JLinkARM.dll", EntryPoint = "JLINKARM_ExecCommand", CallingConvention = CallingConvention.Cdecl)]
         public extern static Int32 ExecCommand(String pbCommand, Int32 param1 = 0, Int32 param2 = 0);
+        #endregion
+
+        #region 日志
+        /// <summary>日志</summary>
+        public ILog Log { get; set; } = Logger.Null;
+
+        private void WriteLog(String format, params Object[] args)
+        {
+            Log?.Info(format, args);
+        }
         #endregion
     }
 }
