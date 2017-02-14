@@ -133,8 +133,6 @@ namespace NewLife.Build
                 var buf = Read(address + i, 16);
                 WriteLog("Dump 0x{0:X8} : {1}", address + i, buf.ToHex());
             }
-
-
         }
 
         /// <summary>写入Flash</summary>
@@ -626,22 +624,57 @@ namespace NewLife.Build
 
         #region 辅助
         /// <summary>初始化RTL8710的SpiFlash</summary>
-        public void RTL8710SpiFlash()
+        public void RTL8710SpiInit()
         {
-            JLink.WriteU32(0x40000230, 0x0000d3c4);
-            JLink.WriteU32(0x40000210, 0x00200113);
-            JLink.WriteU32(0x400002C0, 0x00110001);
+            // SpiFlash初始化
+            JLink.WriteU32(0x40000230, 0x0000d3c4); // 打开SpiFlash时钟(0x300)
+            JLink.WriteU32(0x40000210, 0x00200113); // 打开SpiFlash外设(0x10)
+            JLink.WriteU32(0x400002C0, 0x00110001); // 选择SpiFlash输出引脚(0x01)
 
-            JLink.WriteU32(0x40006008, 0);
-            JLink.WriteU32(0x4000602C, 0);
-            JLink.WriteU32(0x40006010, 1);
-            JLink.WriteU32(0x40006014, 2);
-            JLink.WriteU32(0x40006018, 0);
-            JLink.WriteU32(0x4000601C, 0);
-            JLink.WriteU32(0x4000604C, 0);
+            // 初始化Spi
+            JLink.WriteU32(0x40006008, 0);  // 禁用SpiFlash操作
+            JLink.WriteU32(0x4000602C, 0);  // 禁用所有中断
+            JLink.WriteU32(0x40006010, 1);  // 使用第一从选择引脚
+            JLink.WriteU32(0x40006014, 2);  // 默认波特率
+            JLink.WriteU32(0x40006018, 0);  // TX FIFO
+            JLink.WriteU32(0x4000601C, 0);  // RX FIFO
+            JLink.WriteU32(0x4000604C, 0);  // 禁用DMA
 
+            // 系统时钟，0x11=166MHz，0x21=83MHz
             JLink.WriteU32(0x40000014, 0x01);
+
             Thread.Sleep(10);
+        }
+
+        /// <summary>系统初始化</summary>
+        public void RTL8710SystemInit()
+        {
+            WriteU32(0x40000304, 0x1FC00002);
+            WriteU32(0x40000250, 0x400);
+            WriteU32(0x40000340, 0x0);
+            WriteU32(0x40000230, 0xdcc4);
+            WriteU32(0x40000210, 0x11117);
+            WriteU32(0x40000210, 0x11157);
+            WriteU32(0x400002c0, 0x110011);
+            WriteU32(0x40000320, 0xffffffff);
+        }
+
+        /// <summary>设置系统时钟</summary>
+        /// <param name="clock"></param>
+        public void RTL8710SetClock(Int32 clock = 83)
+        {
+            // 系统时钟，0x11=166MHz，0x21=83MHz
+            switch (clock)
+            {
+                case 83:
+                    WriteU32(0x40000014, 0x21);
+                    break;
+                case 166:
+                    WriteU32(0x40000014, 0x11);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
         }
 
         private static String FindDLL()

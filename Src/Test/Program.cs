@@ -40,12 +40,12 @@ namespace Test
             var addr = 0x98000000;
 
             // 配置SpiFlash
-            if (addr >= 0x98000000) jk.RTL8710SpiFlash();
+            if (addr >= 0x98000000) jk.RTL8710SpiInit();
 
             //var buf = jk.Read(addr, 512 * 1024);
             //File.WriteAllBytes("rom.bin", buf);
 
-            var buf = File.ReadAllBytes("user.bin");
+            var buf = File.ReadAllBytes("ram_all.bin");
             jk.Write(0x9800B000, buf);
 
             //JLink.Reset();
