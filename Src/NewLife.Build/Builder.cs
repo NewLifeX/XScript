@@ -23,6 +23,9 @@ namespace NewLife.Build
 
         /// <summary>工具目录</summary>
         public String ToolPath { get; set; }
+
+        /// <summary>是否修正日志为中文</summary>
+        public Boolean FixLog { get; set; } = true;
         #endregion
 
         #region 工厂构造
@@ -881,7 +884,7 @@ namespace NewLife.Build
                 if (msg.Contains(root)) msg = msg.Replace(root, null);
             }
 
-            msg = FixWord(msg);
+            if (FixLog) msg = FixWord(msg);
 
             var clr = GetColor(Thread.CurrentThread.ManagedThreadId);
             if (msg.StartsWithIgnoreCase("错误", "Error", "致命错误", "Fatal error") || msg.Contains("Error:") || msg.Contains("错误:"))
