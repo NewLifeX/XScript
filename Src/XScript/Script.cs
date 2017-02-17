@@ -10,16 +10,14 @@ using Microsoft.Win32;
 using NewLife.IO;
 using NewLife.Log;
 using NewLife.Reflection;
-using NewLife.Security;
 
 namespace NewLife.XScript
 {
     /// <summary>脚本</summary>
     public class Script
     {
-        private static ScriptConfig _Config;
         /// <summary>脚本配置</summary>
-        public static ScriptConfig Config { get { return _Config; } set { _Config = value; } }
+        public static ScriptConfig Config { get; set; }
 
         public static ScriptEngine ProcessFile(String file)
         {
@@ -40,12 +38,14 @@ namespace NewLife.XScript
             //Environment.CurrentDirectory = dir;
             //PathHelper.BaseDirectory = dir;
             Environment.SetEnvironmentVariable("XScriptFile", file);
+            Host.File = file;
 
             var se = ScriptEngine.Create(sc.ReadCode(true), false);
             if (Config.Debug) se.Log = XTrace.Log;
             se.WorkingDirectory = dir;
 
             // 添加默认命名空间
+            se.NameSpaces.Add("NewLife.XScript");
             se.NameSpaces.Add("NewLife.Build");
 
             // 引用程序集

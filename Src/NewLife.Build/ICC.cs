@@ -69,7 +69,7 @@ namespace NewLife.Build
             if (!Debug) sb.Append(" -Ohz");
             foreach (var item in Defines)
             {
-                sb.AppendFormat(" -D {0}", item);
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D {0}", item);
             }
             if (Tiny) sb.Append(" -D TINY");
             //var basePath = Complier.CombinePath(@"..\..\..\").GetFullPath();
@@ -96,7 +96,7 @@ namespace NewLife.Build
             if (CPU.TrimStart("Cortex-M").ToInt() >= 4) sb.Append(" --fpu=None");
             foreach (var item in Defines)
             {
-                sb.AppendFormat(" -D{0}", item);
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
             }
             if (Debug) sb.Append(" -r");
             if (Tiny) sb.Append(" -DTINY");

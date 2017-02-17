@@ -9,50 +9,38 @@ namespace NewLife.XScript
     public class ScriptConfig
     {
         #region 属性
-        private String _File;
         /// <summary>脚本文件</summary>
-        public String File { get { return _File; } set { _File = value; } }
+        public String File { get; set; }
 
-        private Boolean _Exe;
         /// <summary>是否生成Exe</summary>
-        public Boolean Exe { get { return _Exe; } set { _Exe = value; } }
+        public Boolean Exe { get; set; }
 
-        private Boolean _Vs;
         /// <summary>使用VisualStudio打开编辑</summary>
-        public Boolean Vs { get { return _Vs; } set { _Vs = value; } }
+        public Boolean Vs { get; set; }
 
-        private Boolean _NoLogo;
         /// <summary>不显示版权信息</summary>
-        public Boolean NoLogo { get { return _NoLogo; } set { _NoLogo = value; } }
+        public Boolean NoLogo { get; set; }
 
-#if DEBUG
-        private Boolean _Debug = true;
-#else
-        private Boolean _Debug;
-#endif
         /// <summary>调试</summary>
         [XmlElement("D")]
-        public Boolean Debug { get { return _Debug; } set { _Debug = value; } }
+        public Boolean Debug { get; set; }
 
         //private String _Assembly;
         ///// <summary>引用程序集</summary>
         //[XmlElement("R")]
         //public String Assembly { get { return _Assembly; } set { _Assembly = value; } }
 
-        private Boolean _NoStop;
         /// <summary>结束时不停止，退出进程</summary>
-        public Boolean NoStop { get { return _NoStop; } set { _NoStop = value; } }
+        public Boolean NoStop { get; set; }
 
-        private Boolean _NoTime;
         /// <summary>不显示执行时间</summary>
-        public Boolean NoTime { get { return _NoTime; } set { _NoTime = value; } }
+        public Boolean NoTime { get; set; }
 
         /// <summary>隐藏窗口</summary>
         public Boolean Hide { get; set; }
 
-        private Int32 _Times = 1;
         /// <summary>执行次数</summary>
-        public Int32 Times { get { return _Times; } set { _Times = value; } }
+        public Int32 Times { get; set; } = 1;
         #endregion
 
         #region 方法

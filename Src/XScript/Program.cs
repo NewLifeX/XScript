@@ -38,6 +38,7 @@ namespace NewLife.XScript
                 return;
             }
             Script.Config = Config;
+            Host.Config = Config;
 
             if (Config.Hide)
             {

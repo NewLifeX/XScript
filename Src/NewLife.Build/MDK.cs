@@ -90,7 +90,7 @@ namespace NewLife.Build
             if (Tiny) sb.Append(" -DTINY");
             foreach (var item in Defines)
             {
-                sb.AppendFormat(" -D{0}", item);
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
             }
 
             if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
@@ -137,7 +137,7 @@ namespace NewLife.Build
             //if (GD32) sb.Append(" --pd \"GD32 SETA 1\"");
             foreach (var item in Defines)
             {
-                sb.AppendFormat(" --pd \"{0} SETA 1\"", item);
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" --pd \"{0} SETA 1\"", item);
             }
             if (Debug) sb.Append(" --pd \"DEBUG SETA 1\"");
             if (Tiny) sb.Append(" --pd \"TINY SETA 1\"");
@@ -368,7 +368,7 @@ namespace NewLife.Build
             if (Tiny) sb.Append(" -DTINY");
             foreach (var item in Defines)
             {
-                sb.AppendFormat(" -D{0}", item);
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
             }
 
             if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
