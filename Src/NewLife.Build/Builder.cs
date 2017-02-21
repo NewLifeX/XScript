@@ -740,6 +740,29 @@ namespace NewLife.Build
             }
         }
 
+        /// <summary>添加对象文件</summary>
+        /// <param name="path"></param>
+        /// <param name="filter"></param>
+        /// <param name="allSub"></param>
+        public void AddObjs(String path, String filter = null, Boolean allSub = false)
+        {
+            path = path.GetFullPath();
+            if (!Directory.Exists(path)) return;
+
+            if (filter.IsNullOrEmpty()) filter = "*.o";
+            //var opt = allSub ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var item in path.AsDirectory().GetAllFiles(filter, allSub))
+            {
+                // 不包含，直接增加
+                if (!Objs.Contains(item.FullName))
+                {
+                    var lib = new LibFile(item.FullName);
+                    WriteLog("发现对象文件：{0, -12} {1}".F(lib.Name, item.FullName));
+                    Objs.Add(item.FullName);
+                }
+            }
+        }
+
         internal class LibFile
         {
             /// <summary>名称</summary>
