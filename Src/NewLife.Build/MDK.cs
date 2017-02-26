@@ -252,6 +252,10 @@ namespace NewLife.Build
                     if (item.IsNullOrEmpty()) continue;
 
                     var header = item.Substring(".o: ");
+                    if (header.IsNullOrEmpty()) continue;
+
+                    //header = header.Replace("/", "\\");
+                    header = header.Trim().GetFullPath();
                     if (!header.IsNullOrEmpty() && !depends.Contains(header))
                     {
                         // 如果头文件修改过，需要重新编译

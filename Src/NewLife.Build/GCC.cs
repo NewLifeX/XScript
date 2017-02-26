@@ -299,6 +299,9 @@ namespace NewLife.Build
                     foreach (var elm in header.Split(" "))
                     {
                         header = elm;
+                        if (header.IsNullOrEmpty()) continue;
+
+                        header = header.Trim().GetFullPath();
                         if (!header.IsNullOrEmpty() && !depends.Contains(header))
                         {
                             // 如果头文件修改过，需要重新编译
