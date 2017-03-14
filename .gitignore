@@ -10,3 +10,7 @@ obj
 /Src/NewLife.Build/bin
 *.nuspec
 /Test
+*.suo
+/Src/.vs/XScript/v15
+*.suo
+*.suo
