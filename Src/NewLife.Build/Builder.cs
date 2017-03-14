@@ -186,6 +186,9 @@ namespace NewLife.Build
 
         /// <summary>扩展编译集合</summary>
         public String ExtBuilds { get; set; }
+
+        /// <summary>总是编译的文件，一般是含有编译时间的源文件</summary>
+        public String AlwaysBuild { get; set; }
         #endregion
 
         #region 主要编译方法
@@ -226,6 +229,13 @@ namespace NewLife.Build
         {
             if (!obj.Exists) return true;
             if (obj.LastWriteTime < src.AsFile().LastWriteTime) return true;
+
+            // 某些文件每次都要编译
+            if (!AlwaysBuild.IsNullOrEmpty())
+            {
+                var ss = AlwaysBuild.Split(",", ":");
+                if (src.AsFile().Name.EqualIgnoreCase(ss)) return true;
+            }
 
             if (RebuildTime == 0) return false;
             if (RebuildTime > 0)
