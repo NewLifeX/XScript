@@ -21,6 +21,8 @@ namespace NewLife.Build
         {
             Name = "ICC";
 
+            DefineFormat = " -D {0}";
+
             Version = location.Version;
             ToolPath = location.ToolPath;
         }
@@ -49,7 +51,7 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public override String GetCompileCommand(Boolean cpp)
+        protected override String OnGetCompileCommand(Boolean cpp)
         {
             // --debug --endian=little --cpu=Cortex-M3 --enum_is_int -e --char_is_signed --fpu=None 
             // -Ohz --use_c++_inline 
@@ -67,15 +69,6 @@ namespace NewLife.Build
             if (Debug) sb.Append(" --debug");
             // 默认低级优化，发行版-Ohz为代码大小优化，-Ohs为高速度优化
             if (!Debug) sb.Append(" -Ohz");
-            foreach (var item in Defines)
-            {
-                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D {0}", item);
-            }
-            if (Tiny) sb.Append(" -D TINY");
-            //var basePath = Complier.CombinePath(@"..\..\..\").GetFullPath();
-            //sb.AppendFormat(" --dlib_config \"{0}\\arm\\INC\\c\\DLib_Config_Normal.h\"", basePath);
-
-            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }

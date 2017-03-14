@@ -163,6 +163,9 @@ namespace NewLife.Build
         /// <summary>分步编译。优先选用与目录同名的静态库</summary>
         public Boolean Partial { get; set; }
 
+        /// <summary>宏定义构造格式</summary>
+        public String DefineFormat { get; set; } = " -D{0}";
+
         /// <summary>定义集合</summary>
         public ICollection<String> Defines { get; private set; } = new HashSet<String>(StringComparer.OrdinalIgnoreCase);
 
@@ -192,7 +195,28 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public abstract String GetCompileCommand(Boolean cpp);
+        public String GetCompileCommand(Boolean cpp)
+        {
+            var cmd = OnGetCompileCommand(cpp);
+
+            var sb = new StringBuilder(cmd);
+
+            if (Debug) sb.AppendFormat(DefineFormat, "DEBUG");
+            if (Tiny) sb.AppendFormat(DefineFormat, "TINY");
+            foreach (var item in Defines)
+            {
+                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(DefineFormat, item);
+            }
+
+            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
+
+            return sb.ToString();
+        }
+
+        /// <summary>获取编译用的命令行</summary>
+        /// <param name="cpp">是否C++</param>
+        /// <returns></returns>
+        protected abstract String OnGetCompileCommand(Boolean cpp);
 
         /// <summary>检查源码文件是否需要编译</summary>
         /// <param name="src"></param>
@@ -237,6 +261,12 @@ namespace NewLife.Build
 
             var rs = OnCompile(file);
             if (!rs.IsNullOrEmpty()) sb.AppendFormat(" {0}", rs);
+
+            // 加上内置编译时宏定义
+            sb.AppendFormat(DefineFormat + "={1}", "__BUILD_DATE__", (Int32)(DateTime.Now - new DateTime(2000, 1, 1)).TotalDays);
+            sb.AppendFormat(DefineFormat + "={1}", "__BUILD_TIME__", (Int32)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds);
+            sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_COMPILE__", DateTime.Now.ToFullString());
+            sb.AppendFormat(DefineFormat + "=\"\\\"{1}_{2}\\\"\"", "__BUILD_USER__", Environment.MachineName, Environment.UserName);
 
             // 先删除目标文件
             if (obj.Exists) obj.Delete();
@@ -384,7 +414,7 @@ namespace NewLife.Build
             var fs = 0;
             while (fs < Files.Count)
             {
-                for (int i = list2.Count - 1; i >= 0; i--)
+                for (var i = list2.Count - 1; i >= 0; i--)
                 {
                     if (File.Exists(list[i]))
                     {
@@ -412,7 +442,7 @@ namespace NewLife.Build
             }
             Console.WriteLine();
 
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 if (File.Exists(list[i]))
                 {
@@ -556,9 +586,8 @@ namespace NewLife.Build
             {
                 var lib = new LibFile(item);
                 // 调试版/发行版 优先选用最佳匹配版本
-                var old = "";
                 // 不包含，直接增加
-                if (!dic.TryGetValue(lib.Name, out old))
+                if (!dic.TryGetValue(lib.Name, out var old))
                 {
                     dic.Add(lib.Name, lib.FullName);
                 }
@@ -890,6 +919,11 @@ namespace NewLife.Build
 
             return lstName;
         }
+
+        /// <summary>格式化宏定义</summary>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        protected virtual String FormatDefine(String def) { return "-D" + def; }
         #endregion
 
         #region 日志
@@ -929,9 +963,8 @@ namespace NewLife.Build
             // 好像因为dic.TryGetValue也会引发线程冲突，真是悲剧！
             lock (dic)
             {
-                ConsoleColor cc;
                 var key = threadid;
-                if (!dic.TryGetValue(key, out cc))
+                if (!dic.TryGetValue(key, out var cc))
                 {
                     //lock (dic)
                     {

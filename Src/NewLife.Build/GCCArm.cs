@@ -51,9 +51,9 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public override String GetCompileCommand(Boolean cpp)
+        protected override String OnGetCompileCommand(Boolean cpp)
         {
-            return base.GetCompileCommand(cpp) + " -mthumb";
+            return base.OnGetCompileCommand(cpp) + " -mthumb";
         }
 
         /// <summary>汇编程序</summary>

@@ -52,7 +52,7 @@ namespace NewLife.XScript
             // 源码行
             if (includeLine) sb.AppendFormat("#line {0} \"{1}\"\r\n", 1, file);
 
-            for (int i = 0; i < ss.Length; i++)
+            for (var i = 0; i < ss.Length; i++)
             {
                 var line = ss[i];
 
@@ -170,7 +170,9 @@ namespace NewLife.XScript
                     //list.Add(item);
                     try
                     {
+#pragma warning disable CS0618 // 类型或成员已过时
                         var asm = Assembly.LoadWithPartialName(item);
+#pragma warning restore CS0618 // 类型或成员已过时
                         //Console.WriteLine(asm);
                         list.Add(asm.Location);
                     }

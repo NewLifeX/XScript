@@ -65,7 +65,7 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public override String GetCompileCommand(Boolean cpp)
+        protected override String OnGetCompileCommand(Boolean cpp)
         {
             var sb = new StringBuilder();
             /*
@@ -85,15 +85,6 @@ namespace NewLife.Build
             //if(Linux) sb.Append(" --arm_linux");
             // --signed_chars
             if (Linux) sb.Append(" --enum_is_int --wchar32");
-
-            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
-            if (Tiny) sb.Append(" -DTINY");
-            foreach (var item in Defines)
-            {
-                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
-            }
-
-            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -348,7 +339,7 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public override String GetCompileCommand(Boolean cpp)
+        protected override String OnGetCompileCommand(Boolean cpp)
         {
             var sb = new StringBuilder();
             /*
@@ -367,15 +358,6 @@ namespace NewLife.Build
             sb.Append(" --target=arm-arm-none-eabi -funsigned-char -MD");
             sb.AppendFormat(" -mcpu={0} -D__MICROLIB -gdwarf-3 -O{1} -ffunction-sections", CPU.ToLower(), Debug ? 0 : 3);
             sb.Append(" -Warmcc-pragma-arm");
-
-            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
-            if (Tiny) sb.Append(" -DTINY");
-            foreach (var item in Defines)
-            {
-                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
-            }
-
-            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -444,8 +426,10 @@ namespace NewLife.Build
                 XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
 
                 var url = "http://www.newlifex.com/showtopic-1456.aspx";
-                var client = new WebClientX(true, true);
-                client.Log = XTrace.Log;
+                var client = new WebClientX(true, true)
+                {
+                    Log = XTrace.Log
+                };
                 var dir = Environment.SystemDirectory.CombinePath("..\\..\\Keil").GetFullPath();
                 var file = client.DownloadLinkAndExtract(url, "MDK", dir);
                 var p = dir.CombinePath("ARM");
@@ -483,8 +467,7 @@ namespace NewLife.Build
                 //    }
                 //}
                 var dic = File.ReadAllText(p).SplitAsDictionary("=", Environment.NewLine);
-                var v = "";
-                if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out v)) return v.Trim('\"');
+                if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out var v)) return v.Trim('\"');
                 if (!clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_CM0", out v)) return v.Trim('\"');
                 if (dic.TryGetValue("VERSION", out v)) return v;
             }

@@ -53,7 +53,7 @@ namespace NewLife.Build
         /// <summary>获取编译用的命令行</summary>
         /// <param name="cpp">是否C++</param>
         /// <returns></returns>
-        public override String GetCompileCommand(Boolean cpp)
+        protected override String OnGetCompileCommand(Boolean cpp)
         {
             // -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O0   -mcpu=cortex-m3 -mthumb
             // -I. -IstLib/inc -IstCM3 -DDEBUG=1 -DARM_MATH_CM3 -DSTM32F103VE -Dstm32_flash_layout -DSTM32F10X_HD
@@ -100,14 +100,6 @@ namespace NewLife.Build
                 sb.Append(" -w");
             // 输出依赖文件
             sb.Append(" -MD");
-            if (Debug) sb.Append(" -DDEBUG -DUSE_FULL_ASSERT");
-            if (Tiny) sb.Append(" -DTINY");
-            foreach (var item in Defines)
-            {
-                if (!item.IsNullOrWhiteSpace()) sb.AppendFormat(" -D{0}", item);
-            }
-
-            if (!ExtCompiles.IsNullOrEmpty()) sb.AppendFormat(" {0}", ExtCompiles.Trim());
 
             return sb.ToString();
         }
@@ -203,9 +195,8 @@ namespace NewLife.Build
             {
                 var lib = new LibFile(item);
                 // 调试版/发行版 优先选用最佳匹配版本
-                var old = "";
                 // 不包含，直接增加
-                if (!dic.TryGetValue(lib.Name, out old))
+                if (!dic.TryGetValue(lib.Name, out var old))
                 {
                     dic.Add(lib.Name, lib.FullName);
                 }
