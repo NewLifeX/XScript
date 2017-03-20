@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Win32;
 using NewLife.Log;
+using NewLife.Web;
 
 namespace NewLife.Build
 {
@@ -101,14 +102,14 @@ namespace NewLife.Build
             #endregion
 
             #region 扫描所有根目录，获取MDK安装目录
-            //if (String.IsNullOrEmpty(ToolPath))
+            if (String.IsNullOrEmpty(ToolPath))
             {
                 foreach (var item in DriveInfo.GetDrives())
                 {
                     if (!item.IsReady) continue;
 
-                    var p = Path.Combine(item.RootDirectory.FullName, @"GCC\arm-none-eabi");
-                    if (!Directory.Exists(p)) p = Path.Combine(item.RootDirectory.FullName, @"GCCArm\arm-none-eabi");
+                    var p = Path.Combine(item.RootDirectory.FullName, @"GCCArm\arm-none-eabi");
+                    if (!Directory.Exists(p)) p = Path.Combine(item.RootDirectory.FullName, @"GCC\arm-none-eabi");
                     if (Directory.Exists(p))
                     {
                         p = p.CombinePath(@"..\").GetFullPath();
@@ -123,8 +124,33 @@ namespace NewLife.Build
                     }
                 }
             }
-            if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取GCC Arm安装目录！");
             #endregion
+
+            #region 版本更新
+            if (String.IsNullOrEmpty(ToolPath))
+            {
+                XTrace.WriteLine("准备下载安装 GCCArm", Version);
+
+                var url = "http://x.newlifex.com/";
+                var client = new WebClientX(true, true)
+                {
+                    Log = XTrace.Log
+                };
+                var p = Environment.SystemDirectory.CombinePath("..\\..\\GCCArm").GetFullPath();
+                var file = client.DownloadLinkAndExtract(url, "GCCArm", p);
+                if (Directory.Exists(p))
+                {
+                    var ver = GetVer(p);
+                    if (ver.CompareTo(Version) > 0)
+                    {
+                        ToolPath = p;
+                        Version = ver;
+                    }
+                }
+            }
+            #endregion
+
+            if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取GCC Arm安装目录！");
         }
 
         public String GetVer(String path)

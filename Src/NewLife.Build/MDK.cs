@@ -457,7 +457,8 @@ namespace NewLife.Build
             if (File.Exists(p))
             {
                 var dic = File.ReadAllText(p).SplitAsDictionary("=", Environment.NewLine);
-                if (dic.TryGetValue("VERSION", out var v)) return v.Trim('\"').EnsureStart("v");
+                var v = "";
+                if (dic.TryGetValue("VERSION", out v)) return v.Trim('\"').EnsureStart("v");
                 if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out v)) return v.Trim('\"');
                 if (!clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_CM0", out v)) return v.Trim('\"');
                 if (dic.TryGetValue("VERSION", out v)) return v;

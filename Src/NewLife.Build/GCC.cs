@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Web;
 
@@ -196,7 +197,8 @@ namespace NewLife.Build
                 var lib = new LibFile(item);
                 // 调试版/发行版 优先选用最佳匹配版本
                 // 不包含，直接增加
-                if (!dic.TryGetValue(lib.Name, out var old))
+                var old = "";
+                if (!dic.TryGetValue(lib.Name, out old))
                 {
                     dic.Add(lib.Name, lib.FullName);
                 }
@@ -385,7 +387,7 @@ namespace NewLife.Build
             #endregion
 
             #region 扫描所有根目录，获取MDK安装目录
-            //if (String.IsNullOrEmpty(ToolPath))
+            if (String.IsNullOrEmpty(ToolPath))
             {
                 foreach (var item in DriveInfo.GetDrives())
                 {
@@ -406,34 +408,9 @@ namespace NewLife.Build
                     }
                 }
             }
+            #endregion
+
             if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取GCC安装目录！");
-            #endregion
-
-            #region 版本更新
-            if (Version.ToLower().CompareTo("v5.17") < 0)
-            {
-                XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
-
-                var url = "http://x.newlifex.com/";
-                var client = new WebClientX(true, true)
-                {
-                    Log = XTrace.Log
-                };
-                var dir = Environment.SystemDirectory.CombinePath("..\\..\\Keil").GetFullPath();
-                var file = client.DownloadLinkAndExtract(url, "MDK", dir);
-                var p = dir.CombinePath("ARM");
-                if (Directory.Exists(p))
-                {
-                    var ver = GetVer(p);
-                    if (ver.CompareTo(Version) > 0)
-                    {
-                        ToolPath = p;
-                        Version = ver;
-                    }
-                }
-            }
-            if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取MDK安装目录！");
-            #endregion
         }
 
         public String GetVer(String path)

@@ -56,10 +56,10 @@ namespace NewLife.XScript
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
 
             // 发送到菜单
-            ThreadPoolX.QueueUserWorkItem(s => SetSendTo());
-            ThreadPoolX.QueueUserWorkItem(s => SetFileType());
-            ThreadPoolX.QueueUserWorkItem(s => SetPath());
-            ThreadPoolX.QueueUserWorkItem(s => AutoUpdate());
+            Task.Run(() => SetSendTo());
+            Task.Run(() => SetFileType());
+            Task.Run(() => SetPath());
+            Task.Run(() => AutoUpdate());
 #if DEBUG
             Task.Run(() => Build.Builder.All);
 #endif

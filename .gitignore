@@ -14,3 +14,4 @@ obj
 /Src/.vs/XScript/v15
 *.suo
 *.suo
+/Build
