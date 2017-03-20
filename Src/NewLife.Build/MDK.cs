@@ -425,7 +425,7 @@ namespace NewLife.Build
             {
                 XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
 
-                var url = "http://www.newlifex.com/showtopic-1456.aspx";
+                var url = "http://x.newlifex.com/";
                 var client = new WebClientX(true, true)
                 {
                     Log = XTrace.Log
@@ -453,21 +453,9 @@ namespace NewLife.Build
             var p = Path.Combine(path, "..\\Tools.ini");
             if (File.Exists(p))
             {
-                //foreach (var item in File.ReadAllLines(p))
-                //{
-                //    if (String.IsNullOrEmpty(item)) continue;
-                //    if (item.StartsWith("VERSION=", StringComparison.OrdinalIgnoreCase))
-                //    {
-                //        //var s = item.Substring("VERSION=".Length).Trim().Trim('V', 'v', 'a', 'b', 'c');
-                //        //var ss = s.SplitAsInt(".");
-                //        //return new Version(ss[0], ss[1]);
-                //        //break;
-
-                //        return item.Substring("VERSION=".Length).Trim();
-                //    }
-                //}
                 var dic = File.ReadAllText(p).SplitAsDictionary("=", Environment.NewLine);
-                if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out var v)) return v.Trim('\"');
+                if (dic.TryGetValue("VERSION", out var v)) return v.Trim('\"').EnsureStart("v");
+                if (clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_OTHER", out v)) return v.Trim('\"');
                 if (!clang && dic.TryGetValue("DEFAULT_ARMCC_VERSION_CM0", out v)) return v.Trim('\"');
                 if (dic.TryGetValue("VERSION", out v)) return v;
             }
