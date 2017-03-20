@@ -421,6 +421,9 @@ namespace NewLife.Build
                     }
                 }
             }
+            #endregion
+
+            #region 版本更新
             if (Version.ToLower().CompareTo("v5.17") < 0)
             {
                 XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.Win32;
 using NewLife.Log;
+using NewLife.Web;
 
 namespace NewLife.Build
 {
@@ -407,6 +407,32 @@ namespace NewLife.Build
                 }
             }
             if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取GCC安装目录！");
+            #endregion
+
+            #region 版本更新
+            if (Version.ToLower().CompareTo("v5.17") < 0)
+            {
+                XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
+
+                var url = "http://x.newlifex.com/";
+                var client = new WebClientX(true, true)
+                {
+                    Log = XTrace.Log
+                };
+                var dir = Environment.SystemDirectory.CombinePath("..\\..\\Keil").GetFullPath();
+                var file = client.DownloadLinkAndExtract(url, "MDK", dir);
+                var p = dir.CombinePath("ARM");
+                if (Directory.Exists(p))
+                {
+                    var ver = GetVer(p);
+                    if (ver.CompareTo(Version) > 0)
+                    {
+                        ToolPath = p;
+                        Version = ver;
+                    }
+                }
+            }
+            if (String.IsNullOrEmpty(ToolPath)) throw new Exception("无法获取MDK安装目录！");
             #endregion
         }
 
