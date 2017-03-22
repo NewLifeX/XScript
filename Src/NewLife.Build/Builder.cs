@@ -275,8 +275,12 @@ namespace NewLife.Build
             // 加上内置编译时宏定义
             sb.AppendFormat(DefineFormat + "={1}", "__BUILD_DATE__", (Int32)(DateTime.Now - new DateTime(2000, 1, 1)).TotalDays);
             sb.AppendFormat(DefineFormat + "={1}", "__BUILD_TIME__", (Int32)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds);
-            sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_COMPILE__", DateTime.Now.ToFullString());
-            sb.AppendFormat(DefineFormat + "=\"\\\"{1}_{2}\\\"\"", "__BUILD_USER__", Environment.MachineName, Environment.UserName);
+            sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_STIME__", DateTime.Now.ToFullString());
+            sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_SDATE__", DateTime.Now.ToString("yyMMdd"));
+            var user = $"{Environment.MachineName}_{Environment.UserName}";
+            if (user.Length > 16) user = Environment.MachineName;
+            if (user.Length > 16) user = user.Substring(0, 16);
+            sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_USER__", user);
 
             // 先删除目标文件
             if (obj.Exists) obj.Delete();

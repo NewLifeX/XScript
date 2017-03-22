@@ -31,6 +31,9 @@ namespace Test
 
         static void Test1()
         {
+            var ms = (Int32)(DateTime.Now.Date - new DateTime(1970, 1, 1)).TotalSeconds;
+            Console.WriteLine(ms);
+
             //JLink.EnableLog(true);
             var jk = new JLink();
             jk.Log = XTrace.Log;
