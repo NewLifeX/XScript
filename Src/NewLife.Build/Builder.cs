@@ -278,8 +278,8 @@ namespace NewLife.Build
             sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_STIME__", DateTime.Now.ToFullString());
             sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_SDATE__", DateTime.Now.ToString("yyMMdd"));
             var user = $"{Environment.MachineName}_{Environment.UserName}";
-            if (user.Length > 16) user = Environment.MachineName;
-            if (user.Length > 16) user = user.Substring(0, 16);
+            if (user.Length > 15) user = Environment.MachineName;
+            if (user.Length > 15) user = user.Substring(0, 15);
             sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_USER__", user);
 
             // 先删除目标文件
