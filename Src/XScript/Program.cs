@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using NewLife.Log;
@@ -55,14 +56,16 @@ namespace NewLife.XScript
             _CodeFile = true;
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
 
-            // 发送到菜单
-            Task.Run(() => SetSendTo());
-            Task.Run(() => SetFileType());
-            Task.Run(() => SetPath());
+            if (CheckVersion())
+            {
+                // 发送到菜单
+                Task.Run(() => SetSendTo());
+                Task.Run(() => SetFileType());
+                Task.Run(() => SetPath());
+            }
             Task.Run(() => AutoUpdate());
-#if DEBUG
-            Task.Run(() => Build.Builder.All);
-#endif
+
+            if (Config.Debug) Task.Run(() => Build.Builder.All);
 
             if (!_CodeFile)
             {
@@ -265,6 +268,41 @@ namespace NewLife.XScript
             }
         }
 
+        /// <summary>检查当前版本是否更新</summary>
+        /// <returns></returns>
+        //[RegistryPermission(SecurityAction.PermitOnly, Read = @"HKEY_LOCAL_MACHINE\SOFTWARE\NewLife")]
+        static Boolean CheckVersion()
+        {
+            var cur = AssemblyX.Entry.Version;
+            var key = @"Software\NewLife\XScript";
+
+            var root = Registry.LocalMachine;
+            var reg = root.OpenSubKey(key);
+            if (reg != null)
+            {
+                var v = reg.GetValue("Version") + "";
+                reg.Close();
+                if (v.CompareTo(cur) >= 0) return false;
+            }
+
+            XTrace.WriteLine("更新注册版本为 v{0}", cur);
+
+            try
+            {
+                reg = root.CreateSubKey(key);
+
+                reg.SetValue("Version", cur, RegistryValueKind.String);
+                reg.SetValue("Path", AppDomain.CurrentDomain.BaseDirectory, RegistryValueKind.String);
+                reg.Close();
+            }
+            catch (Exception ex)
+            {
+                XTrace.WriteLine("失败！可能需要管理员权限运行！" + ex.Message);
+            }
+
+            return true;
+        }
+
         static void SetSendTo()
         {
             var dir = Environment.GetFolderPath(Environment.SpecialFolder.SendTo);
@@ -273,7 +311,7 @@ namespace NewLife.XScript
             // 每次更新，用于覆盖，避免错误
             //if (File.Exists(file)) return;
 
-            //XTrace.WriteLine("添加快捷方式到“发送到”菜单！");
+            XTrace.WriteLine("添加快捷方式到“发送到”菜单！");
 
             try
             {
@@ -290,6 +328,8 @@ namespace NewLife.XScript
 
         static void SetFileType()
         {
+            XTrace.WriteLine("设置.cs文件打开方式");
+
             try
             {
                 var root = Registry.ClassesRoot;
@@ -298,9 +338,17 @@ namespace NewLife.XScript
                 var name = asm.GetName().Name;
 
                 // 修改.cs文件指向
-                root.CreateSubKey(".cs").SetValue("", name);
+                var reg = root.CreateSubKey(".cs");
+                reg.SetValue("", name);
+                reg = reg.OpenSubKey("OpenWithProgids", true);
+                reg.SetValue("XScript", "", RegistryValueKind.String);
 
-                var reg = root.OpenSubKey(name);
+                reg = root.CreateSubKey(".xs");
+                reg.SetValue("", name);
+                reg = reg.CreateSubKey("OpenWithProgids");
+                reg.SetValue("XScript", "", RegistryValueKind.String);
+
+                reg = root.OpenSubKey(name);
                 if (reg != null)
                 {
                     var verStr = reg.GetValue("Version") + "";
@@ -314,15 +362,26 @@ namespace NewLife.XScript
                 }
 
                 var ico = "";
-                for (int i = 20; i >= 8; i--)
+                //for (int i = 20; i >= 8; i--)
+                //{
+                //    reg = root.OpenSubKey(String.Format("VisualStudio.cs.{0}.0", i));
+                //    if (reg != null)
+                //    {
+                //        reg = reg.OpenSubKey("DefaultIcon");
+                //        if (reg != null) ico = reg.GetValue("") + "";
+                //        reg.Close();
+                //        if (!ico.IsNullOrWhiteSpace()) break;
+                //    }
+                //}
+                var vcs = root.GetSubKeyNames().LastOrDefault(e => e.StartsWithIgnoreCase("VisualStudio.cs."));
+                if (!vcs.IsNullOrEmpty())
                 {
-                    reg = root.OpenSubKey(String.Format("VisualStudio.cs.{0}.0", i));
+                    reg = root.OpenSubKey(vcs);
                     if (reg != null)
                     {
                         reg = reg.OpenSubKey("DefaultIcon");
                         if (reg != null) ico = reg.GetValue("") + "";
                         reg.Close();
-                        if (!ico.IsNullOrWhiteSpace()) break;
                     }
                 }
 
@@ -352,10 +411,10 @@ namespace NewLife.XScript
                     }
                 }
             }
-            catch (UnauthorizedAccessException) { }
+            //catch (UnauthorizedAccessException) { }
             catch (Exception ex)
             {
-                if (Config.Debug) XTrace.WriteException(ex);
+                XTrace.WriteException(ex);
             }
         }
 
