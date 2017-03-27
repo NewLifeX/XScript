@@ -277,6 +277,8 @@ namespace NewLife.Build
             sb.AppendFormat(DefineFormat + "={1}", "__BUILD_TIME__", (Int32)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds);
             sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_STIME__", DateTime.Now.ToFullString());
             sb.AppendFormat(DefineFormat + "=\"\\\"{1}\\\"\"", "__BUILD_SDATE__", DateTime.Now.ToString("yyMMdd"));
+            sb.AppendFormat(DefineFormat + "={1}", "__BUILD_ITIME__", DateTime.Now.ToString("HHmmss"));
+            sb.AppendFormat(DefineFormat + "={1}", "__BUILD_IDATE__", DateTime.Now.ToString("yyMMdd"));
             var user = $"{Environment.MachineName}_{Environment.UserName}";
             if (user.Length > 15) user = Environment.MachineName;
             if (user.Length > 15) user = user.Substring(0, 15);
