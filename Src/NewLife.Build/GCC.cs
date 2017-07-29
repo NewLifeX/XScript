@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.Win32;
 using NewLife.Log;
-using NewLife.Web;
 
 namespace NewLife.Build
 {

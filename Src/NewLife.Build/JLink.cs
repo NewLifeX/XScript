@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using Microsoft.Win32;
 using NewLife.Log;
-using NewLife.Reflection;
 
 namespace NewLife.Build
 {

@@ -4,13 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Net;
 using NewLife.Reflection;
-using NewLife.Threading;
 
 namespace NewLife.XScript
 {
