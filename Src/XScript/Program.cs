@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using NewLife.Log;
@@ -25,10 +26,11 @@ namespace NewLife.XScript
 
         static void Main(string[] args)
         {
+            var cfg = Config;
             // 分解参数
             try
             {
-                Config = ScriptConfig.Parse(args);
+                cfg = Config = ScriptConfig.Parse(args);
             }
             catch (Exception ex)
             {
@@ -36,34 +38,42 @@ namespace NewLife.XScript
                 Console.Read();
                 return;
             }
-            Script.Config = Config;
-            Host.Config = Config;
+            Script.Config = cfg;
+            Host.Config = cfg;
 
-            if (Config.Hide)
+            // 隐藏当前窗口
+            if (cfg.Hide)
             {
                 var ip = Process.GetCurrentProcess().MainWindowHandle;
                 if (ip != IntPtr.Zero) ShowWindow(ip, 0);
             }
 
+            // 修改标题
             Title = AssemblyX.Create(Assembly.GetExecutingAssembly()).Title;
             Console.Title = Title;
 
-            if (Config.Debug) XTrace.Debug = true;
+            if (cfg.Debug) XTrace.Debug = true;
             XTrace.UseConsole();
 
             _CodeFile = true;
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
 
-            if (CheckVersion())
+            // 是否安装流程
+            var install = args != null && "-install".EqualIgnoreCase(args);
+
+            // 检查并写入注册表
+            if (CheckVersion(install))
             {
                 // 发送到菜单
                 Task.Run(() => SetSendTo());
-                Task.Run(() => SetFileType());
+                if (IsAdministrator()) Task.Run(() => SetFileType());
                 Task.Run(() => SetPath());
             }
+            if (install) return;
+
             Task.Run(() => AutoUpdate());
 
-            if (Config.Debug) Task.Run(() => Build.Builder.All);
+            if (cfg.Debug) Task.Run(() => Build.Builder.All);
 
             if (!_CodeFile)
             {
@@ -77,7 +87,7 @@ namespace NewLife.XScript
             }
             else
             {
-                if (!Config.NoLogo) ShowCopyright();
+                if (!cfg.NoLogo) ShowCopyright();
 
                 ProcessFile();
             }
@@ -122,8 +132,9 @@ namespace NewLife.XScript
         /// <summary>处理脚本文件</summary>
         static void ProcessFile()
         {
+            var cfg = Config;
             // 加上源文件路径
-            Console.Title = Title + " " + Config.File;
+            Console.Title = Title + " " + cfg.File;
 
             ScriptEngine se = null;
             while (true)
@@ -132,7 +143,7 @@ namespace NewLife.XScript
                 {
                     if (se == null)
                     {
-                        var file = Config.File;
+                        var file = cfg.File;
                         if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
                         //if (Config.Debug) Console.WriteLine("脚本：{0}", file);
@@ -173,7 +184,7 @@ namespace NewLife.XScript
                 }
 
                 // 暂停，等待客户查看输出
-                if (Config.NoStop) return;
+                if (cfg.NoStop) return;
 
                 //Console.WriteLine("任意键退出……");
                 var key = Console.ReadKey(true);
@@ -269,7 +280,7 @@ namespace NewLife.XScript
         /// <summary>检查当前版本是否更新</summary>
         /// <returns></returns>
         //[RegistryPermission(SecurityAction.PermitOnly, Read = @"HKEY_LOCAL_MACHINE\SOFTWARE\NewLife")]
-        static Boolean CheckVersion()
+        static Boolean CheckVersion(Boolean install)
         {
             var cur = AssemblyX.Entry.Version;
             var key = @"Software\NewLife\XScript";
@@ -296,6 +307,18 @@ namespace NewLife.XScript
             catch (Exception ex)
             {
                 XTrace.WriteLine("失败！可能需要管理员权限运行！" + ex.Message);
+
+                if (!install)
+                {
+                    var pi = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase);
+                    pi.Arguments = "-install";
+
+                    // 以管理员启动
+                    pi.UseShellExecute = true;
+                    pi.Verb = "runas";
+
+                    Process.Start(pi);
+                }
             }
 
             return true;
@@ -498,6 +521,12 @@ namespace NewLife.XScript
             }
         }
 
+        public static bool IsAdministrator()
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
         /// <summary>  设置窗体的显示与隐藏  </summary>  
         /// <param name="hWnd"></param>  
         /// <param name="nCmdShow"></param>  
