@@ -73,8 +73,7 @@ namespace NewLife.Build
             }
             catch (Exception ex)
             {
-                while (ex.InnerException != null) ex = ex.InnerException;
-                throw ex;
+                throw ex.GetTrue();
             }
         }
 

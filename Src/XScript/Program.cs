@@ -316,8 +316,9 @@ namespace NewLife.XScript
                     // 以管理员启动
                     pi.UseShellExecute = true;
                     pi.Verb = "runas";
+                    pi.WindowStyle = ProcessWindowStyle.Hidden;
 
-                    Process.Start(pi);
+                    Task.Run(() => Process.Start(pi));
                 }
             }
 

@@ -386,15 +386,19 @@ namespace NewLife.Build
                 if (reg == null) reg = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Keil\\Products\\MDK");
                 if (reg != null)
                 {
-                    ToolPath = reg.GetValue("Path") + "";
-                    //var s = (reg.GetValue("Version") + "").Trim('V', 'v', 'a', 'b', 'c');
-                    //var ss = s.SplitAsInt(".");
-                    //Version = new Version(ss[0], ss[1]);
-                    Version = reg.GetValue("Version") + "";
+                    var p = reg.GetValue("Path") + "";
+                    var v = reg.GetValue("Version") + "";
 
-                    Version2 = GetVer(ToolPath, false);
+                    var v2 = GetVer(p, false);
 
-                    WriteLog("注册表 {0} {1} {2}", ToolPath, Version, Version2);
+                    WriteLog("注册表 {0} {1} {2}", p, v, v2);
+
+                    if (Directory.Exists(p))
+                    {
+                        ToolPath = p;
+                        Version = v;
+                        Version2 = v2;
+                    }
                 }
             }
             #endregion
@@ -410,7 +414,7 @@ namespace NewLife.Build
                     if (Directory.Exists(p))
                     {
                         var ver = GetVer(p, false);
-                        if (ver.CompareTo(Version) > 0)
+                        if (ver.CompareTo(Version + "") > 0)
                         {
                             ToolPath = p;
                             Version = ver;
@@ -453,6 +457,8 @@ namespace NewLife.Build
 
         String GetVer(String path, Boolean clang)
         {
+            if (path.IsNullOrEmpty()) return null;
+
             var p = Path.Combine(path, "..\\Tools.ini");
             if (File.Exists(p))
             {
