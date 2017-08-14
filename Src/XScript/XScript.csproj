@@ -13,7 +13,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>leaf.ico</ApplicationIcon>
+    <ApplicationIcon>csharp.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -59,7 +59,6 @@
     <EmbeddedResource Include="更新信息.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="leaf.ico" />
     <EmbeddedResource Include="帮助.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +78,9 @@
       <Project>{98e8e88c-fcf1-46aa-9388-ff3bf4422b20}</Project>
       <Name>NewLife.Build</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="csharp.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

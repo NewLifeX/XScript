@@ -362,7 +362,9 @@ namespace NewLife.XScript
                 // 修改.cs文件指向
                 var reg = root.CreateSubKey(".cs");
                 reg.SetValue("", name);
-                reg = reg.OpenSubKey("OpenWithProgids", true);
+                reg.SetValue("Content Type", "text/plain");
+                reg.SetValue("PerceivedType", "text");
+                reg = reg.CreateSubKey("OpenWithProgids");
                 reg.SetValue("XScript", "", RegistryValueKind.String);
 
                 reg = root.CreateSubKey(".xs");
@@ -384,17 +386,6 @@ namespace NewLife.XScript
                 }
 
                 var ico = "";
-                //for (int i = 20; i >= 8; i--)
-                //{
-                //    reg = root.OpenSubKey(String.Format("VisualStudio.cs.{0}.0", i));
-                //    if (reg != null)
-                //    {
-                //        reg = reg.OpenSubKey("DefaultIcon");
-                //        if (reg != null) ico = reg.GetValue("") + "";
-                //        reg.Close();
-                //        if (!ico.IsNullOrWhiteSpace()) break;
-                //    }
-                //}
                 var vcs = root.GetSubKeyNames().LastOrDefault(e => e.StartsWithIgnoreCase("VisualStudio.cs."));
                 if (!vcs.IsNullOrEmpty())
                 {
@@ -406,6 +397,7 @@ namespace NewLife.XScript
                         reg.Close();
                     }
                 }
+                if (ico.IsNullOrEmpty()) ico = "\"{0}\",1".F(asm.Location);
 
                 using (var xs = root.CreateSubKey(name))
                 {
