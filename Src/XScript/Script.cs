@@ -157,7 +157,7 @@ namespace NewLife.XScript
             // 找到安装VisualStudio地址，暂时还不支持Express
             var root = Registry.ClassesRoot;
             var vs = "";
-            for (int i = 15; i >= 8; i--)
+            for (Int32 i = 15; i >= 8; i--)
             {
                 var reg = root.OpenSubKey(String.Format("VisualStudio.sln.{0}.0", i));
                 if (reg != null)

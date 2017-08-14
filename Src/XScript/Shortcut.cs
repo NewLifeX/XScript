@@ -10,7 +10,7 @@ namespace NewLife.XScript
     static internal class NativeClasses
     {
         [Flags]
-        internal enum SLR_MODE : uint
+        internal enum SLR_MODE : UInt32
         {
             SLR_INVOKE_MSI = 0x80,
             SLR_NOLINKINFO = 0x40,
@@ -23,7 +23,7 @@ namespace NewLife.XScript
         }
 
         [Flags]
-        internal enum STGM_ACCESS : uint
+        internal enum STGM_ACCESS : UInt32
         {
             STGM_READ = 0x00000000,
             STGM_WRITE = 0x00000001,
@@ -48,32 +48,32 @@ namespace NewLife.XScript
         [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0)]
         internal struct _FILETIME
         {
-            public uint dwLowDateTime;
-            public uint dwHighDateTime;
+            public UInt32 dwLowDateTime;
+            public UInt32 dwHighDateTime;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0, CharSet = CharSet.Unicode)]
         internal struct _WIN32_FIND_DATAW
         {
-            public uint dwFileAttributes;
+            public UInt32 dwFileAttributes;
             public _FILETIME ftCreationTime;
             public _FILETIME ftLastAccessTime;
             public _FILETIME ftLastWriteTime;
-            public uint nFileSizeHigh;
-            public uint nFileSizeLow;
-            public uint dwReserved0;
-            public uint dwReserved1;
+            public UInt32 nFileSizeHigh;
+            public UInt32 nFileSizeLow;
+            public UInt32 dwReserved0;
+            public UInt32 dwReserved1;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public string cFileName;
+            public String cFileName;
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
-            public string cAlternateFileName;
+            public String cAlternateFileName;
         }
 
-        internal const uint SLGP_SHORTPATH = 0x01;
-        internal const uint SLGP_UNCPRIORITY = 0x02;
-        internal const uint SLGP_RAWPATH = 0x04;
+        internal const UInt32 SLGP_SHORTPATH = 0x01;
+        internal const UInt32 SLGP_UNCPRIORITY = 0x02;
+        internal const UInt32 SLGP_RAWPATH = 0x04;
 
         [ComImport()]
         [Guid("000214F9-0000-0000-C000-000000000046")]
@@ -81,60 +81,60 @@ namespace NewLife.XScript
         internal interface IShellLinkW
         {
             [PreserveSig()]
-            int GetPath([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxPath, ref _WIN32_FIND_DATAW pfd, uint fFlags);
+            Int32 GetPath([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, Int32 cchMaxPath, ref _WIN32_FIND_DATAW pfd, UInt32 fFlags);
 
             [PreserveSig()]
-            int GetIDList(out IntPtr ppidl);
+            Int32 GetIDList(out IntPtr ppidl);
 
             [PreserveSig()]
-            int SetIDList(IntPtr pidl);
+            Int32 SetIDList(IntPtr pidl);
 
             [PreserveSig()]
-            int GetDescription([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxName);
+            Int32 GetDescription([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, Int32 cchMaxName);
 
             [PreserveSig()]
-            int SetDescription([MarshalAs(UnmanagedType.LPWStr)] string pszName);
+            Int32 SetDescription([MarshalAs(UnmanagedType.LPWStr)] String pszName);
 
             [PreserveSig()]
-            int GetWorkingDirectory([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszDir, int cchMaxPath);
+            Int32 GetWorkingDirectory([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszDir, Int32 cchMaxPath);
 
             [PreserveSig()]
-            int SetWorkingDirectory(
-               [MarshalAs(UnmanagedType.LPWStr)] string pszDir);
+            Int32 SetWorkingDirectory(
+               [MarshalAs(UnmanagedType.LPWStr)] String pszDir);
 
             [PreserveSig()]
-            int GetArguments([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszArgs, int cchMaxPath);
+            Int32 GetArguments([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszArgs, Int32 cchMaxPath);
 
             [PreserveSig()]
-            int SetArguments([MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
+            Int32 SetArguments([MarshalAs(UnmanagedType.LPWStr)] String pszArgs);
 
             [PreserveSig()]
-            int GetHotkey(out ushort pwHotkey);
+            Int32 GetHotkey(out UInt16 pwHotkey);
 
             [PreserveSig()]
-            int SetHotkey(ushort pwHotkey);
+            Int32 SetHotkey(UInt16 pwHotkey);
 
             [PreserveSig()]
-            int GetShowCmd(out uint piShowCmd);
+            Int32 GetShowCmd(out UInt32 piShowCmd);
 
             [PreserveSig()]
-            int SetShowCmd(uint piShowCmd);
+            Int32 SetShowCmd(UInt32 piShowCmd);
 
             [PreserveSig()]
-            int GetIconLocation([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
+            Int32 GetIconLocation([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath, Int32 cchIconPath, out Int32 piIcon);
 
             [PreserveSig()]
-            int SetIconLocation(
-               [MarshalAs(UnmanagedType.LPWStr)] string pszIconPath, int iIcon);
+            Int32 SetIconLocation(
+               [MarshalAs(UnmanagedType.LPWStr)] String pszIconPath, Int32 iIcon);
 
             [PreserveSig()]
-            int SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pszPathRel, uint dwReserved);
+            Int32 SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] String pszPathRel, UInt32 dwReserved);
 
             [PreserveSig()]
-            int Resolve(IntPtr hWnd, uint fFlags);
+            Int32 Resolve(IntPtr hWnd, UInt32 fFlags);
 
             [PreserveSig()]
-            int SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
+            Int32 SetPath([MarshalAs(UnmanagedType.LPWStr)] String pszFile);
         }
 
         [ComImport()]
@@ -143,22 +143,22 @@ namespace NewLife.XScript
         internal interface IPersistFile
         {
             [PreserveSig()]
-            int GetClassID(out Guid pClassID);
+            Int32 GetClassID(out Guid pClassID);
 
             [PreserveSig()]
-            int IsDirty();
+            Int32 IsDirty();
 
             [PreserveSig()]
-            int Load([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, uint dwMode);
+            Int32 Load([MarshalAs(UnmanagedType.LPWStr)] String pszFileName, UInt32 dwMode);
 
             [PreserveSig()]
-            int Save([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, [MarshalAs(UnmanagedType.Bool)] bool fRemember);
+            Int32 Save([MarshalAs(UnmanagedType.LPWStr)] String pszFileName, [MarshalAs(UnmanagedType.Bool)] Boolean fRemember);
 
             [PreserveSig()]
-            int SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
+            Int32 SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] String pszFileName);
 
             [PreserveSig()]
-            int GetCurFile([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath);
+            Int32 GetCurFile([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath);
         }
 
         [Guid("00021401-0000-0000-C000-000000000046")]
@@ -174,125 +174,124 @@ namespace NewLife.XScript
 
     public class Shortcut
     {
-        private const int MAX_DESCRIPTION_LENGTH = 512;
-        private const int MAX_PATH = 512;
+        private const Int32 MAX_DESCRIPTION_LENGTH = 512;
+        private const Int32 MAX_PATH = 512;
 
         private NativeClasses.IShellLinkW _link;
 
         public Shortcut()
         {
-            this._link = NativeClasses.CreateShellLink();
+            _link = NativeClasses.CreateShellLink();
         }
 
-        public Shortcut(string path)
+        public Shortcut(String path)
             : this()
         {
-            Marshal.ThrowExceptionForHR(this._link.SetPath(path));
+            Marshal.ThrowExceptionForHR(_link.SetPath(path));
         }
 
-        public string Path
+        public String Path
         {
             get
             {
-                NativeClasses._WIN32_FIND_DATAW fdata = new NativeClasses._WIN32_FIND_DATAW();
-                StringBuilder path = new StringBuilder(MAX_PATH, MAX_PATH);
-                Marshal.ThrowExceptionForHR(this._link.GetPath(path, path.MaxCapacity, ref fdata, NativeClasses.SLGP_UNCPRIORITY));
+                var fdata = new NativeClasses._WIN32_FIND_DATAW();
+                var path = new StringBuilder(MAX_PATH, MAX_PATH);
+                Marshal.ThrowExceptionForHR(_link.GetPath(path, path.MaxCapacity, ref fdata, NativeClasses.SLGP_UNCPRIORITY));
                 return path.ToString();
             }
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetPath(value));
+                Marshal.ThrowExceptionForHR(_link.SetPath(value));
             }
         }
 
-        public string Description
+        public String Description
         {
             get
             {
-                StringBuilder desc = new StringBuilder(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_LENGTH);
-                Marshal.ThrowExceptionForHR(this._link.GetDescription(desc, desc.MaxCapacity));
+                var desc = new StringBuilder(MAX_DESCRIPTION_LENGTH, MAX_DESCRIPTION_LENGTH);
+                Marshal.ThrowExceptionForHR(_link.GetDescription(desc, desc.MaxCapacity));
                 return desc.ToString();
             }
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetDescription(value));
+                Marshal.ThrowExceptionForHR(_link.SetDescription(value));
             }
         }
 
-        public string RelativePath
+        public String RelativePath
         {
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetRelativePath(value, 0));
+                Marshal.ThrowExceptionForHR(_link.SetRelativePath(value, 0));
             }
         }
 
-        public string WorkingDirectory
+        public String WorkingDirectory
         {
             get
             {
-                StringBuilder dir = new StringBuilder(MAX_PATH, MAX_PATH);
-                Marshal.ThrowExceptionForHR(this._link.GetWorkingDirectory(dir, dir.MaxCapacity));
+                var dir = new StringBuilder(MAX_PATH, MAX_PATH);
+                Marshal.ThrowExceptionForHR(_link.GetWorkingDirectory(dir, dir.MaxCapacity));
                 return dir.ToString();
             }
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetWorkingDirectory(value));
+                Marshal.ThrowExceptionForHR(_link.SetWorkingDirectory(value));
             }
         }
 
-        public string Arguments
+        public String Arguments
         {
             get
             {
-                StringBuilder args = new StringBuilder(MAX_PATH, MAX_PATH);
-                Marshal.ThrowExceptionForHR(this._link.GetArguments(args, args.MaxCapacity));
+                var args = new StringBuilder(MAX_PATH, MAX_PATH);
+                Marshal.ThrowExceptionForHR(_link.GetArguments(args, args.MaxCapacity));
                 return args.ToString();
             }
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetArguments(value));
+                Marshal.ThrowExceptionForHR(_link.SetArguments(value));
             }
         }
 
-        public ushort HotKey
+        public UInt16 HotKey
         {
             get
             {
-                ushort key = 0;
-                Marshal.ThrowExceptionForHR(this._link.GetHotkey(out key));
+                Marshal.ThrowExceptionForHR(_link.GetHotkey(out var key));
                 return key;
             }
             set
             {
-                Marshal.ThrowExceptionForHR(this._link.SetHotkey(value));
+                Marshal.ThrowExceptionForHR(_link.SetHotkey(value));
             }
         }
 
-        public void Resolve(IntPtr hwnd, uint flags)
+        public void Resolve(IntPtr hwnd, UInt32 flags)
         {
-            Marshal.ThrowExceptionForHR(this._link.Resolve(hwnd, flags));
+            Marshal.ThrowExceptionForHR(_link.Resolve(hwnd, flags));
         }
 
         public void Resolve()
         {
-            this.Resolve(IntPtr.Zero, (uint)NativeClasses.SLR_MODE.SLR_NO_UI);
+            Resolve(IntPtr.Zero, (UInt32)NativeClasses.SLR_MODE.SLR_NO_UI);
         }
 
         private NativeClasses.IPersistFile AsPersist
         {
-            get { return ((NativeClasses.IPersistFile)this._link); }
+            get { return ((NativeClasses.IPersistFile)_link); }
         }
 
-        public void Save(string fileName)
+        public void Save(String fileName)
         {
-            int hres = this.AsPersist.Save(fileName, true);
+            var hres = AsPersist.Save(fileName, true);
             Marshal.ThrowExceptionForHR(hres);
         }
 
-        public void Load(string fileName)
+        public void Load(String fileName)
         {
-            int hres = this.AsPersist.Load(fileName, (uint)NativeClasses.STGM_ACCESS.STGM_READ);
+            var hres = AsPersist.Load(fileName, (UInt32)NativeClasses.STGM_ACCESS.STGM_READ);
             Marshal.ThrowExceptionForHR(hres);
         }
 
@@ -303,11 +302,13 @@ namespace NewLife.XScript
             if (!String.IsNullOrEmpty(name)) name = "（" + name + "）";
             var file = dir.CombinePath(asmx.Title + name + ".lnk");
 
-            var sc = new Shortcut();
-            sc.Path = Assembly.GetEntryAssembly().Location;
-            sc.Arguments = arg;
-            sc.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            sc.Description = asmx.Description;
+            var sc = new Shortcut()
+            {
+                Path = Assembly.GetEntryAssembly().Location,
+                Arguments = arg,
+                WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                Description = asmx.Description
+            };
             sc.Save(file);
 
             return sc;

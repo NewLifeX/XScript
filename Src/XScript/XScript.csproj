@@ -53,6 +53,7 @@
     <Compile Include="Script.cs" />
     <Compile Include="ScriptCode.cs" />
     <Compile Include="ScriptConfig.cs" />
+    <Compile Include="Setting.cs" />
     <Compile Include="Shortcut.cs" />
   </ItemGroup>
   <ItemGroup>

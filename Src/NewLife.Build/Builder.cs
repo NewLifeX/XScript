@@ -602,8 +602,7 @@ namespace NewLife.Build
                 var lib = new LibFile(item);
                 // 调试版/发行版 优先选用最佳匹配版本
                 // 不包含，直接增加
-                var old = "";
-                if (!dic.TryGetValue(lib.Name, out old))
+                if (!dic.TryGetValue(lib.Name, out var old))
                 {
                     dic.Add(lib.Name, lib.FullName);
                 }
@@ -980,8 +979,7 @@ namespace NewLife.Build
             lock (dic)
             {
                 var key = threadid;
-                ConsoleColor cc;
-                if (!dic.TryGetValue(key, out cc))
+                if (!dic.TryGetValue(key, out var cc))
                 {
                     //lock (dic)
                     {

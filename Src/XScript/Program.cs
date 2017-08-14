@@ -24,7 +24,7 @@ namespace NewLife.XScript
         /// <summary>是否处理脚本文件</summary>
         private static Boolean _CodeFile;
 
-        static void Main(string[] args)
+        static void Main(String[] args)
         {
             var cfg = Config;
             // 分解参数
@@ -310,14 +310,15 @@ namespace NewLife.XScript
 
                 if (!install)
                 {
-                    var pi = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase);
-                    pi.Arguments = "-install";
+                    var pi = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase)
+                    {
+                        Arguments = "-install",
 
-                    // 以管理员启动
-                    pi.UseShellExecute = true;
-                    pi.Verb = "runas";
-                    pi.WindowStyle = ProcessWindowStyle.Hidden;
-
+                        // 以管理员启动
+                        UseShellExecute = true,
+                        Verb = "runas",
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
                     Task.Run(() => Process.Start(pi));
                 }
             }
@@ -470,28 +471,21 @@ namespace NewLife.XScript
         static Upgrade _upgrade;
         static void AutoUpdate()
         {
-            //// 稍微等待一下，等主程序执行完成
-            //Thread.Sleep(2000);
+            var set = Setting.Current;
+            if (set.LastCheck.AddDays(set.UpdateDays) > DateTime.Now) return;
 
-            // 文件保存配置信息
-            var file = "Update.config";
+            set.LastCheck = DateTime.Now;
+            set.Save();
+
             // 注意路径，避免写入到脚本文件所在路径
             var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            file = root.CombinePath(file);
-            if (File.Exists(file))
-            {
-                var last = File.ReadAllText(file).ToDateTime();
-                // 每天只更新一次
-                if (last >= DateTime.Now.Date) return;
-            }
-            File.WriteAllText(file, DateTime.Now.ToFullString());
 
             var up = new Upgrade();
             if (Config.Debug) up.Log = XTrace.Log;
             up.Name = "XScript";
             //up.Server = "https://git.oschina.net/NewLifeX/XScript";
             //up.Server = "http://www.newlifex.com/showtopic-369.aspx";
-            up.Server = "http://x.newlifex.com";
+            //up.Server = "http://x.newlifex.com";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
@@ -514,7 +508,7 @@ namespace NewLife.XScript
             }
         }
 
-        public static bool IsAdministrator()
+        public static Boolean IsAdministrator()
         {
             var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
@@ -525,6 +519,6 @@ namespace NewLife.XScript
         /// <param name="nCmdShow"></param>  
         /// <returns></returns>  
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
+        private static extern Boolean ShowWindow(IntPtr hWnd, UInt32 nCmdShow);
     }
 }

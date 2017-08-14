@@ -25,7 +25,7 @@ namespace NewLife.Build
         }
 
         [DllImport("kernel32.dll")]
-        static extern int SetDllDirectory(String pathName);
+        static extern Int32 SetDllDirectory(String pathName);
 
         /// <summary>实例化</summary>
         public JLink()
@@ -85,7 +85,7 @@ namespace NewLife.Build
             Reset();
             Halt();
 
-            for (int i = 0; i < 10; i++)
+            for (Int32 i = 0; i < 10; i++)
             {
                 Thread.Sleep(10);
 
@@ -151,7 +151,7 @@ namespace NewLife.Build
                 if (count > remain) count = remain;
 
                 // 写数据
-                for (int i = 0; i < count; i++)
+                for (Int32 i = 0; i < count; i++)
                 {
                     WriteU32(address, buffer[p]);
 
