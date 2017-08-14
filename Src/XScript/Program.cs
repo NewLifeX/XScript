@@ -397,7 +397,7 @@ namespace NewLife.XScript
                         reg.Close();
                     }
                 }
-                if (ico.IsNullOrEmpty()) ico = "\"{0}\",1".F(asm.Location);
+                if (ico.IsNullOrEmpty()) ico = "\"{0}\",0".F(asm.Location);
 
                 using (var xs = root.CreateSubKey(name))
                 {
