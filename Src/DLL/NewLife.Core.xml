@@ -343,34 +343,57 @@
         <member name="P:NewLife.Caching.Cache.Default">
             <summary>默认缓存</summary>
         </member>
+        <member name="M:NewLife.Caching.Cache.Create(NewLife.Caching.CacheSetting)">
+            <summary>创建缓存实例</summary>
+            <param name="set">配置项</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Create(System.String)">
+            <summary>创建缓存实例</summary>
+            <param name="name">名字。memory、redis://127.0.0.1:6379?Db=6</param>
+            <returns></returns>
+        </member>
         <member name="P:NewLife.Caching.Cache.Name">
             <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Caching.Cache.Expire">
+            <summary>默认缓存时间。默认365*24*3600秒</summary>
         </member>
         <member name="P:NewLife.Caching.Cache.Item(System.String)">
             <summary>获取和设置缓存，永不过期</summary>
             <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.Contains(System.String)">
+        <member name="P:NewLife.Caching.Cache.Count">
+            <summary>缓存个数</summary>
+        </member>
+        <member name="P:NewLife.Caching.Cache.Keys">
+            <summary>所有键</summary>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Init(NewLife.Caching.CacheSetting)">
+            <summary>初始化配置</summary>
+            <param name="set"></param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.ContainsKey(System.String)">
             <summary>是否包含缓存项</summary>
             <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.Add(System.String,System.Object,System.Int32)">
-            <summary>添加缓存项</summary>
+        <member name="M:NewLife.Caching.Cache.Set``1(System.String,``0,System.Int32)">
+            <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
             <param name="expire">过期时间，秒</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.AddOrGet(System.String,System.Object,System.Int32)">
-            <summary>添加获取缓存项</summary>
+        <member name="M:NewLife.Caching.Cache.Set``1(System.String,``0,System.TimeSpan)">
+            <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
+            <param name="expire">过期时间</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.Get(System.String)">
+        <member name="M:NewLife.Caching.Cache.Get``1(System.String)">
             <summary>获取缓存项</summary>
             <param name="key">键</param>
             <returns></returns>
@@ -380,37 +403,85 @@
             <param name="key">键</param>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Caching.Cache.GetAll``1(System.String[])">
+            <summary>批量获取缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0})">
+            <summary>批量设置缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Increment(System.String,System.Int32)">
+            <summary>累加，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Decrement(System.String,System.Int32)">
+            <summary>递减，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.GetList``1(System.String)">
+            <summary>获取列表</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.GetDictionary``1(System.String)">
+            <summary>获取哈希</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
         <member name="T:NewLife.Caching.ICache">
             <summary>缓存接口</summary>
         </member>
         <member name="P:NewLife.Caching.ICache.Name">
             <summary>名称</summary>
         </member>
+        <member name="P:NewLife.Caching.ICache.Expire">
+            <summary>默认缓存时间。默认365*24*3600秒</summary>
+        </member>
         <member name="P:NewLife.Caching.ICache.Item(System.String)">
             <summary>获取和设置缓存，永不过期</summary>
             <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.Contains(System.String)">
+        <member name="P:NewLife.Caching.ICache.Count">
+            <summary>缓存个数</summary>
+        </member>
+        <member name="P:NewLife.Caching.ICache.Keys">
+            <summary>所有键</summary>
+        </member>
+        <member name="M:NewLife.Caching.ICache.ContainsKey(System.String)">
             <summary>是否包含缓存项</summary>
             <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.Add(System.String,System.Object,System.Int32)">
-            <summary>添加缓存项</summary>
+        <member name="M:NewLife.Caching.ICache.Set``1(System.String,``0,System.Int32)">
+            <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
             <param name="expire">过期时间，秒</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.AddOrGet(System.String,System.Object,System.Int32)">
-            <summary>添加获取缓存项</summary>
+        <member name="M:NewLife.Caching.ICache.Set``1(System.String,``0,System.TimeSpan)">
+            <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
+            <param name="expire">过期时间</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.Get(System.String)">
+        <member name="M:NewLife.Caching.ICache.Get``1(System.String)">
             <summary>获取缓存项</summary>
             <param name="key">键</param>
             <returns></returns>
@@ -420,34 +491,151 @@
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MyCache.Contains(System.String)">
+        <member name="M:NewLife.Caching.ICache.GetAll``1(System.String[])">
+            <summary>批量获取缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0})">
+            <summary>批量设置缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Increment(System.String,System.Int32)">
+            <summary>累加，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Decrement(System.String,System.Int32)">
+            <summary>递减，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.GetList``1(System.String)">
+            <summary>获取列表</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.GetDictionary``1(System.String)">
+            <summary>获取哈希</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Caching.MemoryCache">
+            <summary>默认字典缓存</summary>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.#ctor">
+            <summary>实例化一个内存字典缓存</summary>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.Count">
+            <summary>缓存个数</summary>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.Keys">
+            <summary>所有键</summary>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.Item(System.String)">
+            <summary>获取和设置缓存，永不过期</summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.ContainsKey(System.String)">
             <summary>是否包含缓存项</summary>
             <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MyCache.Add(System.String,System.Object,System.Int32)">
+        <member name="M:NewLife.Caching.MemoryCache.Set``1(System.String,``0,System.Int32)">
             <summary>添加缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
             <param name="expire">过期时间，秒</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MyCache.AddOrGet(System.String,System.Object,System.Int32)">
-            <summary>添加获取缓存项</summary>
-            <param name="key">键</param>
-            <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Caching.MyCache.Get(System.String)">
+        <member name="M:NewLife.Caching.MemoryCache.Get``1(System.String)">
             <summary>获取缓存项</summary>
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MyCache.Remove(System.String)">
+        <member name="M:NewLife.Caching.MemoryCache.Remove(System.String)">
             <summary>移除缓存项</summary>
             <param name="key">键</param>
             <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.GetAll``1(System.String[])">
+            <summary>批量获取缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.Increment(System.String,System.Int32)">
+            <summary>累加，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.Decrement(System.String,System.Int32)">
+            <summary>递减，原子操作</summary>
+            <param name="key"></param>
+            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Caching.MemoryCache.CacheItem">
+            <summary>缓存项</summary>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.CacheItem.Value">
+            <summary>数值</summary>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.CacheItem.ExpiredTime">
+            <summary>过期时间</summary>
+        </member>
+        <member name="P:NewLife.Caching.MemoryCache.CacheItem.Expired">
+            <summary>是否过期</summary>
+        </member>
+        <member name="F:NewLife.Caching.MemoryCache.clearTimer">
+            <summary>清理会话计时器</summary>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.RemoveNotAlive(System.Object)">
+            <summary>移除过期的缓存项</summary>
+        </member>
+        <member name="T:NewLife.Caching.CacheConfig">
+            <summary>缓存配置</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheConfig.Debug">
+            <summary>调试开关。默认true</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheConfig.Items">
+            <summary>配置项</summary>
+        </member>
+        <member name="M:NewLife.Caching.CacheConfig.#ctor">
+            <summary>实例化</summary>
+        </member>
+        <member name="M:NewLife.Caching.CacheConfig.OnLoaded">
+            <summary>加载后</summary>
+        </member>
+        <member name="M:NewLife.Caching.CacheConfig.GetOrAdd(System.String)">
+            <summary>获取 或 增加 配置项</summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Caching.CacheSetting">
+            <summary>配置项</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheSetting.Name">
+            <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheSetting.Value">
+            <summary>地址</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheSetting.Provider">
+            <summary>提供者</summary>
         </member>
         <member name="T:NewLife.Collections.ConcurrentHashSet`1">
             <summary>并行哈希集合</summary>
@@ -561,67 +749,6 @@
         </member>
         <member name="M:NewLife.Collections.DictionaryCache`2.RemoveNotAlive(System.Object)">
             <summary>移除过期的缓存项</summary>
-        </member>
-        <member name="T:NewLife.Collections.ListBase`1">
-            <summary>泛型列表基类。主要提供一个重载实现自定义列表的基类实现。</summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:NewLife.Collections.ListBase`1.InnerList">
-            <summary>内部列表</summary>
-        </member>
-        <member name="P:NewLife.Collections.ListBase`1.Count">
-            <summary>列表元素个数</summary>
-        </member>
-        <member name="P:NewLife.Collections.ListBase`1.IsFixedSize">
-            <summary>是否固定大小</summary>
-        </member>
-        <member name="P:NewLife.Collections.ListBase`1.IsReadOnly">
-            <summary>是否只读</summary>
-        </member>
-        <member name="P:NewLife.Collections.ListBase`1.Item(System.Int32)">
-            <summary>获取或设置指定索引处的元素。</summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.Add(`0)">
-            <summary>添加</summary>
-            <param name="value">数值</param>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.Clear">
-            <summary>清空</summary>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.Contains(`0)">
-            <summary>是否包含指定元素</summary>
-            <param name="value">数值</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.CopyTo(`0[],System.Int32)">
-            <summary>把元素复制到一个数组里面</summary>
-            <param name="array"></param>
-            <param name="index"></param>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.GetEnumerator">
-            <summary>获取一个枚举器</summary>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.IndexOf(`0)">
-            <summary>确定列表中特定项的索引。</summary>
-            <param name="value">要在列表中定位的对象。</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.Insert(System.Int32,`0)">
-            <summary>将一个项插入指定索引处的列表。</summary>
-            <param name="index"></param>
-            <param name="value">数值</param>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.Remove(`0)">
-            <summary>从列表中移除指定对象</summary>
-            <param name="value">数值</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Collections.ListBase`1.RemoveAt(System.Int32)">
-            <summary>移除指定索引处的列表项。</summary>
-            <param name="index"></param>
         </member>
         <member name="T:NewLife.Collections.NullableDictionary`2">
             <summary>可空字典。获取数据时如果指定键不存在可返回空而不是抛出异常</summary>
@@ -1022,6 +1149,11 @@
             <returns></returns>        
         </member>
         <member name="M:NewLife.Common.PinYin.GetFirst(System.String)">
+            <summary>取拼音第一个字段</summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Common.PinYin.GetFirstOne(System.String)">
             <summary>取拼音第一个字段</summary>
             <param name="str"></param>
             <returns></returns>
@@ -3001,8 +3133,8 @@
             <summary>对象容器接口</summary>
             <remarks>
             1，如果容器里面没有这个类型，则返回空；
-            2，如果容器里面包含这个类型，<see cref="M:NewLife.Model.IObjectContainer.ResolveInstance(System.Type,System.Object,System.Boolean)"/>返回单例；
-            3，如果容器里面包含这个类型，<see cref="M:NewLife.Model.IObjectContainer.Resolve(System.Type,System.Object,System.Boolean)"/>创建对象返回多实例；
+            2，如果容器里面包含这个类型，<see cref="M:NewLife.Model.IObjectContainer.ResolveInstance(System.Type,System.Object)"/>返回单例；
+            3，如果容器里面包含这个类型，<see cref="M:NewLife.Model.IObjectContainer.Resolve(System.Type,System.Object)"/>创建对象返回多实例；
             4，如果有带参数构造函数，则从容器内获取各个参数的实例，最后创建对象返回。
             
             这里有一点跟大多数对象容器非常不同，其它对象容器会控制对象的生命周期，在对象不再使用时收回到容器里面。
@@ -3030,34 +3162,22 @@
             <param name="excludeTypes">要排除的类型，一般是内部默认实现</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.IObjectContainer.AutoRegister(System.Type,System.Func{System.Object,System.Object},System.Object,System.Int32,System.Type[])">
-            <summary>遍历所有程序集的所有类型，自动注册实现了指定接口或基类的类型。如果没有注册任何实现，则默认注册第一个排除类型</summary>
-            <param name="from">接口或基类</param>
-            <param name="getidCallback">用于从外部类型对象中获取标识的委托</param>
-            <param name="id">标识</param>
-            <param name="priority">优先级</param>
-            <param name="excludeTypes">要排除的类型，一般是内部默认实现</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Model.IObjectContainer.Resolve(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.IObjectContainer.Resolve(System.Type,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，id为null而找不到时，采用第一个注册项；id不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.IObjectContainer.ResolveInstance(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.IObjectContainer.ResolveInstance(System.Type,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，id为null而找不到时，采用第一个注册项；id不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.IObjectContainer.ResolveType(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.IObjectContainer.ResolveType(System.Type,System.Object)">
             <summary>解析接口指定名称的实现类型</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，id为null而找不到时，采用第一个注册项；id不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Model.IObjectContainer.ResolveAll(System.Type)">
@@ -3071,7 +3191,7 @@
         <member name="P:NewLife.Model.IObjectMap.Identity">
             <summary>名称</summary>
         </member>
-        <member name="P:NewLife.Model.IObjectMap.ImplementType">
+        <member name="P:NewLife.Model.IObjectMap.Type">
             <summary>实现类型</summary>
         </member>
         <member name="P:NewLife.Model.IObjectMap.Instance">
@@ -3081,8 +3201,8 @@
             <summary>实现 <seealso cref="T:NewLife.Model.IObjectContainer"/> 接口的对象容器</summary>
             <remarks>
             1，如果容器里面没有这个类型，则返回空；
-            2，如果容器里面包含这个类型，<see cref="M:NewLife.Model.ObjectContainer.ResolveInstance(System.Type,System.Object,System.Boolean)"/>返回单例；
-            3，如果容器里面包含这个类型，<see cref="M:NewLife.Model.ObjectContainer.Resolve(System.Type,System.Object,System.Boolean)"/>创建对象返回多实例；
+            2，如果容器里面包含这个类型，<see cref="M:NewLife.Model.ObjectContainer.ResolveInstance(System.Type,System.Object)"/>返回单例；
+            3，如果容器里面包含这个类型，<see cref="M:NewLife.Model.ObjectContainer.Resolve(System.Type,System.Object)"/>创建对象返回多实例；
             4，如果有带参数构造函数，则从容器内获取各个参数的实例，最后创建对象返回。
             
             这里有一点跟大多数对象容器非常不同，其它对象容器会控制对象的生命周期，在对象不再使用时收回到容器里面。
@@ -3109,10 +3229,7 @@
         <member name="P:NewLife.Model.ObjectContainer.Map.Identity">
             <summary>名称</summary>
         </member>
-        <member name="P:NewLife.Model.ObjectContainer.Map.TypeName">
-            <summary>类型名</summary>
-        </member>
-        <member name="P:NewLife.Model.ObjectContainer.Map.ImplementType">
+        <member name="P:NewLife.Model.ObjectContainer.Map.Type">
             <summary>实现类型</summary>
         </member>
         <member name="P:NewLife.Model.ObjectContainer.Map.Priority">
@@ -3137,34 +3254,22 @@
             <param name="excludeTypes">要排除的类型，一般是内部默认实现</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.ObjectContainer.AutoRegister(System.Type,System.Func{System.Object,System.Object},System.Object,System.Int32,System.Type[])">
-            <summary>遍历所有程序集的所有类型，自动注册实现了指定接口或基类的类型。如果没有注册任何实现，则默认注册第一个排除类型</summary>
-            <param name="from">接口或基类</param>
-            <param name="getidCallback">用于从外部类型对象中获取标识的委托</param>
-            <param name="id">标识</param>
-            <param name="priority">优先级</param>
-            <param name="excludeTypes">要排除的类型，一般是内部默认实现</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Model.ObjectContainer.Resolve(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.ObjectContainer.Resolve(System.Type,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，id为null而找不到时，采用第一个注册项；id不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.ObjectContainer.ResolveInstance(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.ObjectContainer.ResolveInstance(System.Type,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，id为null而找不到时，采用第一个注册项；id不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Model.ObjectContainer.ResolveType(System.Type,System.Object,System.Boolean)">
+        <member name="M:NewLife.Model.ObjectContainer.ResolveType(System.Type,System.Object)">
             <summary>解析接口指定名称的实现类型</summary>
             <param name="from">接口类型</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，name为null而找不到时，采用第一个注册项；name不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Model.ObjectContainer.ResolveAll(System.Type)">
@@ -9212,9 +9317,6 @@
         <member name="P:NewLife.Setting.PluginCache">
             <summary>插件缓存目录。默认位于系统盘的X\Cache</summary>
         </member>
-        <member name="P:NewLife.Setting.SpeechTip">
-            <summary>语音提示。默认true</summary>
-        </member>
         <member name="M:NewLife.Setting.OnLoaded">
             <summary>加载完成后</summary>
         </member>
@@ -10912,20 +11014,18 @@
             <param name="priority">优先级</param>
             <returns></returns>
         </member>
-        <member name="M:System.ObjectContainerHelper.Resolve``1(NewLife.Model.IObjectContainer,System.Object,System.Boolean)">
+        <member name="M:System.ObjectContainerHelper.Resolve``1(NewLife.Model.IObjectContainer,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <typeparam name="TInterface">接口类型</typeparam>
             <param name="container">对象容器</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，name为null而找不到时，采用第一个注册项；name不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
-        <member name="M:System.ObjectContainerHelper.ResolveInstance``1(NewLife.Model.IObjectContainer,System.Object,System.Boolean)">
+        <member name="M:System.ObjectContainerHelper.ResolveInstance``1(NewLife.Model.IObjectContainer,System.Object)">
             <summary>解析类型指定名称的实例</summary>
             <typeparam name="TInterface">接口类型</typeparam>
             <param name="container">对象容器</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，name为null而找不到时，采用第一个注册项；name不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
         <member name="M:System.ObjectContainerHelper.AutoRegister``2(NewLife.Model.IObjectContainer)">
@@ -10936,23 +11036,11 @@
             <param name="container">对象容器</param>
             <returns></returns>
         </member>
-        <member name="M:System.ObjectContainerHelper.AutoRegister``2(NewLife.Model.IObjectContainer,System.Func{System.Object,System.Object},System.Object,System.Int32)">
-            <summary>遍历所有程序集的所有类型，自动注册实现了指定接口或基类的类型。如果没有注册任何实现，则默认注册第一个排除类型</summary>
-            <remarks>自动注册一般用于单实例功能扩展型接口</remarks>
-            <typeparam name="TInterface">接口类型</typeparam>
-            <typeparam name="TImplement">要排除的类型，一般是内部默认实现</typeparam>
-            <param name="container">对象容器</param>
-            <param name="getidCallback">用于从外部类型对象中获取标识的委托</param>
-            <param name="id">标识</param>
-            <param name="priority">优先级</param>
-            <returns></returns>
-        </member>
-        <member name="M:System.ObjectContainerHelper.ResolveType``1(NewLife.Model.IObjectContainer,System.Object,System.Boolean)">
+        <member name="M:System.ObjectContainerHelper.ResolveType``1(NewLife.Model.IObjectContainer,System.Object)">
             <summary>解析接口指定名称的实现类型</summary>
             <typeparam name="TInterface">接口类型</typeparam>
             <param name="container">对象容器</param>
             <param name="id">标识</param>
-            <param name="extend">扩展。若为ture，name为null而找不到时，采用第一个注册项；name不为null而找不到时，采用null注册项</param>
             <returns></returns>
         </member>
         <member name="T:System.NetHelper">
@@ -11426,6 +11514,9 @@
         <member name="M:System.StringHelper.SpeakAsync(System.String)">
             <summary>异步调用语音引擎说出指定话。可能导致后来的调用打断前面的语音</summary>
             <param name="value"></param>
+        </member>
+        <member name="P:System.StringHelper.EnableSpeechTip">
+            <summary>启用语音提示</summary>
         </member>
         <member name="M:System.StringHelper.SpeechTip(System.String)">
             <summary>语音提示操作</summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using NewLife.Log;
 
 namespace NewLife.XScript
 {
@@ -88,7 +89,7 @@ namespace NewLife.XScript
                     if (includeLine) sb.AppendLine(ss[i]);
 
                     var asm = line.Substring("//Assembly=".Length).Trim('\"');
-                    //asm = Path.Combine(dir, asm);
+                    if (!Path.IsPathRooted(asm)) asm = Path.Combine(dir, asm).GetFullPath();
 
                     if (!rfs.Contains(asm)) rfs.Add(asm);
                 }
@@ -142,9 +143,12 @@ namespace NewLife.XScript
                 if (item.IsNullOrWhiteSpace()) continue;
                 if (list.Contains(item)) continue;
 
-                if (File.Exists(item))
+                var fi = item.GetFullPath();
+                if (File.Exists(fi))
                 {
-                    list.Add(item);
+                    //list.Add(fi);
+                    var asm = Assembly.LoadFile(fi);
+                    list.Add(asm.Location);
                 }
                 else if (item.EndsWithIgnoreCase(".dll"))
                 {
@@ -176,9 +180,9 @@ namespace NewLife.XScript
                         //Console.WriteLine(asm);
                         list.Add(asm.Location);
                     }
-                    catch //(Exception ex)
+                    catch (Exception ex)
                     {
-                        //Log.XTrace.WriteException(ex);
+                        XTrace.WriteException(ex);
                     }
                 }
             }
