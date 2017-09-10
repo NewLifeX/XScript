@@ -142,8 +142,12 @@ namespace NewLife.Build
         /// <returns></returns>
         protected override String OnBuildLib(String lib)
         {
+            //// MDK5.23会不断添加o文件到lib里面，这里提前删除lib
+            //var f = lib.GetFullPath();
+            //if (File.Exists(f)) File.Delete(f);
+
             var sb = new StringBuilder();
-            sb.Append("--create -c");
+            sb.Append("--create");
             sb.AppendFormat(" -r \"{0}\"", lib);
 
             //if (Objs.Count < 6) Console.Write("使用对象文件：");
