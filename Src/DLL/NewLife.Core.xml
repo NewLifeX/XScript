@@ -15,6 +15,13 @@
             <param name="index">线程序号</param>
             <returns>是否立即开始下一步工作。某些任务能达到满负荷，线程可以不做等待</returns>
         </member>
+        <member name="T:NewLife.Agent.AgentJob">
+            <summary>计划任务例子</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentJob.Execute(NewLife.Agent.JobContext)">
+            <summary>执行任务</summary>
+            <param name="context"></param>
+        </member>
         <member name="T:NewLife.Agent.AgentServiceBase`1">
             <summary>服务程序基类</summary>
             <typeparam name="TService">服务类型</typeparam>
@@ -28,49 +35,34 @@
         <member name="M:NewLife.Agent.AgentServiceBase`1.ShowMenu">
             <summary>显示菜单</summary>
         </member>
-        <member name="P:NewLife.Agent.AgentServiceBase`1.Threads">
-            <summary>线程组</summary>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.AddMenu(System.Char,System.String,System.Action)">
+            <summary>添加菜单</summary>
+            <param name="key"></param>
+            <param name="name"></param>
+            <param name="callbak"></param>
         </member>
-        <member name="P:NewLife.Agent.AgentServiceBase`1.AttachServers">
-            <summary>附加服务</summary>
+        <member name="P:NewLife.Agent.AgentServiceBase`1.Items">
+            <summary>任务项</summary>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.OnStart(System.String[])">
-            <summary>服务启动事件</summary>
-            <param name="args"></param>
+        <member name="P:NewLife.Agent.AgentServiceBase`1.Schedule">
+            <summary>任务调度器</summary>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.OnStop">
-            <summary>服务停止事件</summary>
-        </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.Dispose(System.Boolean)">
-            <summary>销毁资源</summary>
-            <param name="disposing"></param>
-        </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.StartWork">
-            <summary>开始循环工作</summary>
-        </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.StartWork(System.Int32)">
-            <summary>开始循环工作</summary>
-            <param name="index">线程序号</param>
-        </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.workWaper(System.Object)">
-            <summary>线程包装</summary>
-            <param name="data">线程序号</param>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.StartWork(System.String)">
+            <summary>开始工作</summary>
+            <param name="reason"></param>
         </member>
         <member name="M:NewLife.Agent.AgentServiceBase`1.Work(System.Int32)">
             <summary>核心工作方法。调度线程会定期调用该方法</summary>
             <param name="index">线程序号</param>
             <returns>是否立即开始下一步工作。某些任务能达到满负荷，线程可以不做等待</returns>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.StopWork">
-            <summary>停止循环工作</summary>
-            <remarks>
-            只能停止循环而已，如果已经有一批任务在处理，
-            则内部需要捕获ThreadAbortException异常，否则无法停止任务处理。
-            </remarks>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.StopWork(System.String)">
+            <summary>停止服务</summary>
+            <param name="reason"></param>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.StopWork(System.Int32)">
-            <summary>停止循环工作</summary>
-            <param name="index">线程序号</param>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.Wake(System.Int32)">
+            <summary>唤醒指定任务马上开始处理任务</summary>
+            <param name="index"></param>
         </member>
         <member name="F:NewLife.Agent.AgentServiceBase`1.ManagerThread">
             <summary>服务管理线程</summary>
@@ -85,9 +77,6 @@
             <summary>服务管理线程封装</summary>
             <param name="data"></param>
         </member>
-        <member name="P:NewLife.Agent.AgentServiceBase`1.Active">
-            <summary>活动时间</summary>
-        </member>
         <member name="M:NewLife.Agent.AgentServiceBase`1.CheckActive">
             <summary>检查是否有工作线程死亡</summary>
         </member>
@@ -99,6 +88,10 @@
             <summary>检查服务进程的总线程数是否超标</summary>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.CheckHandle">
+            <summary>检查服务进程的句柄数是否超标</summary>
+            <returns></returns>
+        </member>
         <member name="F:NewLife.Agent.AgentServiceBase`1.Start">
             <summary>服务开始时间</summary>
         </member>
@@ -106,11 +99,34 @@
             <summary>检查自动重启</summary>
             <returns></returns>
         </member>
-        <member name="F:NewLife.Agent.AgentServiceBase`1.IsShutdowning">
-            <summary>是否正在重启</summary>
-        </member>
-        <member name="M:NewLife.Agent.AgentServiceBase`1.Restart">
+        <member name="M:NewLife.Agent.AgentServiceBase`1.Restart(System.String)">
             <summary>重启服务</summary>
+            <param name="reason"></param>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnStart(System.String[])">
+            <summary>服务启动事件</summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnStop">
+            <summary>服务停止事件</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnPause">
+            <summary>暂停命令发送到服务的服务控制管理器 (SCM) 时执行。 指定当服务就会暂停时要执行的操作。</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnContinue">
+            <summary>继续命令发送到服务的服务控制管理器 (SCM) 运行。 指定当某个服务后继续正常工作正在暂停时要执行的操作。</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnShutdown">
+            <summary>在系统关闭时执行。 指定在系统关闭之前应该发生什么。</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnPowerEvent(System.ServiceProcess.PowerBroadcastStatus)">
+            <summary>在计算机的电源状态已发生更改时执行。 这适用于便携式计算机，当他们进入挂起模式，这不是系统关闭相同。</summary>
+            <param name="powerStatus"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase`1.OnSessionChange(System.ServiceProcess.SessionChangeDescription)">
+            <summary>在终端服务器会话中接收的更改事件时执行</summary>
+            <param name="changeDescription"></param>
         </member>
         <member name="P:NewLife.Agent.AgentServiceBase`1.WatchDogs">
             <summary>看门狗要保护的服务</summary>
@@ -149,14 +165,18 @@
         <member name="P:NewLife.Agent.AgentServiceBase.Intervals">
             <summary>间隔数组。默认60秒</summary>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase.WriteLine(System.String,System.Object[])">
+        <member name="P:NewLife.Agent.AgentServiceBase.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Agent.AgentServiceBase.WriteLog(System.String,System.Object[])">
             <summary>写日志</summary>
             <param name="format"></param>
             <param name="args"></param>
         </member>
-        <member name="M:NewLife.Agent.AgentServiceBase.WriteLine(System.String)">
+        <member name="M:NewLife.Agent.AgentServiceBase.WriteLine(System.String,System.Object[])">
             <summary>写日志</summary>
-            <param name="msg"></param>
+            <param name="format"></param>
+            <param name="args"></param>
         </member>
         <member name="T:NewLife.Agent.IAgentService">
             <summary>代理服务接口</summary>
@@ -173,8 +193,51 @@
         <member name="M:NewLife.Agent.IAgentService.Stop">
             <summary>停止</summary>
         </member>
-        <member name="M:NewLife.Agent.IAgentService.Restart">
+        <member name="M:NewLife.Agent.IAgentService.Restart(System.String)">
             <summary>重启服务</summary>
+            <param name="reason"></param>
+        </member>
+        <member name="T:NewLife.Agent.IJob">
+            <summary>任务接口</summary>
+        </member>
+        <member name="M:NewLife.Agent.IJob.Execute(NewLife.Agent.JobContext)">
+            <summary>执行一次任务</summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:NewLife.Agent.JobBase">
+            <summary>工作任务基类</summary>
+        </member>
+        <member name="M:NewLife.Agent.JobBase.Execute(NewLife.Agent.JobContext)">
+            <param name="context"></param>
+        </member>
+        <member name="P:NewLife.Agent.JobBase.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Agent.JobBase.WriteLog(System.String,System.Object[])">
+            <summary>写日志</summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="T:NewLife.Agent.JobContext">
+            <summary>任务上下文</summary>
+        </member>
+        <member name="P:NewLife.Agent.JobContext.Item(System.String)">
+            <summary>用户数据</summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Agent.JobSchedule">
+            <summary>任务调度器</summary>
+        </member>
+        <member name="P:NewLife.Agent.JobSchedule.Jobs">
+            <summary>任务集合</summary>
+        </member>
+        <member name="P:NewLife.Agent.JobSchedule.Count">
+            <summary>任务个数</summary>
+        </member>
+        <member name="M:NewLife.Agent.JobSchedule.Add(NewLife.Agent.IJob)">
+            <summary>向任务调度器添加任务</summary>
+            <param name="job"></param>
         </member>
         <member name="T:NewLife.Agent.ServiceControl">
             <summary>
@@ -269,9 +332,59 @@
             <param name="format"></param>
             <param name="args"></param>
         </member>
-        <member name="M:NewLife.Agent.ServiceHelper.WriteLine(System.String)">
+        <member name="T:NewLife.Agent.ServiceItem">
+            <summary>服务工作项</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Index">
+            <summary>服务项索引</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Name">
+            <summary>线程名称</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Callback">
+            <summary>任务委托</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Job">
+            <summary>工作任务</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Thread">
+            <summary>线程</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Interval">
+            <summary>间隔</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Active">
+            <summary>可用</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.LastActive">
+            <summary>最后活跃时间</summary>
+        </member>
+        <member name="P:NewLife.Agent.ServiceItem.Event">
+            <summary>阻塞任务用的自动事件量</summary>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.#ctor(System.Int32,System.String,System.Int32)">
+            <summary>实例化一个服务工作项</summary>
+            <param name="index"></param>
+            <param name="name"></param>
+            <param name="interval"></param>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.Start(System.String)">
+            <summary>启动工作项</summary>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.Stop(System.String)">
+            <summary>停止工作项</summary>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.WorkWaper(System.Object)">
+            <summary>线程包装</summary>
+            <param name="data">线程序号</param>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.CheckActive">
+            <summary>检查是否有工作线程死亡</summary>
+        </member>
+        <member name="M:NewLife.Agent.ServiceItem.WriteLine(System.String,System.Object[])">
             <summary>写日志</summary>
-            <param name="msg"></param>
+            <param name="format"></param>
+            <param name="args"></param>
         </member>
         <member name="T:NewLife.Agent.Setting">
             <summary>服务设置</summary>
@@ -298,13 +411,22 @@
             <summary>最大占用内存，单位： M。超过最大占用时，整个服务进程将会重启，以释放资源。默认0秒，表示无限</summary>
         </member>
         <member name="P:NewLife.Agent.Setting.MaxThread">
-            <summary>最大总线程数，单位：个。超过最大占用时，整个服务进程将会重启，以释放资源。默认0个，表示无限</summary>
+            <summary>最大线程数，单位：个。超过最大占用时，整个服务进程将会重启，以释放资源。默认0个，表示无限</summary>
+        </member>
+        <member name="P:NewLife.Agent.Setting.MaxHandle">
+            <summary>最大句柄数，单位：个。超过最大占用时，整个服务进程将会重启，以释放资源。默认0个，表示无限</summary>
         </member>
         <member name="P:NewLife.Agent.Setting.AutoRestart">
             <summary>自动重启时间，单位：分。到达自动重启时间时，整个服务进程将会重启，以释放资源。默认0分，表示无限</summary>
         </member>
+        <member name="P:NewLife.Agent.Setting.WaitForExit">
+            <summary>等待退出。停止服务时，等待每个线程完成当前工作的退出时间，默认5000ms</summary>
+        </member>
         <member name="P:NewLife.Agent.Setting.WatchDog">
             <summary>看门狗，保护其它服务，每分钟检查一次。多个服务名逗号分隔</summary>
+        </member>
+        <member name="P:NewLife.Agent.Setting.ServicesDependedOn">
+            <summary>依赖服务</summary>
         </member>
         <member name="M:NewLife.Agent.Setting.OnNew">
             <summary>新建时调用</summary>
@@ -357,7 +479,7 @@
             <summary>名称</summary>
         </member>
         <member name="P:NewLife.Caching.Cache.Expire">
-            <summary>默认缓存时间。默认365*24*3600秒</summary>
+            <summary>默认缓存时间。默认0秒表示不过期</summary>
         </member>
         <member name="P:NewLife.Caching.Cache.Item(System.String)">
             <summary>获取和设置缓存，永不过期</summary>
@@ -369,6 +491,9 @@
         </member>
         <member name="P:NewLife.Caching.Cache.Keys">
             <summary>所有键</summary>
+        </member>
+        <member name="M:NewLife.Caching.Cache.#ctor">
+            <summary>构造函数</summary>
         </member>
         <member name="M:NewLife.Caching.Cache.Init(NewLife.Caching.CacheSetting)">
             <summary>初始化配置</summary>
@@ -383,7 +508,7 @@
             <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Caching.Cache.Set``1(System.String,``0,System.TimeSpan)">
@@ -398,45 +523,164 @@
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.Remove(System.String)">
-            <summary>移除缓存项</summary>
+        <member name="M:NewLife.Caching.Cache.Remove(System.String[])">
+            <summary>批量移除缓存项</summary>
+            <param name="keys">键集合</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.SetExpire(System.String,System.TimeSpan)">
+            <summary>设置缓存项有效期</summary>
+            <param name="key">键</param>
+            <param name="expire">过期时间，秒</param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.GetExpire(System.String)">
+            <summary>获取缓存项有效期</summary>
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.GetAll``1(System.String[])">
+        <member name="M:NewLife.Caching.Cache.GetAll``1(System.Collections.Generic.IEnumerable{System.String})">
             <summary>批量获取缓存项</summary>
             <typeparam name="T"></typeparam>
             <param name="keys"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.Cache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0})">
+        <member name="M:NewLife.Caching.Cache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0},System.Int32)">
             <summary>批量设置缓存项</summary>
             <typeparam name="T"></typeparam>
             <param name="values"></param>
-        </member>
-        <member name="M:NewLife.Caching.Cache.Increment(System.String,System.Int32)">
-            <summary>累加，原子操作</summary>
-            <param name="key"></param>
-            <param name="amount"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Caching.Cache.Decrement(System.String,System.Int32)">
-            <summary>递减，原子操作</summary>
-            <param name="key"></param>
-            <param name="amount"></param>
-            <returns></returns>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
         </member>
         <member name="M:NewLife.Caching.Cache.GetList``1(System.String)">
             <summary>获取列表</summary>
-            <typeparam name="T"></typeparam>
-            <param name="key"></param>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Caching.Cache.GetDictionary``1(System.String)">
             <summary>获取哈希</summary>
-            <typeparam name="T"></typeparam>
-            <param name="key"></param>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
             <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.GetQueue``1(System.String)">
+            <summary>获取队列</summary>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Add``1(System.String,``0,System.Int32)">
+            <summary>添加，已存在时不更新</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Replace``1(System.String,``0)">
+            <summary>设置新值并获取旧值，原子操作</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Increment(System.String,System.Int64)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Increment(System.String,System.Double)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Decrement(System.String,System.Int64)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Decrement(System.String,System.Double)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.AcquireLock(System.String,System.Int32)">
+            <summary>申请分布式锁</summary>
+            <param name="key"></param>
+            <param name="msTimeout"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Cache.Bench(System.Boolean)">
+            <summary>多线程性能测试</summary>
+            <param name="rand">随机读写</param>
+            <remarks>
+            Memory性能测试[顺序]，逻辑处理器 32 个 2,000MHz Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz
+            
+            测试 10,000,000 项，  1 线程
+            赋值 10,000,000 项，  1 线程，耗时   3,764ms 速度 2,656,748 ops
+            读取 10,000,000 项，  1 线程，耗时   1,296ms 速度 7,716,049 ops
+            删除 10,000,000 项，  1 线程，耗时   1,230ms 速度 8,130,081 ops
+            
+            测试 20,000,000 项，  2 线程
+            赋值 20,000,000 项，  2 线程，耗时   3,088ms 速度 6,476,683 ops
+            读取 20,000,000 项，  2 线程，耗时   1,051ms 速度 19,029,495 ops
+            删除 20,000,000 项，  2 线程，耗时   1,011ms 速度 19,782,393 ops
+            
+            测试 40,000,000 项，  4 线程
+            赋值 40,000,000 项，  4 线程，耗时   3,060ms 速度 13,071,895 ops
+            读取 40,000,000 项，  4 线程，耗时   1,023ms 速度 39,100,684 ops
+            删除 40,000,000 项，  4 线程，耗时     994ms 速度 40,241,448 ops
+            
+            测试 80,000,000 项，  8 线程
+            赋值 80,000,000 项，  8 线程，耗时   3,124ms 速度 25,608,194 ops
+            读取 80,000,000 项，  8 线程，耗时   1,171ms 速度 68,317,677 ops
+            删除 80,000,000 项，  8 线程，耗时   1,199ms 速度 66,722,268 ops
+            
+            测试 320,000,000 项， 32 线程
+            赋值 320,000,000 项， 32 线程，耗时  13,857ms 速度 23,093,021 ops
+            读取 320,000,000 项， 32 线程，耗时   1,950ms 速度 164,102,564 ops
+            删除 320,000,000 项， 32 线程，耗时   3,359ms 速度 95,266,448 ops
+            
+            测试 320,000,000 项， 64 线程
+            赋值 320,000,000 项， 64 线程，耗时   9,648ms 速度 33,167,495 ops
+            读取 320,000,000 项， 64 线程，耗时   1,974ms 速度 162,107,396 ops
+            删除 320,000,000 项， 64 线程，耗时   1,907ms 速度 167,802,831 ops
+            
+            测试 320,000,000 项，256 线程
+            赋值 320,000,000 项，256 线程，耗时  12,429ms 速度 25,746,238 ops
+            读取 320,000,000 项，256 线程，耗时   1,907ms 速度 167,802,831 ops
+            删除 320,000,000 项，256 线程，耗时   2,350ms 速度 136,170,212 ops
+            </remarks>
+        </member>
+        <member name="M:NewLife.Caching.Cache.BenchOne(System.Int64,System.Int32,System.Boolean)">
+            <summary>使用指定线程测试指定次数</summary>
+            <param name="times">次数</param>
+            <param name="threads">线程</param>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.BenchGet(System.String,System.Int64,System.Int32,System.Boolean)">
+            <summary>读取测试</summary>
+            <param name="key">键</param>
+            <param name="times">次数</param>
+            <param name="threads">线程</param>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.BenchSet(System.String,System.Int64,System.Int32,System.Boolean)">
+            <summary>赋值测试</summary>
+            <param name="key">键</param>
+            <param name="times">次数</param>
+            <param name="threads">线程</param>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="M:NewLife.Caching.Cache.BenchRemove(System.String,System.Int64,System.Int32,System.Boolean)">
+            <summary>删除测试</summary>
+            <param name="key">键</param>
+            <param name="times">次数</param>
+            <param name="threads">线程</param>
+            <param name="rand">随机读写</param>
         </member>
         <member name="M:NewLife.Caching.Cache.ToString">
             <summary>已重载。</summary>
@@ -449,7 +693,7 @@
             <summary>名称</summary>
         </member>
         <member name="P:NewLife.Caching.ICache.Expire">
-            <summary>默认缓存时间。默认365*24*3600秒</summary>
+            <summary>默认缓存时间。默认0秒表示不过期</summary>
         </member>
         <member name="P:NewLife.Caching.ICache.Item(System.String)">
             <summary>获取和设置缓存，永不过期</summary>
@@ -471,7 +715,7 @@
             <summary>设置缓存项</summary>
             <param name="key">键</param>
             <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.ICache.Expire"/></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Caching.ICache.Set``1(System.String,``0,System.TimeSpan)">
@@ -486,44 +730,115 @@
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.Remove(System.String)">
-            <summary>移除缓存项</summary>
+        <member name="M:NewLife.Caching.ICache.Remove(System.String[])">
+            <summary>批量移除缓存项</summary>
+            <param name="keys">键集合</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.SetExpire(System.String,System.TimeSpan)">
+            <summary>设置缓存项有效期</summary>
+            <param name="key">键</param>
+            <param name="expire">过期时间</param>
+        </member>
+        <member name="M:NewLife.Caching.ICache.GetExpire(System.String)">
+            <summary>获取缓存项有效期</summary>
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.GetAll``1(System.String[])">
+        <member name="M:NewLife.Caching.ICache.GetAll``1(System.Collections.Generic.IEnumerable{System.String})">
             <summary>批量获取缓存项</summary>
             <typeparam name="T"></typeparam>
             <param name="keys"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.ICache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0})">
+        <member name="M:NewLife.Caching.ICache.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0},System.Int32)">
             <summary>批量设置缓存项</summary>
             <typeparam name="T"></typeparam>
             <param name="values"></param>
-        </member>
-        <member name="M:NewLife.Caching.ICache.Increment(System.String,System.Int32)">
-            <summary>累加，原子操作</summary>
-            <param name="key"></param>
-            <param name="amount"></param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Caching.ICache.Decrement(System.String,System.Int32)">
-            <summary>递减，原子操作</summary>
-            <param name="key"></param>
-            <param name="amount"></param>
-            <returns></returns>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.ICache.Expire"/></param>
         </member>
         <member name="M:NewLife.Caching.ICache.GetList``1(System.String)">
             <summary>获取列表</summary>
-            <typeparam name="T"></typeparam>
-            <param name="key"></param>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Caching.ICache.GetDictionary``1(System.String)">
             <summary>获取哈希</summary>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.GetQueue``1(System.String)">
+            <summary>获取队列</summary>
+            <typeparam name="T">元素类型</typeparam>
+            <param name="key">键</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Add``1(System.String,``0,System.Int32)">
+            <summary>添加，已存在时不更新</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Replace``1(System.String,``0)">
+            <summary>设置新值并获取旧值，原子操作</summary>
+            <remarks>
+            常常配合Increment使用，用于累加到一定数后重置归零，又避免多线程冲突。
+            </remarks>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Increment(System.String,System.Int64)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Increment(System.String,System.Double)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Decrement(System.String,System.Int64)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Decrement(System.String,System.Double)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.AcquireLock(System.String,System.Int32)">
+            <summary>申请分布式锁</summary>
+            <param name="key">要锁定的key</param>
+            <param name="msTimeout"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.ICache.Bench(System.Boolean)">
+            <summary>多线程性能测试</summary>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="T:NewLife.Caching.IProducerConsumer`1">
+            <summary>生产者消费者接口</summary>
             <typeparam name="T"></typeparam>
-            <param name="key"></param>
+        </member>
+        <member name="M:NewLife.Caching.IProducerConsumer`1.Add(System.Collections.Generic.IEnumerable{`0})">
+            <summary>生产添加</summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.IProducerConsumer`1.Take(System.Int32)">
+            <summary>消费获取</summary>
+            <param name="count"></param>
             <returns></returns>
         </member>
         <member name="T:NewLife.Caching.MemoryCache">
@@ -542,10 +857,9 @@
         <member name="P:NewLife.Caching.MemoryCache.Keys">
             <summary>所有键</summary>
         </member>
-        <member name="P:NewLife.Caching.MemoryCache.Item(System.String)">
-            <summary>获取和设置缓存，永不过期</summary>
-            <param name="key"></param>
-            <returns></returns>
+        <member name="M:NewLife.Caching.MemoryCache.Init(NewLife.Caching.CacheSetting)">
+            <summary>初始化配置</summary>
+            <param name="set"></param>
         </member>
         <member name="M:NewLife.Caching.MemoryCache.ContainsKey(System.String)">
             <summary>是否包含缓存项</summary>
@@ -554,9 +868,10 @@
         </member>
         <member name="M:NewLife.Caching.MemoryCache.Set``1(System.String,``0,System.Int32)">
             <summary>添加缓存项</summary>
+            <typeparam name="T">值类型</typeparam>
             <param name="key">键</param>
             <param name="value">值</param>
-            <param name="expire">过期时间，秒</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Caching.MemoryCache.Get``1(System.String)">
@@ -564,27 +879,76 @@
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MemoryCache.Remove(System.String)">
-            <summary>移除缓存项</summary>
+        <member name="M:NewLife.Caching.MemoryCache.Remove(System.String[])">
+            <summary>批量移除缓存项</summary>
+            <param name="keys">键集合</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.SetExpire(System.String,System.TimeSpan)">
+            <summary>设置缓存项有效期</summary>
+            <param name="key">键</param>
+            <param name="expire">过期时间</param>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.GetExpire(System.String)">
+            <summary>获取缓存项有效期</summary>
             <param name="key">键</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MemoryCache.GetAll``1(System.String[])">
-            <summary>批量获取缓存项</summary>
-            <typeparam name="T"></typeparam>
-            <param name="keys"></param>
+        <member name="M:NewLife.Caching.MemoryCache.Add``1(System.String,``0,System.Int32)">
+            <summary>添加，已存在时不更新</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MemoryCache.Increment(System.String,System.Int32)">
+        <member name="M:NewLife.Caching.MemoryCache.Replace``1(System.String,``0)">
+            <summary>设置新值并获取旧值，原子操作</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.Increment(System.String,System.Int64)">
             <summary>累加，原子操作</summary>
-            <param name="key"></param>
-            <param name="amount"></param>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Caching.MemoryCache.Decrement(System.String,System.Int32)">
+        <member name="M:NewLife.Caching.MemoryCache.Increment(System.String,System.Double)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.Decrement(System.String,System.Int64)">
             <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.Decrement(System.String,System.Double)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.GetList``1(System.String)">
+            <summary>获取列表</summary>
+            <typeparam name="T"></typeparam>
             <param name="key"></param>
-            <param name="amount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.GetDictionary``1(System.String)">
+            <summary>获取哈希</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryCache.GetQueue``1(System.String)">
+            <summary>获取队列</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
             <returns></returns>
         </member>
         <member name="T:NewLife.Caching.MemoryCache.CacheItem">
@@ -605,6 +969,26 @@
         <member name="M:NewLife.Caching.MemoryCache.RemoveNotAlive(System.Object)">
             <summary>移除过期的缓存项</summary>
         </member>
+        <member name="M:NewLife.Caching.MemoryCache.BenchOne(System.Int64,System.Int32,System.Boolean)">
+            <summary>使用指定线程测试指定次数</summary>
+            <param name="times">次数</param>
+            <param name="threads">线程</param>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="T:NewLife.Caching.MemoryQueue`1">
+            <summary>生产者消费者</summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:NewLife.Caching.MemoryQueue`1.Add(System.Collections.Generic.IEnumerable{`0})">
+            <summary>生产添加</summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.MemoryQueue`1.Take(System.Int32)">
+            <summary>消费获取</summary>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
         <member name="T:NewLife.Caching.CacheConfig">
             <summary>缓存配置</summary>
         </member>
@@ -620,9 +1004,11 @@
         <member name="M:NewLife.Caching.CacheConfig.OnLoaded">
             <summary>加载后</summary>
         </member>
-        <member name="M:NewLife.Caching.CacheConfig.GetOrAdd(System.String)">
+        <member name="M:NewLife.Caching.CacheConfig.GetOrAdd(System.String,System.String,System.String)">
             <summary>获取 或 增加 配置项</summary>
-            <param name="name"></param>
+            <param name="name">名称</param>
+            <param name="provider">提供者</param>
+            <param name="value">配置</param>
             <returns></returns>
         </member>
         <member name="T:NewLife.Caching.CacheSetting">
@@ -636,6 +1022,328 @@
         </member>
         <member name="P:NewLife.Caching.CacheSetting.Provider">
             <summary>提供者</summary>
+        </member>
+        <member name="M:NewLife.Caching.CacheSetting.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Caching.Redis">
+            <summary>Redis缓存</summary>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Create(System.String,System.Int32)">
+            <summary>创建</summary>
+            <param name="server"></param>
+            <param name="db"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Server">
+            <summary>服务器</summary>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Password">
+            <summary>密码</summary>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Db">
+            <summary>目标数据库。默认0</summary>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Init(NewLife.Caching.CacheSetting)">
+            <summary>初始化</summary>
+            <param name="set"></param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.CreateSub(System.Int32)">
+            <summary>为同一服务器创建不同Db的子级库</summary>
+            <param name="db"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Pool">
+            <summary>连接池</summary>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Execute``1(System.Func{NewLife.Caching.RedisClient,``0})">
+            <summary>执行命令</summary>
+            <typeparam name="T"></typeparam>
+            <param name="func"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Count">
+            <summary>缓存个数</summary>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Keys">
+            <summary>所有键</summary>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Set``1(System.String,``0,System.Int32)">
+            <summary>单个实体项</summary>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Get``1(System.String)">
+            <summary>获取单体</summary>
+            <param name="key">键</param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Remove(System.String[])">
+            <summary>批量移除缓存项</summary>
+            <param name="keys">键集合</param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.ContainsKey(System.String)">
+            <summary>是否存在</summary>
+            <param name="key">键</param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.SetExpire(System.String,System.TimeSpan)">
+            <summary>设置缓存项有效期</summary>
+            <param name="key">键</param>
+            <param name="expire">过期时间</param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.GetExpire(System.String)">
+            <summary>获取缓存项有效期</summary>
+            <param name="key">键</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.GetAll``1(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>批量获取缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0},System.Int32)">
+            <summary>批量设置缓存项</summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.GetQueue``1(System.String)">
+            <summary>获取队列</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Add``1(System.String,``0,System.Int32)">
+            <summary>添加，已存在时不更新</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="expire">过期时间，秒。小于0时采用默认缓存时间<seealso cref="P:NewLife.Caching.Cache.Expire"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Replace``1(System.String,``0)">
+            <summary>设置新值并获取旧值，原子操作</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Increment(System.String,System.Int64)">
+            <summary>累加，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Increment(System.String,System.Double)">
+            <summary>累加，原子操作，乘以100后按整数操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Decrement(System.String,System.Int64)">
+            <summary>递减，原子操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Decrement(System.String,System.Double)">
+            <summary>递减，原子操作，乘以100后按整数操作</summary>
+            <param name="key">键</param>
+            <param name="value">变化量</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Bench(System.Boolean)">
+            <summary>性能测试</summary>
+            <param name="rand">随机读写</param>
+        </member>
+        <member name="M:NewLife.Caching.Redis.Test">
+            <summary>测试</summary>
+        </member>
+        <member name="P:NewLife.Caching.Redis.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Caching.Redis.WriteLog(System.String,System.Object[])">
+            <summary>写日志</summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="T:NewLife.Caching.RedisQueue`1">
+            <summary>生产者消费者</summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:NewLife.Caching.RedisQueue`1.Add(System.Collections.Generic.IEnumerable{`0})">
+            <summary>生产添加</summary>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisQueue`1.Take(System.Int32)">
+            <summary>消费获取</summary>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Caching.RedisClient">
+            <summary>Redis客户端</summary>
+            <remarks>
+            以极简原则进行设计，每个客户端不支持并行命令处理，可通过多客户端多线程解决。
+            收发共用64k缓冲区，所以命令请求和响应不能超过64k。
+            </remarks>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Client">
+            <summary>客户端</summary>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Server">
+            <summary>内容类型</summary>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Password">
+            <summary>密码</summary>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Logined">
+            <summary>是否已登录</summary>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.LoginTime">
+            <summary>登录时间</summary>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Busy">
+            <summary>是否正在处理命令</summary>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.GetStream(System.Boolean)">
+            <summary>异步请求</summary>
+            <param name="create">新建连接</param>
+            <returns></returns>
+        </member>
+        <member name="F:NewLife.Caching.RedisClient._Buffer">
+            <summary>收发缓冲区。不支持收发超过64k的大包</summary>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.SendCommand(System.String,System.Byte[][])">
+            <summary>异步发出请求，并接收响应</summary>
+            <param name="cmd"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Execute(System.String,System.Object[])">
+            <summary>执行命令。返回字符串、Packet、Packet[]</summary>
+            <param name="cmd"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Execute``1(System.String,System.Object[])">
+            <summary>执行命令。返回基本类型、对象、对象数组</summary>
+            <param name="cmd"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Ping">
+            <summary>心跳</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Select(System.Int32)">
+            <summary>选择Db</summary>
+            <param name="db"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Auth(System.String)">
+            <summary>验证密码</summary>
+            <param name="password"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Quit">
+            <summary>退出</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.GetInfo">
+            <summary>获取信息</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Set``1(System.String,``0,System.Int32)">
+            <summary>设置</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="secTimeout">超时时间</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.Get``1(System.String)">
+            <summary>读取</summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.SetAll``1(System.Collections.Generic.IDictionary{System.String,``0})">
+            <summary>批量设置</summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.GetAll``1(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>批量获取</summary>
+            <typeparam name="T"></typeparam>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.ToBytes(System.Object)">
+            <summary>数值转字节数组</summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.FromBytes(NewLife.Data.Packet,System.Type)">
+            <summary>字节数组转对象</summary>
+            <param name="pk"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.FromBytes``1(NewLife.Data.Packet)">
+            <summary>字节数组转对象</summary>
+            <typeparam name="T"></typeparam>
+            <param name="pk"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.GetHeaderBytes(System.String,System.Int32)">
+            <summary>获取命令对应的字节数组，全局缓存</summary>
+            <param name="cmd"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Caching.RedisClient.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Caching.RedisClient.WriteLog(System.String,System.Object[])">
+            <summary>写日志</summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="T:NewLife.Caching.CacheLock">
+            <summary>分布式锁</summary>
+        </member>
+        <member name="P:NewLife.Caching.CacheLock.Key">
+            <summary>键</summary>
+        </member>
+        <member name="M:NewLife.Caching.CacheLock.#ctor(NewLife.Caching.ICache,System.String)">
+            <summary>实例化</summary>
+            <param name="client"></param>
+            <param name="key"></param>
+        </member>
+        <member name="M:NewLife.Caching.CacheLock.Acquire(System.Int32)">
+            <summary>申请锁</summary>
+            <param name="msTimeout"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Caching.CacheLock.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
         </member>
         <member name="T:NewLife.Collections.ConcurrentHashSet`1">
             <summary>并行哈希集合</summary>
@@ -676,20 +1384,11 @@
         <member name="P:NewLife.Collections.DictionaryCache`2.Expire">
             <summary>过期时间。单位是秒，默认0秒，表示永不过期</summary>
         </member>
-        <member name="P:NewLife.Collections.DictionaryCache`2.ClearPeriod">
-            <summary>过期清理时间，缓存项过期后达到这个时间时，将被移除缓存。单位是秒，默认0秒，表示不清理过期项</summary>
+        <member name="P:NewLife.Collections.DictionaryCache`2.Period">
+            <summary>定时清理时间，默认0秒，表示不清理过期项</summary>
         </member>
-        <member name="P:NewLife.Collections.DictionaryCache`2.Asynchronous">
-            <summary>异步更新。默认false</summary>
-        </member>
-        <member name="P:NewLife.Collections.DictionaryCache`2.AutoDispose">
-            <summary>移除过期缓存项时，自动调用其Dispose。默认false</summary>
-        </member>
-        <member name="P:NewLife.Collections.DictionaryCache`2.CacheDefault">
-            <summary>是否缓存默认值，有时候委托返回默认值不希望被缓存，而是下一次尽快进行再次计算。默认true</summary>
-        </member>
-        <member name="P:NewLife.Collections.DictionaryCache`2.DelayLock">
-            <summary>延迟加锁，字典没有数据时，先计算结果再加锁加入字典，避免大量不同键的插入操作形成排队影响性能。默认false</summary>
+        <member name="P:NewLife.Collections.DictionaryCache`2.FindMethod">
+            <summary>查找数据的方法</summary>
         </member>
         <member name="M:NewLife.Collections.DictionaryCache`2.#ctor">
             <summary>实例化一个字典缓存</summary>
@@ -698,11 +1397,14 @@
             <summary>实例化一个字典缓存</summary>
             <param name="comparer"></param>
         </member>
-        <member name="M:NewLife.Collections.DictionaryCache`2.Finalize">
-            <summary>销毁资源</summary>
+        <member name="M:NewLife.Collections.DictionaryCache`2.#ctor(System.Func{`0,`1},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>实例化一个字典缓存</summary>
+            <param name="findMethod"></param>
+            <param name="comparer"></param>
         </member>
-        <member name="M:NewLife.Collections.DictionaryCache`2.Dispose">
-            <summary>销毁字典，关闭</summary>
+        <member name="M:NewLife.Collections.DictionaryCache`2.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
         </member>
         <member name="T:NewLife.Collections.DictionaryCache`2.CacheItem">
             <summary>缓存项</summary>
@@ -719,6 +1421,25 @@
         <member name="P:NewLife.Collections.DictionaryCache`2.Item(`0)">
             <summary>重写索引器。取值时如果没有该项则返回默认值；赋值时如果已存在该项则覆盖，否则添加。</summary>
             <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.DictionaryCache`2.Get(`0)">
+            <summary>获取 GetOrAdd</summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.DictionaryCache`2.Set(`0,`1)">
+            <summary>设置 AddOrUpdate</summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.DictionaryCache`2.TryAdd(`0,`1,System.Boolean,`1@)">
+            <summary>尝试添加，或返回旧值</summary>
+            <param name="key"></param>
+            <param name="value"></param>
+            <param name="updateIfExists"></param>
+            <param name="resultingValue"></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Collections.DictionaryCache`2.GetItem(`0,System.Func{`0,`1})">
@@ -744,11 +1465,77 @@
             <summary>赋值到目标缓存</summary>
             <param name="cache"></param>
         </member>
-        <member name="F:NewLife.Collections.DictionaryCache`2.clearTimer">
+        <member name="F:NewLife.Collections.DictionaryCache`2._timer">
             <summary>清理会话计时器</summary>
         </member>
         <member name="M:NewLife.Collections.DictionaryCache`2.RemoveNotAlive(System.Object)">
             <summary>移除过期的缓存项</summary>
+        </member>
+        <member name="T:NewLife.Collections.LinkList`1">
+            <summary>双向链表</summary>
+            <remarks>
+            原子操作线程安全说明：
+            1，绝大部分时候只提供正向遍历链表，所以Next方向是线程安全的，Prev则难以保证
+            </remarks>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:NewLife.Collections.LinkList`1.Head">
+            <summary>头部</summary>
+        </member>
+        <member name="P:NewLife.Collections.LinkList`1.Tail">
+            <summary>尾部</summary>
+        </member>
+        <member name="P:NewLife.Collections.LinkList`1.Count">
+            <summary>元素个数</summary>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Add(`0)">
+            <summary>添加项</summary>
+            <param name="item"></param>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Remove(`0)">
+            <summary>删除项</summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Clear">
+            <summary>清空链表</summary>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Contains(`0)">
+            <summary>是否包含</summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.CopyTo(`0[],System.Int32)">
+            <summary>拷贝到数组</summary>
+            <param name="array"></param>
+            <param name="arrayIndex"></param>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.GetEnumerator">
+            <summary>枚举</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Collections.LinkList`1.Node">
+            <summary>双链表节点</summary>
+        </member>
+        <member name="P:NewLife.Collections.LinkList`1.Node.Value">
+            <summary>数值</summary>
+        </member>
+        <member name="F:NewLife.Collections.LinkList`1.Node.Prev">
+            <summary>前一个</summary>
+        </member>
+        <member name="F:NewLife.Collections.LinkList`1.Node.Next">
+            <summary>下一个</summary>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Node.#ctor">
+            <summary>实例化一个双链表节点</summary>
+        </member>
+        <member name="M:NewLife.Collections.LinkList`1.Node.#ctor(`0)">
+            <summary>实例化一个双链表节点</summary>
+            <param name="value"></param>
         </member>
         <member name="T:NewLife.Collections.NullableDictionary`2">
             <summary>可空字典。获取数据时如果指定键不存在可返回空而不是抛出异常</summary>
@@ -759,7 +1546,7 @@
             <summary>实例化一个可空字典</summary>
         </member>
         <member name="M:NewLife.Collections.NullableDictionary`2.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
-            <summary>置顶比较器实例化一个可空字典</summary>
+            <summary>指定比较器实例化一个可空字典</summary>
             <param name="comparer"></param>
         </member>
         <member name="M:NewLife.Collections.NullableDictionary`2.#ctor(System.Collections.Generic.IDictionary{`0,`1},System.Collections.Generic.IEqualityComparer{`0})">
@@ -771,6 +1558,130 @@
             <summary>获取或设置与指定的属性是否有脏数据。</summary>
             <param name="item"></param>
             <returns></returns>
+        </member>
+        <member name="T:NewLife.Collections.Pool`1">
+            <summary>资源池。主要用于数据库连接池和网络连接池</summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Name">
+            <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.FreeCount">
+            <summary>空闲个数</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.BusyCount">
+            <summary>繁忙个数</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Max">
+            <summary>最大个数。默认100</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Min">
+            <summary>最小个数。默认1</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.IdleTime">
+            <summary>空闲清理时间。最小个数之上的资源超过空闲时间时被清理，默认10s</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.AllIdleTime">
+            <summary>完全空闲清理时间。最小个数之下的资源超过空闲时间时被清理，默认0s永不清理</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.WaitTime">
+            <summary>申请等待时间。池满时等待的时间，默认1000ms</summary>
+        </member>
+        <member name="F:NewLife.Collections.Pool`1._free">
+            <summary>基础空闲集合。只保存最小个数，最热部分</summary>
+        </member>
+        <member name="F:NewLife.Collections.Pool`1._free2">
+            <summary>扩展空闲集合。保存最小个数以外部分</summary>
+        </member>
+        <member name="F:NewLife.Collections.Pool`1._busy">
+            <summary>借出去的放在这</summary>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.#ctor">
+            <summary>实例化一个资源池</summary>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Item.Value">
+            <summary>数值</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Item.LastTime">
+            <summary>过期时间</summary>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.Acquire(System.Int32)">
+            <summary>申请</summary>
+            <param name="msTimeout">池满时等待的最大超时时间。超时后仍无法得到资源将抛出异常</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.AcquireItem(System.Int32)">
+            <summary>申请资源包装项，Dispose时自动归还到池中</summary>
+            <param name="msTimeout">池满时等待的最大超时时间。超时后仍无法得到资源将抛出异常</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.OnAcquire(System.Int32)">
+            <summary>申请</summary>
+            <param name="msTimeout">池满时等待的最大超时时间。超时后仍无法得到资源将抛出异常</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.Release(`0)">
+            <summary>释放</summary>
+            <param name="value"></param>
+        </member>
+        <member name="E:NewLife.Collections.Pool`1.OnCreate">
+            <summary>创建实例时触发。外部可用于自定义创建对象</summary>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.Create">
+            <summary>创建实例</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.OnAcquire(`0)">
+            <summary>申请时，返回是否有效。无效资源将会被抛弃并重新申请</summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.OnRelease(`0)">
+            <summary>释放时，返回是否有效。无效资源将会被抛弃，不再加入空闲队列</summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.OnDestroy(`0)">
+            <summary>销毁时触发</summary>
+            <param name="value"></param>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Total">
+            <summary>总请求数</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Success">
+            <summary>成功数</summary>
+        </member>
+        <member name="F:NewLife.Collections.Pool`1.Cost">
+            <summary>平均耗时。单位ms</summary>
+        </member>
+        <member name="P:NewLife.Collections.Pool`1.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Collections.Pool`1.WriteLog(System.String,System.Object[])">
+            <summary>写日志</summary>
+            <param name="format"></param>
+            <param name="args"></param>
+        </member>
+        <member name="T:NewLife.Collections.PoolItem`1">
+            <summary>资源池包装项，自动归还资源到池中</summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:NewLife.Collections.PoolItem`1.Value">
+            <summary>数值</summary>
+        </member>
+        <member name="P:NewLife.Collections.PoolItem`1.Pool">
+            <summary>池</summary>
+        </member>
+        <member name="M:NewLife.Collections.PoolItem`1.#ctor(NewLife.Collections.Pool{`0},`0)">
+            <summary>包装项</summary>
+            <param name="pool"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:NewLife.Collections.PoolItem`1.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
         </member>
         <member name="T:NewLife.CombGuid">
             <summary>COMB 类型 GUID，要存储在数据库中或要从数据库中检索的 GUID。</summary>
@@ -1490,6 +2401,103 @@
             <param name="numbers"></param>
             <param name="result"></param>
         </member>
+        <member name="T:NewLife.Data.GeoArea">
+            <summary>地理区域</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.Code">
+            <summary>编码</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.Name">
+            <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.ParentCode">
+            <summary>父级</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.Center">
+            <summary>中心</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.Polyline">
+            <summary>边界</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoArea.Level">
+            <summary>级别</summary>
+        </member>
+        <member name="M:NewLife.Data.GeoArea.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Data.GeoAddress">
+            <summary>地理地址</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Name">
+            <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Location">
+            <summary>坐标</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Address">
+            <summary>地址</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Code">
+            <summary>行政区域编码</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Country">
+            <summary>国家</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Province">
+            <summary>省份</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.City">
+            <summary>城市</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.District">
+            <summary>区县</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Township">
+            <summary>乡镇</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Towncode">
+            <summary>乡镇编码</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Street">
+            <summary>街道</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.StreetNumber">
+            <summary></summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Level">
+            <summary>级别</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Precise">
+            <summary>精确打点</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoAddress.Confidence">
+            <summary>可信度。[0-100]</summary>
+        </member>
+        <member name="M:NewLife.Data.GeoAddress.ToString">
+            <summary>已重载。</summary>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Data.GeoPoint">
+            <summary>经纬度坐标</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoPoint.Longitude">
+            <summary>经度</summary>
+        </member>
+        <member name="P:NewLife.Data.GeoPoint.Latitude">
+            <summary>纬度</summary>
+        </member>
+        <member name="M:NewLife.Data.GeoPoint.#ctor">
+            <summary>经纬度坐标</summary>
+        </member>
+        <member name="M:NewLife.Data.GeoPoint.#ctor(System.String)">
+            <summary>经纬度坐标</summary>
+            <param name="location"></param>
+        </member>
+        <member name="M:NewLife.Data.GeoPoint.ToString">
+            <summary>已重载</summary>
+            <returns></returns>
+        </member>
         <member name="T:NewLife.Data.IFilter">
             <summary>数据过滤器</summary>
         </member>
@@ -1565,6 +2573,19 @@
             <param name="offset"></param>
             <param name="count"></param>
         </member>
+        <member name="M:NewLife.Data.Packet.Sub(System.Int32,System.Int32)">
+            <summary>截取</summary>
+            <param name="offset"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Data.Packet.IndexOf(System.Byte[],System.Int32,System.Int32)">
+            <summary>查找目标数组</summary>
+            <param name="data">目标数组</param>
+            <param name="offset">本数组起始偏移</param>
+            <param name="count">本数组搜索个数</param>
+            <returns></returns>
+        </member>
         <member name="M:NewLife.Data.Packet.ToArray">
             <summary>返回字节数组。如果是完整数组直接返回，否则截取</summary>
             <remarks>不一定是全新数据，如果需要全新数据请克隆</remarks>
@@ -1590,6 +2611,11 @@
             <param name="offset"></param>
             <param name="count"></param>
         </member>
+        <member name="M:NewLife.Data.Packet.CopyToAsync(System.IO.Stream)">
+            <summary>异步复制到目标数据流</summary>
+            <param name="stream"></param>
+            <returns></returns>
+        </member>
         <member name="M:NewLife.Data.Packet.Clone">
             <summary>深度克隆一份数据包，拷贝数据区</summary>
             <returns></returns>
@@ -1611,32 +2637,41 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Data.Packet.ToString">
+            <summary>已重载</summary>
+            <returns></returns>
+        </member>
         <member name="T:NewLife.Data.PageParameter">
             <summary>分页参数信息</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.Sort">
-            <summary>排序字段</summary>
+            <summary>获取 或 设置 排序字段</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.Desc">
-            <summary>是否降序</summary>
+            <summary>获取 或 设置 是否降序</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.PageIndex">
-            <summary>页面索引</summary>
+            <summary>获取 或 设置 页面索引</summary>
+            <remarks>如果设定了开始行，分页时将不再使用PageIndex</remarks>
         </member>
         <member name="P:NewLife.Data.PageParameter.PageSize">
-            <summary>页面大小</summary>
+            <summary>获取 或 设置 页面大小</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.TotalCount">
-            <summary>总记录数</summary>
+            <summary>获取 或 设置 总记录数</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.PageCount">
-            <summary>页数</summary>
+            <summary>获取 页数</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.OrderBy">
-            <summary>组合起来的排序字句</summary>
+            <summary>获取 组合起来的排序字句</summary>
         </member>
         <member name="P:NewLife.Data.PageParameter.StartRow">
             <summary>获取 或 设置 开始行</summary>
+            <remarks>如果设定了开始行，分页时将不再使用PageIndex</remarks>
+        </member>
+        <member name="P:NewLife.Data.PageParameter.RetrieveTotalCount">
+            <summary>获取 或 设置 是否获取总记录数</summary>
         </member>
         <member name="M:NewLife.Data.PageParameter.#ctor">
             <summary>实例化分页参数</summary>
@@ -1791,6 +2826,67 @@
         </member>
         <member name="M:NewLife.Http.HttpServer.#ctor">
             <summary>实例化</summary>
+        </member>
+        <member name="T:NewLife.Http.TinyHttpClient">
+            <summary>迷你Http客户端</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.Client">
+            <summary>客户端</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.ContentType">
+            <summary>内容类型</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.ContentLength">
+            <summary>内容长度</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.KeepAlive">
+            <summary>保持连接</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.StatusCode">
+            <summary>状态码</summary>
+        </member>
+        <member name="P:NewLife.Http.TinyHttpClient.Headers">
+            <summary>头部集合</summary>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.SendDataAsync(NewLife.Net.NetUri,NewLife.Data.Packet,NewLife.Data.Packet)">
+            <summary>异步请求</summary>
+            <param name="remote"></param>
+            <param name="request"></param>
+            <param name="response"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.SendAsync(System.String,System.Byte[],NewLife.Data.Packet)">
+            <summary>异步发出请求，并接收响应</summary>
+            <param name="url"></param>
+            <param name="data"></param>
+            <param name="response"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.BuildRequest(System.Uri,System.Byte[])">
+            <summary>构造请求头</summary>
+            <param name="uri"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.ParseResponse(NewLife.Data.Packet)">
+            <summary>解析响应</summary>
+            <param name="rs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.SendAsync(System.String,System.Byte[])">
+            <summary>异步发出请求，并接收响应</summary>
+            <param name="url">地址</param>
+            <param name="data">POST数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Http.TinyHttpClient.GetAsync(System.String)">
+            <summary>异步获取</summary>
+            <param name="url">地址</param>
+            <returns></returns>
         </member>
         <member name="T:NewLife.Http.HttpHelper">
             <summary>Http帮助类</summary>
@@ -2377,12 +3473,9 @@
         <member name="M:NewLife.Log.TextFileLog.InitLog">
             <summary>初始化日志记录文件</summary>
         </member>
-        <member name="M:NewLife.Log.TextFileLog.CloseWriter(System.Object)">
-            <summary>停止日志</summary>
-        </member>
-        <member name="M:NewLife.Log.TextFileLog.PerformWriteLog(NewLife.Log.WriteLogEventArgs)">
-            <summary>使用线程池线程异步执行日志写入动作</summary>
-            <param name="e"></param>
+        <member name="M:NewLife.Log.TextFileLog.WriteFile(System.Object)">
+            <summary>写文件</summary>
+            <param name="state"></param>
         </member>
         <member name="M:NewLife.Log.TextFileLog.OnWrite(NewLife.Log.LogLevel,System.String,System.Object[])">
             <summary>写日志</summary>
@@ -2433,7 +3526,7 @@
             <summary>CPU周期</summary>
         </member>
         <member name="P:NewLife.Log.CodeTimer.ThreadTime">
-            <summary>线程时间，单位是100ns，除以10000转为ms</summary>
+            <summary>线程时间，单位是ms</summary>
         </member>
         <member name="P:NewLife.Log.CodeTimer.Gen">
             <summary>GC代数</summary>
@@ -2962,6 +4055,9 @@
         <member name="P:NewLife.Model.IHistory.Success">
             <summary>成功</summary>
         </member>
+        <member name="P:NewLife.Model.IHistory.CreateTime">
+            <summary>创建时间</summary>
+        </member>
         <member name="P:NewLife.Model.IHistory.CreateIP">
             <summary>创建地址</summary>
         </member>
@@ -2978,6 +4074,12 @@
         </member>
         <member name="P:NewLife.Model.IOnline.UserID">
             <summary>会员</summary>
+        </member>
+        <member name="P:NewLife.Model.IOnline.Name">
+            <summary>名称</summary>
+        </member>
+        <member name="P:NewLife.Model.IOnline.Type">
+            <summary>类型</summary>
         </member>
         <member name="P:NewLife.Model.IOnline.SessionID">
             <summary>会话</summary>
@@ -2998,6 +4100,10 @@
         </member>
         <member name="M:NewLife.Model.IOnline.Delete">
             <summary>从数据库中删除该对象</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Model.IOnline.Save">
+            <summary>保存</summary>
             <returns></returns>
         </member>
         <member name="T:NewLife.Model.IPlugin">
@@ -3476,6 +4582,9 @@
             <param name="stream"></param>
             <returns>数据帧长度（包含头部长度位）</returns>
         </member>
+        <member name="M:NewLife.Net.PacketProvider.Test">
+            <summary>粘包测试</summary>
+        </member>
         <member name="T:NewLife.Net.PacketFactory">
             <summary>头部长度粘包处理工厂</summary>
         </member>
@@ -3686,7 +4795,7 @@
             <summary>是否活动</summary>
         </member>
         <member name="P:NewLife.Net.ISocketServer.SessionTimeout">
-            <summary>会话超时时间。默认30秒</summary>
+            <summary>会话超时时间。默认20*60秒</summary>
             <remarks>
             对于每一个会话连接，如果超过该时间仍然没有收到任何数据，则断开会话连接。
             </remarks>
@@ -4244,6 +5353,9 @@
         <member name="F:NewLife.Net.NetType.Http">
             <summary>Http协议</summary>
         </member>
+        <member name="F:NewLife.Net.NetType.Https">
+            <summary>Https协议</summary>
+        </member>
         <member name="F:NewLife.Net.NetType.WebSocket">
             <summary>WebSocket协议</summary>
         </member>
@@ -4257,14 +5369,11 @@
         <member name="P:NewLife.Net.NetUri.Type">
             <summary>协议类型</summary>
         </member>
-        <member name="P:NewLife.Net.NetUri.Protocol">
-            <summary>协议</summary>
+        <member name="P:NewLife.Net.NetUri.Host">
+            <summary>主机</summary>
         </member>
         <member name="P:NewLife.Net.NetUri.Address">
             <summary>地址</summary>
-        </member>
-        <member name="P:NewLife.Net.NetUri.Host">
-            <summary>主机</summary>
         </member>
         <member name="P:NewLife.Net.NetUri.Port">
             <summary>端口</summary>
@@ -4382,6 +5491,9 @@
         <member name="P:NewLife.Net.SerialTransport.Packet">
             <summary>粘包处理接口</summary>
         </member>
+        <member name="P:NewLife.Net.SerialTransport.ByteTimeout">
+            <summary>字节超时。数据包间隔，默认20ms</summary>
+        </member>
         <member name="M:NewLife.Net.SerialTransport.#ctor">
             <summary>串口传输</summary>
         </member>
@@ -4461,7 +5573,7 @@
             <summary>网络调试</summary>
         </member>
         <member name="P:NewLife.Net.Setting.SessionTimeout">
-            <summary>会话超时时间。默认30秒</summary>
+            <summary>会话超时时间。默认20*60秒</summary>
         </member>
         <member name="P:NewLife.Net.Setting.BufferSize">
             <summary>缓冲区大小。默认8k</summary>
@@ -5561,6 +6673,9 @@
             <param name="result"></param>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Reflection.DynamicXml.Test">
+            <summary>测试</summary>
+        </member>
         <member name="T:NewLife.Reflection.IReflect">
             <summary>反射接口</summary>
             <remarks>该接口仅用于扩展，不建议外部使用</remarks>
@@ -6086,6 +7201,16 @@
             <param name="type"></param>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Reflection.Reflect.IsList(System.Type)">
+            <summary>是否泛型列表</summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Reflection.Reflect.IsDictionary(System.Type)">
+            <summary>是否泛型字典</summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
         <member name="M:NewLife.Reflection.Reflect.As(System.Type,System.Type)">
             <summary>是否能够转为指定基类</summary>
             <param name="type"></param>
@@ -6372,6 +7497,11 @@
             <summary>获取当前应用程序的所有程序集，不包括系统程序集，仅限本目录</summary>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Reflection.AssemblyX.OnResolve(System.String)">
+            <summary>在对程序集的解析失败时发生</summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
         <member name="M:NewLife.Reflection.AssemblyX.ToString">
             <summary>已重载。</summary>
             <returns></returns>
@@ -6548,6 +7678,12 @@
         <member name="M:NewLife.Remoting.ApiAction.#ctor(System.Reflection.MethodInfo,System.Type)">
             <summary>实例化</summary>
         </member>
+        <member name="M:NewLife.Remoting.ApiAction.GetName(System.Type,System.Reflection.MethodInfo)">
+            <summary>获取名称</summary>
+            <param name="type"></param>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
         <member name="M:NewLife.Remoting.ApiAction.ToString">
             <summary>已重载。</summary>
             <returns></returns>
@@ -6625,6 +7761,9 @@
             <summary>注册服务</summary>
             <param name="type">控制器类型</param>
             <param name="method">动作名称。为空时遍历控制器所有公有成员方法</param>
+        </member>
+        <member name="M:NewLife.Remoting.ApiHost.ShowService">
+            <summary>显示可用服务</summary>
         </member>
         <member name="P:NewLife.Remoting.ApiHost.Encrypted">
             <summary>是否加密</summary>
@@ -6708,10 +7847,11 @@
             <param name="context"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Remoting.ApiSession.Error(System.Int32,System.String)">
+        <member name="M:NewLife.Remoting.ApiSession.Error(System.Int32,System.String,System.Object)">
             <summary>抛出异常</summary>
             <param name="errCode"></param>
             <param name="msg"></param>
+            <param name="result"></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Remoting.ApiSession.OnLogin(System.String,System.String)">
@@ -6788,6 +7928,9 @@
         </member>
         <member name="P:NewLife.Remoting.ControllerContext.Action">
             <summary>处理动作</summary>
+        </member>
+        <member name="P:NewLife.Remoting.ControllerContext.ActionName">
+            <summary>真实动作名称</summary>
         </member>
         <member name="P:NewLife.Remoting.ControllerContext.Session">
             <summary>会话</summary>
@@ -7067,22 +8210,19 @@
         <member name="P:NewLife.Remoting.IApiManager.Services">
             <summary>可提供服务的方法</summary>
         </member>
-        <member name="M:NewLife.Remoting.IApiManager.Register``1(System.Boolean)">
+        <member name="M:NewLife.Remoting.IApiManager.Register``1">
             <summary>注册服务提供类。该类的所有公开方法将直接暴露</summary>
-            <param name="requireApi">是否要求Api特性</param>
             <typeparam name="TService"></typeparam>
         </member>
-        <member name="M:NewLife.Remoting.IApiManager.Register(System.Object,System.String,System.Boolean)">
+        <member name="M:NewLife.Remoting.IApiManager.Register(System.Object,System.String)">
             <summary>注册服务</summary>
             <param name="controller">控制器对象</param>
             <param name="method">动作名称。为空时遍历控制器所有公有成员方法</param>
-            <param name="requireApi">是否要求Api特性</param>
         </member>
-        <member name="M:NewLife.Remoting.IApiManager.Register(System.Type,System.String,System.Boolean)">
+        <member name="M:NewLife.Remoting.IApiManager.Register(System.Type,System.String)">
             <summary>注册服务</summary>
             <param name="type">控制器类型</param>
             <param name="method">动作名称。为空时遍历控制器所有公有成员方法</param>
-            <param name="requireApi">是否要求Api特性</param>
         </member>
         <member name="M:NewLife.Remoting.IApiManager.Register(System.Reflection.MethodInfo)">
             <summary>注册服务</summary>
@@ -7096,22 +8236,19 @@
         <member name="P:NewLife.Remoting.ApiManager.Services">
             <summary>可提供服务的方法</summary>
         </member>
-        <member name="M:NewLife.Remoting.ApiManager.Register``1(System.Boolean)">
+        <member name="M:NewLife.Remoting.ApiManager.Register``1">
             <summary>注册服务提供类。该类的所有公开方法将直接暴露</summary>
             <typeparam name="TService"></typeparam>
-            <param name="requireApi">是否要求Api特性</param>
         </member>
-        <member name="M:NewLife.Remoting.ApiManager.Register(System.Object,System.String,System.Boolean)">
+        <member name="M:NewLife.Remoting.ApiManager.Register(System.Object,System.String)">
             <summary>注册服务</summary>
             <param name="controller">控制器对象</param>
             <param name="method">动作名称。为空时遍历控制器所有公有成员方法</param>
-            <param name="requireApi">是否要求Api特性</param>
         </member>
-        <member name="M:NewLife.Remoting.ApiManager.Register(System.Type,System.String,System.Boolean)">
+        <member name="M:NewLife.Remoting.ApiManager.Register(System.Type,System.String)">
             <summary>注册服务</summary>
             <param name="type">控制器类型</param>
             <param name="method">动作名称。为空时遍历控制器所有公有成员方法</param>
-            <param name="requireApi">是否要求Api特性</param>
         </member>
         <member name="M:NewLife.Remoting.ApiManager.Register(System.Reflection.MethodInfo)">
             <summary>注册服务</summary>
@@ -7221,6 +8358,9 @@
         <member name="P:NewLife.Remoting.ApiClient.NewLife#Remoting#IApiSession#Host">
             <summary>主机</summary>
         </member>
+        <member name="P:NewLife.Remoting.ApiClient.ActionPrefix">
+            <summary>动作前缀。自动在每个没有/的动作名之前加上</summary>
+        </member>
         <member name="P:NewLife.Remoting.ApiClient.UserState">
             <summary>用户对象。一般用于共享用户信息对象</summary>
         </member>
@@ -7294,9 +8434,6 @@
         <member name="P:NewLife.Remoting.ApiClient.Logined">
             <summary>是否已登录</summary>
         </member>
-        <member name="P:NewLife.Remoting.ApiClient.LoginAction">
-            <summary>登录动作名</summary>
-        </member>
         <member name="E:NewLife.Remoting.ApiClient.OnLogined">
             <summary>登录完成事件</summary>
         </member>
@@ -7317,9 +8454,6 @@
         </member>
         <member name="P:NewLife.Remoting.ApiClient.Span">
             <summary>服务端与客户端的时间差</summary>
-        </member>
-        <member name="P:NewLife.Remoting.ApiClient.PingAction">
-            <summary>心跳动作名</summary>
         </member>
         <member name="M:NewLife.Remoting.ApiClient.PingAsync(System.Object)">
             <summary>发送心跳</summary>
@@ -7523,6 +8657,12 @@
             <summary>获取服务提供者</summary>
             <param name="serviceType"></param>
             <returns></returns>
+        </member>
+        <member name="T:NewLife.Remoting.ApiTest">
+            <summary>Rpc测试</summary>
+        </member>
+        <member name="M:NewLife.Remoting.ApiTest.Main">
+            <summary>测试主函数</summary>
         </member>
         <member name="T:NewLife.Remoting.IEncoder">
             <summary>编码器</summary>
@@ -8648,6 +9788,12 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="T:NewLife.Serialization.BinaryTest">
+            <summary>Binary测试</summary>
+        </member>
+        <member name="M:NewLife.Serialization.BinaryTest.Start">
+            <summary>开始测试</summary>
+        </member>
         <member name="T:NewLife.Serialization.IMemberAccessor">
             <summary>成员序列化访问器。接口实现者可以在这里完全自定义序列化行为</summary>
         </member>
@@ -9101,6 +10247,67 @@
         <member name="T:NewLife.Serialization.JsonReader">
             <summary>Json读取器</summary>
         </member>
+        <member name="P:NewLife.Serialization.JsonReader.UseUTCDateTime">
+            <summary>是否使用UTC时间</summary>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.Read``1(System.String)">
+            <summary>读取Json到指定类型</summary>
+            <typeparam name="T"></typeparam>
+            <param name="json"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.Read(System.String,System.Type)">
+            <summary>读取Json到指定类型</summary>
+            <param name="json"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.ToObject(System.Object,System.Type,System.Object)">
+            <summary>Json字典或列表转为具体类型对象</summary>
+            <param name="jobj">Json对象</param>
+            <param name="type">模板类型</param>
+            <param name="target">目标对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.ParseList(System.Collections.Generic.IList{System.Object},System.Type,System.Object)">
+            <summary>转为泛型列表</summary>
+            <param name="vlist"></param>
+            <param name="type"></param>
+            <param name="target">目标对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.ParseArray(System.Collections.Generic.IList{System.Object},System.Type,System.Object)">
+            <summary>转为数组</summary>
+            <param name="list"></param>
+            <param name="type"></param>
+            <param name="target">目标对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.ParseDictionary(System.Collections.Generic.IDictionary{System.String,System.Object},System.Type,System.Collections.IDictionary)">
+            <summary>转为泛型字典</summary>
+            <param name="dic"></param>
+            <param name="type"></param>
+            <param name="target">目标对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.ParseObject(System.Collections.Generic.IDictionary{System.String,System.Object},System.Type,System.Object)">
+            <summary>字典转复杂对象，反射属性赋值</summary>
+            <param name="dic"></param>
+            <param name="type"></param>
+            <param name="target">目标对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Serialization.JsonReader.CreateDateTime(System.Object)">
+            <summary>创建时间</summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Serialization.JsonTest">
+            <summary>Json测试</summary>
+        </member>
+        <member name="M:NewLife.Serialization.JsonTest.Start">
+            <summary>开始测试</summary>
+        </member>
         <member name="T:NewLife.Serialization.JsonWriter">
             <summary>Json写入器</summary>
         </member>
@@ -9424,6 +10631,13 @@
             <param name="arg3"></param>
             <param name="arg4"></param>
         </member>
+        <member name="T:NewLife.Threading.ThreadPoolX">
+            <summary>线程池扩展</summary>
+        </member>
+        <member name="M:NewLife.Threading.ThreadPoolX.QueueUserWorkItem(System.Action)">
+            <summary>带异常处理的线程池任务调度，不允许异常抛出，以免造成应用程序退出</summary>
+            <param name="callback"></param>
+        </member>
         <member name="T:NewLife.Threading.TimerX">
             <summary>不可重入的定时器。</summary>
             <remarks>
@@ -9488,15 +10702,21 @@
         <member name="M:NewLife.Threading.TimerX.Dispose">
             <summary>销毁定时器</summary>
         </member>
+        <member name="F:NewLife.Threading.TimerX.hasSetNext">
+            <summary>是否已设置下一次时间</summary>
+        </member>
         <member name="M:NewLife.Threading.TimerX.SetNext(System.Int32)">
             <summary>设置下一次运行时间</summary>
-            <param name="ms"></param>
+            <param name="ms">小于等于0表示马上调度</param>
         </member>
         <member name="M:NewLife.Threading.TimerX.Delay(System.Threading.WaitCallback,System.Int32)">
             <summary>延迟执行一个委托</summary>
             <param name="callback"></param>
             <param name="ms"></param>
             <returns></returns>
+        </member>
+        <member name="P:NewLife.Threading.TimerX.Now">
+            <summary>当前时间。定时读取系统时间，避免频繁读取系统时间造成性能瓶颈</summary>
         </member>
         <member name="M:NewLife.Threading.TimerX.ToString">
             <summary>已重载</summary>
@@ -9522,6 +10742,9 @@
         <member name="P:NewLife.Threading.TimerScheduler.Count">
             <summary>定时器个数</summary>
         </member>
+        <member name="P:NewLife.Threading.TimerScheduler.MaxCost">
+            <summary>最大耗时。超过时报警告日志，默认500ms</summary>
+        </member>
         <member name="M:NewLife.Threading.TimerScheduler.Add(NewLife.Threading.TimerX)">
             <summary>把定时器加入队列</summary>
             <param name="timer"></param>
@@ -9543,7 +10766,7 @@
             <param name="now"></param>
             <returns></returns>
         </member>
-        <member name="M:NewLife.Threading.TimerScheduler.ProcessItem(System.Object)">
+        <member name="M:NewLife.Threading.TimerScheduler.Execute(System.Object)">
             <summary>处理每一个定时器</summary>
             <param name="state"></param>
         </member>
@@ -9553,6 +10776,263 @@
         </member>
         <member name="P:NewLife.Threading.TimerScheduler.Debug">
             <summary>是否开启调试，输出更多信息</summary>
+        </member>
+        <member name="T:NewLife.Yun.AMap">
+            <summary>高德地图</summary>
+            <remarks>
+            参考地址 http://lbs.amap.com/api/webservice/guide/api/georegeo/#geo
+            </remarks>
+        </member>
+        <member name="M:NewLife.Yun.AMap.#ctor">
+            <summary>高德地图</summary>
+        </member>
+        <member name="M:NewLife.Yun.AMap.InvokeAsync``1(System.String,System.String)">
+            <summary>远程调用</summary>
+            <param name="url">目标Url</param>
+            <param name="result">结果字段</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetGeocoderAsync(System.String,System.String)">
+            <summary>查询地址的经纬度坐标</summary>
+            <param name="address"></param>
+            <param name="city"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetGeoAsync(System.String,System.String,System.Boolean)">
+            <summary>查询地址获取坐标</summary>
+            <param name="address">地址</param>
+            <param name="city">城市</param>
+            <param name="formatAddress">是否格式化地址。高德地图默认已经格式化地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetGeocoderAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <remarks>
+            http://lbs.amap.com/api/webservice/guide/api/georegeo/#regeo
+            </remarks>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetGeoAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetDistanceAsync(NewLife.Data.GeoPoint,NewLife.Data.GeoPoint,System.Int32)">
+            <summary>计算距离和驾车时间</summary>
+            <remarks>
+            http://lbs.amap.com/api/webservice/guide/api/direction
+            
+            type:
+            0：直线距离
+            1：驾车导航距离（仅支持国内坐标）。
+            必须指出，当为1时会考虑路况，故在不同时间请求返回结果可能不同。
+            此策略和driving接口的 strategy = 4策略一致
+            2：公交规划距离（仅支持同城坐标）
+            3：步行规划距离（仅支持5km之间的距离）
+            
+            distance    路径距离，单位：米
+            duration    预计行驶时间，单位：秒
+            </remarks>
+            <param name="origin"></param>
+            <param name="destination"></param>
+            <param name="type">路径计算的方式和方法</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.GetAreaAsync(System.String,System.Int32,System.Int32)">
+            <summary>行政区划</summary>
+            <remarks>
+            http://lbs.amap.com/api/webservice/guide/api/district
+            </remarks>
+            <param name="keywords">查询关键字</param>
+            <param name="subdistrict">设置显示下级行政区级数</param>
+            <param name="code">按照指定行政区划进行过滤，填入后则只返回该省/直辖市信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.AMap.IsValidKey(System.String)">
+            <summary>是否无效Key。可能禁用或超出限制</summary>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Yun.BaiduMap">
+            <summary>百度地图</summary>
+            <remarks>
+            参考手册 http://lbsyun.baidu.com/index.php?title=webapi/guide/webservice-geocoding
+            </remarks>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.#ctor">
+            <summary>高德地图</summary>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.InvokeAsync``1(System.String,System.String)">
+            <summary>远程调用</summary>
+            <param name="url">目标Url</param>
+            <param name="result">结果字段</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.GetGeocoderAsync(System.String,System.String)">
+            <summary>查询地址的经纬度坐标</summary>
+            <param name="address"></param>
+            <param name="city"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.GetGeoAsync(System.String,System.String,System.Boolean)">
+            <summary>查询地址获取坐标</summary>
+            <param name="address">地址</param>
+            <param name="city">城市</param>
+            <param name="formatAddress">是否格式化地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.GetGeocoderAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.GetGeoAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.GetDistanceAsync(NewLife.Data.GeoPoint,NewLife.Data.GeoPoint,System.Int32)">
+            <summary>计算距离和驾车时间</summary>
+            <remarks>
+            http://lbsyun.baidu.com/index.php?title=webapi/route-matrix-api-v2
+            </remarks>
+            <param name="origin"></param>
+            <param name="destination"></param>
+            <param name="type">路径计算的方式和方法</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.PlaceSearchAsync(System.String,System.String,System.String,System.Boolean)">
+            <summary>行政区划区域检索</summary>
+            <remarks>
+            http://lbsyun.baidu.com/index.php?title=webapi/guide/webservice-placeapi
+            </remarks>
+            <param name="query"></param>
+            <param name="tag"></param>
+            <param name="region"></param>
+            <param name="formatAddress"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.BaiduMap.IsValidKey(System.String)">
+            <summary>是否无效Key。可能禁用或超出限制</summary>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
+        <member name="T:NewLife.Yun.Driving">
+            <summary>驾车距离和时间</summary>
+        </member>
+        <member name="P:NewLife.Yun.Driving.Distance">
+            <summary>距离。单位千米</summary>
+        </member>
+        <member name="P:NewLife.Yun.Driving.Duration">
+            <summary>路线耗时。单位秒</summary>
+        </member>
+        <member name="T:NewLife.Yun.IMap">
+            <summary>地图提供者接口</summary>
+        </member>
+        <member name="P:NewLife.Yun.IMap.AppKey">
+            <summary>应用密钥</summary>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetStringAsync(System.String)">
+            <summary>异步获取字符串</summary>
+            <param name="url"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetGeocoderAsync(System.String,System.String)">
+            <summary>查询地址的经纬度坐标</summary>
+            <param name="address"></param>
+            <param name="city"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetGeoAsync(System.String,System.String,System.Boolean)">
+            <summary>查询地址获取坐标</summary>
+            <param name="address">地址</param>
+            <param name="city">城市</param>
+            <param name="formatAddress">是否格式化地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetGeocoderAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetGeoAsync(NewLife.Data.GeoPoint)">
+            <summary>根据坐标获取地址</summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.IMap.GetDistanceAsync(NewLife.Data.GeoPoint,NewLife.Data.GeoPoint,System.Int32)">
+            <summary>计算距离和驾车时间</summary>
+            <param name="origin"></param>
+            <param name="destination"></param>
+            <param name="type">路径计算的方式和方法</param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Yun.IMap.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="T:NewLife.Yun.Map">
+            <summary>地图提供者</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.AppKey">
+            <summary>应用密钥。多个key逗号分隔</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.KeyName">
+            <summary>应用密码参数名</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.LastKey">
+            <summary>最后密钥</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.CoordType">
+            <summary>坐标系</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.LastUrl">
+            <summary>最后网址</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.LastString">
+            <summary>最后响应</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.LastResult">
+            <summary>最后结果</summary>
+        </member>
+        <member name="P:NewLife.Yun.Map.ThrowException">
+            <summary>收到异常响应时是否抛出异常</summary>
+        </member>
+        <member name="M:NewLife.Yun.Map.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:NewLife.Yun.Map.GetStringAsync(System.String)">
+            <summary>异步获取字符串</summary>
+            <param name="url"></param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.Map.InvokeAsync``1(System.String,System.String)">
+            <summary>远程调用</summary>
+            <param name="url">目标Url</param>
+            <param name="result">结果字段</param>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.Map.AcquireKey">
+            <summary>申请密钥</summary>
+            <returns></returns>
+        </member>
+        <member name="M:NewLife.Yun.Map.RemoveKey(System.String)">
+            <summary>移除不可用密钥</summary>
+            <param name="key"></param>
+        </member>
+        <member name="M:NewLife.Yun.Map.IsValidKey(System.String)">
+            <summary>是否无效Key。可能禁用或超出限制</summary>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
+        <member name="P:NewLife.Yun.Map.Log">
+            <summary>日志</summary>
+        </member>
+        <member name="M:NewLife.Yun.Map.WriteLog(System.String,System.Object[])">
+            <summary>写日志</summary>
+            <param name="format"></param>
+            <param name="args"></param>
         </member>
         <member name="T:NewLife.Web.Js">
             <summary>JavaScript脚本。提供Js的基本操作，同时也支持继承扩展</summary>
@@ -9864,6 +11344,9 @@
             <param name="url"></param>
             <returns></returns>
         </member>
+        <member name="P:NewLife.Web.OAuthClient.LastHtml">
+            <summary>最后一次请求的响应内容</summary>
+        </member>
         <member name="M:NewLife.Web.OAuthClient.Request(System.String)">
             <summary>创建客户端</summary>
             <param name="url">路径</param>
@@ -9942,6 +11425,11 @@
             <param name="name"></param>
             <returns></returns>
         </member>
+        <member name="M:NewLife.Web.Pager.GetFormAction(System.String)">
+            <summary>获取表单提交的Url</summary>
+            <param name="action">动作</param>
+            <returns></returns>
+        </member>
         <member name="T:NewLife.Web.PluginHelper">
             <summary>插件助手</summary>
         </member>
@@ -9980,6 +11468,15 @@
         </member>
         <member name="P:NewLife.Web.WebClientX.Encoding">
             <summary>编码。网络时代，绝大部分使用utf8编码</summary>
+        </member>
+        <member name="P:NewLife.Web.WebClientX.KeepAlive">
+            <summary>保持连接</summary>
+        </member>
+        <member name="P:NewLife.Web.WebClientX.ProxyAddress">
+            <summary>代理服务器地址</summary>
+        </member>
+        <member name="P:NewLife.Web.WebClientX.Proxy">
+            <summary>网页代理</summary>
         </member>
         <member name="P:NewLife.Web.WebClientX.Request">
             <summary>请求</summary>
@@ -10075,8 +11572,16 @@
         <member name="M:NewLife.Web.WebClientX.SetCookie">
             <summary>根据Http响应设置本地Cookie</summary>
         </member>
-        <member name="M:NewLife.Web.WebClientX.GetCookie">
+        <member name="M:NewLife.Web.WebClientX.GetCookie(System.Net.Http.HttpClient)">
             <summary>从本地获取Cookie并设置到Http请求头</summary>
+        </member>
+        <member name="P:NewLife.Web.WebClientX.Pool">
+            <summary>默认连接池</summary>
+        </member>
+        <member name="M:NewLife.Web.WebClientX.GetStringAsync(System.String)">
+            <summary>访问地址获取字符串</summary>
+            <param name="address"></param>
+            <returns></returns>
         </member>
         <member name="P:NewLife.Web.WebClientX.Log">
             <summary>日志</summary>
@@ -10172,96 +11677,15 @@
             <summary>弹出页面提示并关闭当前页面</summary>
             <param name="msg"></param>
         </member>
-        <member name="M:NewLife.Web.WebHelper.CheckEmptyAndFocus(System.Web.UI.Control,System.String)">
-            <summary>检查控件值是否为空，若为空，显示错误信息，并聚焦到控件上</summary>
-            <param name="control">要检查的控件</param>
-            <param name="errmsg">错误信息。若为空，将使用ToolTip</param>
-            <returns></returns>
-        </member>
         <member name="P:NewLife.Web.WebHelper.UserHost">
             <summary>用户主机。支持非Web</summary>
-        </member>
-        <member name="P:NewLife.Web.WebHelper.PageName">
-            <summary>页面文件名</summary>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.ExportExcel(System.Web.UI.WebControls.GridView,System.String,System.Int32)">
-            <summary>导出Excel</summary>
-            <param name="gv"></param>
-            <param name="filename"></param>
-            <param name="max"></param>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.ExportExcel(System.Web.UI.WebControls.GridView,System.String,System.Int32,System.Text.Encoding)">
-            <summary>导出Excel</summary>
-            <param name="gv"></param>
-            <param name="filename"></param>
-            <param name="max"></param>
-            <param name="encoding"></param>
-        </member>
-        <member name="P:NewLife.Web.WebHelper.Request">
-            <summary>Http请求</summary>
         </member>
         <member name="P:NewLife.Web.WebHelper.Params">
             <summary>返回请求字符串和表单的名值字段，过滤空值和ViewState，同名时优先表单</summary>
         </member>
-        <member name="M:NewLife.Web.WebHelper.Fill(System.Object)">
-            <summary>把Http请求的数据反射填充到目标对象</summary>
-            <param name="target">要反射搜索的目标对象，比如页面Page</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.RequestInt(System.String)">
-            <summary>获取整型参数</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.RequestLong(System.String)">
-            <summary>获取长整型参数</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.RequestBool(System.String)">
-            <summary>接收布尔值</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.RequestDateTime(System.String)">
-            <summary>接收时间</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.RequestDouble(System.String)">
-            <summary>接收Double</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="P:NewLife.Web.WebHelper.Response">
-            <summary>Http响应</summary>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.WriteCookie(System.String,System.String)">
-            <summary>写入Cookie</summary>
-            <param name="name">名称</param>
-            <param name="value">值</param>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.WriteCookie(System.String,System.String,System.String)">
-            <summary>写入Cookie</summary>
-            <param name="name">名称</param>
-            <param name="key">键</param>
-            <param name="value">值</param>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.WriteCookie(System.String,System.String,System.Int32)">
-            <summary>写入Cookie</summary>
-            <param name="name">名称</param>
-            <param name="value">值</param>
-            <param name="expires">过期时间，单位秒</param>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.ReadCookie(System.String)">
-            <summary>读取Cookie</summary>
-            <param name="name">名称</param>
-            <returns></returns>
-        </member>
-        <member name="M:NewLife.Web.WebHelper.ReadCookie(System.String,System.String)">
-            <summary>读取Cookie</summary>
-            <param name="name">名称</param>
-            <param name="key">键</param>
+        <member name="M:NewLife.Web.WebHelper.GetRawUrl(System.Web.HttpRequest)">
+            <summary>获取原始请求Url，支持反向代理</summary>
+            <param name="req"></param>
             <returns></returns>
         </member>
         <member name="M:NewLife.Web.WebHelper.UrlParam(System.Text.StringBuilder,System.String)">
@@ -10515,6 +11939,10 @@
         <member name="P:NewLife.Xml.XmlConfig`1.IsNew">
             <summary>是否新的配置文件</summary>
         </member>
+        <member name="M:NewLife.Xml.XmlConfig`1.OnDispose(System.Boolean)">
+            <summary>销毁</summary>
+            <param name="disposing"></param>
+        </member>
         <member name="M:NewLife.Xml.XmlConfig`1.Load(System.String)">
             <summary>加载指定配置文件</summary>
             <param name="filename"></param>
@@ -10529,6 +11957,9 @@
         </member>
         <member name="M:NewLife.Xml.XmlConfig`1.Save">
             <summary>保存到配置文件中去</summary>
+        </member>
+        <member name="M:NewLife.Xml.XmlConfig`1.SaveAsync">
+            <summary>异步保存</summary>
         </member>
         <member name="M:NewLife.Xml.XmlConfig`1.OnNew">
             <summary>新创建配置文件时执行</summary>
@@ -10859,6 +12290,21 @@
             <param name="key"></param>
             <returns></returns>
         </member>
+        <member name="T:System.ListExtension">
+            <summary>扩展List，支持遍历中修改元素</summary>
+        </member>
+        <member name="M:System.ListExtension.Find``1(System.Collections.Generic.IList{``0},System.Predicate{``0})">
+            <summary>线程安全，搜索并返回第一个，支持遍历中修改元素</summary>
+            <param name="list">实体列表</param>
+            <param name="match">条件</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ListExtension.FindAll``1(System.Collections.Generic.IList{``0},System.Predicate{``0})">
+            <summary>线程安全，搜索并返回第一个，支持遍历中修改元素</summary>
+            <param name="list">实体列表</param>
+            <param name="match">条件</param>
+            <returns></returns>
+        </member>
         <member name="T:System.IO.PathHelper">
             <summary>路径操作帮助</summary>
         </member>
@@ -10977,6 +12423,14 @@
             <param name="exts">文件扩展列表。比如*.exe;*.dll;*.config</param>
             <param name="allSub">是否包含所有子孙目录文件</param>
             <param name="callback">复制每一个文件之前的回调</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.IO.PathHelper.CopyIfNewer(System.IO.DirectoryInfo,System.String[],System.String,System.Boolean)">
+            <summary>从多个目标目录复制较新文件到当前目录</summary>
+            <param name="di">当前目录</param>
+            <param name="source">多个目标目录</param>
+            <param name="exts">文件扩展列表。比如*.exe;*.dll;*.config</param>
+            <param name="allSub">是否包含所有子孙目录文件</param>
             <returns></returns>
         </member>
         <member name="M:System.IO.PathHelper.Compress(System.IO.DirectoryInfo,System.String)">
@@ -11601,6 +13055,19 @@
             <param name="des"></param>
             <returns></returns>
         </member>
+        <member name="M:System.IOHelper.WriteDateTime(System.IO.Stream,System.DateTime,System.Int32)">
+            <summary>写入Unix格式时间，1970年以来秒数</summary>
+            <param name="stream"></param>
+            <param name="dt"></param>
+            <param name="baseYear"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.IOHelper.ReadDateTime(System.IO.Stream,System.Int32)">
+            <summary>读取Unix格式时间，1970年以来秒数</summary>
+            <param name="stream"></param>
+            <param name="baseYear"></param>
+            <returns></returns>
+        </member>
         <member name="M:System.IOHelper.ReadBytes(System.Byte[],System.Int32,System.Int32)">
             <summary>复制数组</summary>
             <param name="src">源数组</param>
@@ -11767,7 +13234,7 @@
             <param name="stream">数据流</param>
             <returns></returns>
         </member>
-        <member name="M:System.IOHelper.TryReadEncodedInt(System.IO.Stream,System.Int32@)">
+        <member name="M:System.IOHelper.TryReadEncodedInt(System.IO.Stream,System.UInt32@)">
             <summary>尝试读取压缩编码整数</summary>
             <param name="stream"></param>
             <param name="value"></param>
@@ -11932,10 +13399,13 @@
             <param name="outstream"></param>
             <returns></returns>
         </member>
-        <member name="M:System.SecurityHelper.Encrypt(System.Security.Cryptography.SymmetricAlgorithm,System.Byte[])">
+        <member name="M:System.SecurityHelper.Encrypt(System.Security.Cryptography.SymmetricAlgorithm,System.Byte[],System.Byte[],System.Security.Cryptography.CipherMode,System.Security.Cryptography.PaddingMode)">
             <summary>对称加密算法扩展</summary>
-            <param name="sa"></param>
-            <param name="data"></param>
+            <param name="sa">算法</param>
+            <param name="data">数据</param>
+            <param name="pass">密码</param>
+            <param name="mode">模式。.Net默认CBC，Java默认ECB</param>
+            <param name="padding">填充算法。默认PKCS7，等同Java的PKCS5</param>
             <returns></returns>
         </member>
         <member name="M:System.SecurityHelper.Descrypt(System.Security.Cryptography.SymmetricAlgorithm,System.IO.Stream,System.IO.Stream)">
@@ -11947,10 +13417,13 @@
             <param name="outstream"></param>
             <returns></returns>
         </member>
-        <member name="M:System.SecurityHelper.Descrypt(System.Security.Cryptography.SymmetricAlgorithm,System.Byte[])">
+        <member name="M:System.SecurityHelper.Descrypt(System.Security.Cryptography.SymmetricAlgorithm,System.Byte[],System.Byte[],System.Security.Cryptography.CipherMode,System.Security.Cryptography.PaddingMode)">
             <summary>对称解密算法扩展</summary>
-            <param name="sa"></param>
-            <param name="data"></param>
+            <param name="sa">算法</param>
+            <param name="data">数据</param>
+            <param name="pass">密码</param>
+            <param name="mode">模式。.Net默认CBC，Java默认ECB</param>
+            <param name="padding">填充算法。默认PKCS7，等同Java的PKCS5</param>
             <returns></returns>
         </member>
         <member name="M:System.SecurityHelper.RC4(System.Byte[],System.Byte[])">
