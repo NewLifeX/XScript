@@ -5,8 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32;
 using NewLife.Log;
 using NewLife.Net;
 using NewLife.Reflection;
@@ -58,16 +58,28 @@ namespace NewLife.XScript
             _CodeFile = true;
             if (args == null || args.Length == 0 || args[0] == "?" || args[0] == "/?") _CodeFile = false;
 
+            // 是否卸载流程
+            if (args != null && "-uninstall".EqualIgnoreCase(args))
+            {
+                RegHelper.Uninstall(true);
+                return;
+            }
+
             // 是否安装流程
             var install = args != null && "-install".EqualIgnoreCase(args);
 
             // 检查并写入注册表
-            if (CheckVersion(install))
+            if (RegHelper.CheckVersion(install))
             {
+#if DEBUG
+                RegHelper.SetFileType();
+#endif
                 // 发送到菜单
-                Task.Run(() => SetSendTo());
-                if (IsAdministrator()) Task.Run(() => SetFileType());
-                Task.Run(() => SetPath());
+                Task.Run(() => RegHelper.SetSendTo());
+                if (IsAdministrator()) Task.Run(() => RegHelper.SetFileType());
+                Task.Run(() => RegHelper.SetPath());
+
+                if (install) Thread.Sleep(3000);
             }
             if (install) return;
 
@@ -109,6 +121,11 @@ namespace NewLife.XScript
                     ShowDetail();
                 else if (line.EqualIgnoreCase("exit", "quit", "bye"))
                     break;
+                else if (line.EqualIgnoreCase("-uninstall") || line.EqualIgnoreCase("-u"))
+                {
+                    RegHelper.Uninstall(false);
+                    break;
+                }
                 else
                 {
                     Console.Title = Title + " " + line;
@@ -210,6 +227,13 @@ namespace NewLife.XScript
                     continue;
                 }
 
+                // 是否卸载流程
+                if (key.KeyChar == 'u')
+                {
+                    RegHelper.Uninstall(false);
+                    return;
+                }
+
                 break;
             }
         }
@@ -274,197 +298,6 @@ namespace NewLife.XScript
                 }
                 else
                     Console.WriteLine(item);
-            }
-        }
-
-        /// <summary>检查当前版本是否更新</summary>
-        /// <returns></returns>
-        //[RegistryPermission(SecurityAction.PermitOnly, Read = @"HKEY_LOCAL_MACHINE\SOFTWARE\NewLife")]
-        static Boolean CheckVersion(Boolean install)
-        {
-            var cur = AssemblyX.Entry.Version;
-            var key = @"Software\NewLife\XScript";
-
-            var root = Registry.LocalMachine;
-            var reg = root.OpenSubKey(key);
-            if (reg != null)
-            {
-                var v = reg.GetValue("Version") + "";
-                reg.Close();
-                if (v.CompareTo(cur) >= 0) return false;
-            }
-
-            XTrace.WriteLine("更新注册版本为 v{0}", cur);
-
-            try
-            {
-                reg = root.CreateSubKey(key);
-
-                reg.SetValue("Version", cur, RegistryValueKind.String);
-                reg.SetValue("Path", AppDomain.CurrentDomain.BaseDirectory, RegistryValueKind.String);
-                reg.Close();
-            }
-            catch (Exception ex)
-            {
-                XTrace.WriteLine("失败！可能需要管理员权限运行！" + ex.Message);
-
-                if (!install)
-                {
-                    var pi = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase)
-                    {
-                        Arguments = "-install",
-
-                        // 以管理员启动
-                        UseShellExecute = true,
-                        Verb = "runas",
-                        WindowStyle = ProcessWindowStyle.Hidden
-                    };
-                    Task.Run(() => Process.Start(pi));
-                }
-            }
-
-            return true;
-        }
-
-        static void SetSendTo()
-        {
-            var dir = Environment.GetFolderPath(Environment.SpecialFolder.SendTo);
-            if (!Directory.Exists(dir)) return;
-
-            // 每次更新，用于覆盖，避免错误
-            //if (File.Exists(file)) return;
-
-            XTrace.WriteLine("添加快捷方式到“发送到”菜单！");
-
-            try
-            {
-                Shortcut.Create(null, null);
-                Shortcut.Create("调试", "/D");
-                Shortcut.Create("生成Exe", "/Exe");
-                Shortcut.Create("用VisualStudio打开", "/Vs");
-            }
-            catch (Exception ex)
-            {
-                if (Config.Debug) XTrace.WriteException(ex);
-            }
-        }
-
-        static void SetFileType()
-        {
-            XTrace.WriteLine("设置.cs文件打开方式");
-
-            try
-            {
-                var root = Registry.ClassesRoot;
-                var asm = Assembly.GetExecutingAssembly();
-                var ver = asm.GetName().Version;
-                var name = asm.GetName().Name;
-
-                // 修改.cs文件指向
-                var reg = root.CreateSubKey(".cs");
-                reg.SetValue("", name);
-                reg.SetValue("Content Type", "text/plain");
-                reg.SetValue("PerceivedType", "text");
-                reg = reg.CreateSubKey("OpenWithProgids");
-                reg.SetValue("XScript", "", RegistryValueKind.String);
-
-                reg = root.CreateSubKey(".xs");
-                reg.SetValue("", name);
-                reg = reg.CreateSubKey("OpenWithProgids");
-                reg.SetValue("XScript", "", RegistryValueKind.String);
-
-                reg = root.OpenSubKey(name);
-                if (reg != null)
-                {
-                    var verStr = reg.GetValue("Version") + "";
-                    if (!String.IsNullOrEmpty(verStr))
-                    {
-                        var verReg = new Version(verStr);
-                        // 如果注册表记录的版本更新，则不写入
-                        if (verReg >= ver) return;
-                    }
-                    reg.Close();
-                }
-
-                var ico = "";
-                var vcs = root.GetSubKeyNames().LastOrDefault(e => e.StartsWithIgnoreCase("VisualStudio.cs."));
-                if (!vcs.IsNullOrEmpty())
-                {
-                    reg = root.OpenSubKey(vcs);
-                    if (reg != null)
-                    {
-                        reg = reg.OpenSubKey("DefaultIcon");
-                        if (reg != null) ico = reg.GetValue("") + "";
-                        reg.Close();
-                    }
-                }
-                if (ico.IsNullOrEmpty()) ico = "\"{0}\",0".F(asm.Location);
-
-                using (var xs = root.CreateSubKey(name))
-                {
-                    xs.SetValue("", name + "脚本文件");
-                    // 写入版本
-                    xs.SetValue("Version", ver.ToString());
-                    if (!ico.IsNullOrWhiteSpace()) xs.CreateSubKey("DefaultIcon").SetValue("", ico);
-
-                    using (var shell = xs.CreateSubKey("shell"))
-                    {
-                        reg = shell.CreateSubKey("Vs");
-                        reg.SetValue("", "用VisualStudio打开");
-                        reg.Flush();
-                        reg = reg.CreateSubKey("Command");
-                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /Vs", asm.Location));
-                        reg.Close();
-
-                        reg = shell.CreateSubKey("open");
-                        reg.SetValue("", "执行脚本(&O)");
-                        reg.Flush();
-                        reg = reg.CreateSubKey("Command");
-                        // 后面多带几个参数，支持"Test.cs /NoStop"这种用法，这种写法虽然很暴力，但是简单直接
-                        reg.SetValue("", String.Format("\"{0}\" \"%1\" /NoLogo %2 %3 %4 %5", asm.Location));
-                        reg.Close();
-                    }
-                }
-            }
-            //catch (UnauthorizedAccessException) { }
-            catch (Exception ex)
-            {
-                XTrace.WriteException(ex);
-            }
-        }
-
-        /// <summary>设置安装路径到环境变量Path里面</summary>
-        static void SetPath()
-        {
-            var epath = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-            var ps = epath.Split(";").OrderBy(e => e).ToList();
-            var asm = Assembly.GetExecutingAssembly();
-            var mypath = Path.GetDirectoryName(asm.Location);
-            var flag = false;
-            foreach (var item in ps)
-            {
-                //Console.WriteLine(item);
-                if (mypath.EqualIgnoreCase(item))
-                {
-                    flag = true;
-                    break;
-                }
-            }
-            if (!flag)
-            {
-                XTrace.WriteLine("设置安装目录到全局Path路径");
-                ps.Add(mypath);
-            }
-            ps = ps.OrderBy(e => e).ToList();
-            var epath2 = String.Join(";", ps.ToArray());
-            epath2 = Environment.ExpandEnvironmentVariables(epath2);
-            if (!epath.EqualIgnoreCase(epath2))
-            {
-                try
-                {
-                    Environment.SetEnvironmentVariable("Path", epath2, EnvironmentVariableTarget.Machine);
-                }
-                catch { }
             }
         }
 

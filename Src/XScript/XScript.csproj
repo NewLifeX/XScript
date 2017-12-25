@@ -50,6 +50,7 @@
     <Compile Include="Host.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegHelper.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="ScriptCode.cs" />
     <Compile Include="ScriptConfig.cs" />

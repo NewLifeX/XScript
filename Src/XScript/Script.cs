@@ -99,12 +99,12 @@ namespace NewLife.XScript
             // 生成图标
             if (!Config.NoLogo)
             {
-                var ico = "leaf.ico".GetFullPath();
+                var ico = "csharp.ico".GetFullPath();
                 option.CompilerOptions = String.Format("/win32icon:\"{0}\"", ico);
                 if (!File.Exists(ico))
                 {
-                    var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.leaf.ico");
-                    File.WriteAllBytes(ico, ms.ReadBytes());
+                    var ms = Assembly.GetEntryAssembly().GetManifestResourceStream("NewLife.XScript.csharp.ico");
+                    if (ms != null) File.WriteAllBytes(ico, ms.ReadBytes());
                 }
             }
 

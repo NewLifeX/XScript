@@ -166,9 +166,9 @@ namespace NewLife.XScript
         [ComImport()]
         private class CShellLink { }
 
-        internal static NativeClasses.IShellLinkW CreateShellLink()
+        internal static IShellLinkW CreateShellLink()
         {
-            return (NativeClasses.IShellLinkW)new NativeClasses.CShellLink();
+            return (IShellLinkW)new NativeClasses.CShellLink();
         }
     }
 
@@ -312,6 +312,16 @@ namespace NewLife.XScript
             sc.Save(file);
 
             return sc;
+        }
+
+        public static void Delete(String name)
+        {
+            var dir = Environment.GetFolderPath(Environment.SpecialFolder.SendTo);
+            var asmx = AssemblyX.Create(Assembly.GetExecutingAssembly());
+            if (!String.IsNullOrEmpty(name)) name = "（" + name + "）";
+            var file = dir.CombinePath(asmx.Title + name + ".lnk");
+
+            if (File.Exists(file)) File.Delete(file);
         }
     }
 }
