@@ -89,7 +89,7 @@ namespace NewLife.XScript
                     if (includeLine) sb.AppendLine(ss[i]);
 
                     var asm = line.Substring("//Assembly=".Length).Trim('\"');
-                    if (!Path.IsPathRooted(asm)) asm = Path.Combine(dir, asm).GetFullPath();
+                    if ((asm.Contains("/") || asm.Contains("\\")) && !Path.IsPathRooted(asm)) asm = Path.Combine(dir, asm).GetFullPath();
 
                     if (!rfs.Contains(asm)) rfs.Add(asm);
                 }

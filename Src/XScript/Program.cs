@@ -68,12 +68,10 @@ namespace NewLife.XScript
             // 是否安装流程
             var install = args != null && "-install".EqualIgnoreCase(args);
 
+#if !DEBUG
             // 检查并写入注册表
             if (RegHelper.CheckVersion(install))
             {
-#if DEBUG
-                RegHelper.SetFileType();
-#endif
                 // 发送到菜单
                 Task.Run(() => RegHelper.SetSendTo());
                 if (IsAdministrator()) Task.Run(() => RegHelper.SetFileType());
@@ -82,10 +80,11 @@ namespace NewLife.XScript
                 if (install) Thread.Sleep(3000);
             }
             if (install) return;
+#endif
 
             Task.Run(() => AutoUpdate());
 
-            if (cfg.Debug) Task.Run(() => Build.Builder.All);
+            //if (cfg.Debug) Task.Run(() => Build.Builder.All);
 
             if (!_CodeFile)
             {

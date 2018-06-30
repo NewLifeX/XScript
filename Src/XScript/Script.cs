@@ -46,7 +46,7 @@ namespace NewLife.XScript
 
             // 添加默认命名空间
             se.NameSpaces.Add("NewLife.XScript");
-            se.NameSpaces.Add("NewLife.Build");
+            //se.NameSpaces.Add("NewLife.Build");
 
             // 引用程序集
             if (sc.Refs.Count > 0) se.ReferencedAssemblies.AddRange(sc.GetRefArray());
