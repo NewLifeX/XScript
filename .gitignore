@@ -16,3 +16,4 @@ obj
 *.suo
 /Build
 /Src/.vs
+/Src/packages
