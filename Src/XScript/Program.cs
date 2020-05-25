@@ -317,19 +317,19 @@ namespace NewLife.XScript
             up.Name = "XScript";
             //up.Server = "https://git.oschina.net/NewLifeX/XScript";
             //up.Server = "http://www.newlifex.com/showtopic-369.aspx";
-            //up.Server = "http://x.newlifex.com";
+            up.Server = "http://x.newlifex.com";
             up.UpdatePath = root.CombinePath(up.UpdatePath);
             if (up.Check())
             {
                 up.Log = XTrace.Log;
 
-                // 从github.com下载需要处理Url
-                if (up.Links.Length > 0)
-                {
-                    var url = up.Links[0].Url;
-                    if ((url.Contains("github.com") || url.Contains("git."))
-                        && url.Contains("/blob/")) up.Links[0].Url = url.Replace("/blob/", "/raw/");
-                }
+                //// 从github.com下载需要处理Url
+                //if (up.Links.Length > 0)
+                //{
+                //    var url = up.Links[0].Url;
+                //    if ((url.Contains("github.com") || url.Contains("git."))
+                //        && url.Contains("/blob/")) up.Links[0].Url = url.Replace("/blob/", "/raw/");
+                //}
 
                 up.Download();
                 if (!_CodeFile)

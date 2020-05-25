@@ -437,7 +437,7 @@ namespace NewLife.Build
                 XTrace.WriteLine("版本 {0} 太旧，准备更新", Version);
 
                 var url = "http://x.newlifex.com/";
-                var client = new WebClientX(true, true)
+                var client = new WebClientX()
                 {
                     Log = XTrace.Log
                 };

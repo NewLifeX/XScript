@@ -32,10 +32,12 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“内部版本号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.6.*")]
-[assembly: AssemblyFileVersion("2.6.2018.0630")]
+[assembly: AssemblyVersion("2.7.*")]
+[assembly: AssemblyFileVersion("2.7.2020.0525")]
 
 /*
+ * v2.7.2020.0525   升级基础组件
+ * 
  * v2.6.2018.0630   修正无法正确引用系统程序集的BUG，剥离Build依赖
  * 
  * v2.5.2017.1225   增加卸载功能

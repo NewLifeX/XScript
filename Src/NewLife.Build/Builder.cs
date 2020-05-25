@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using NewLife.Log;
@@ -26,6 +27,8 @@ namespace NewLife.Build
 
         /// <summary>是否修正日志为中文</summary>
         public Boolean FixLog { get; set; } = true;
+
+        private static IDictionary<String, Type> _builders;
         #endregion
 
         #region 工厂构造
@@ -34,22 +37,20 @@ namespace NewLife.Build
 
         static Builder()
         {
-            var oc = ObjectContainer.Current;
-            foreach (var item in typeof(Builder).GetAllSubclasses(true))
+            var dic = new Dictionary<String, Type>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in typeof(Builder).GetAllSubclasses())
             {
                 try
                 {
-                    //var obj = item.CreateInstance() as Builder;
-                    //oc.Register<Builder>(obj, obj.Name);
-
                     var name = item.GetDisplayName() ?? item.Name;
-                    oc.Register(typeof(Builder), item, null, name);
+                    _builders[name] = item;
                 }
                 catch (Exception ex)
                 {
                     if (XTrace.Debug) XTrace.WriteException(ex);
                 }
             }
+            _builders = dic;
         }
 
         /// <summary>根据指定的编译器名称来创建编译器</summary>
@@ -59,17 +60,10 @@ namespace NewLife.Build
         {
             try
             {
-                var builder = ObjectContainer.Current.Resolve<Builder>(name);
-                if (builder == null)
-                {
-                    // 猜测大小写错误
-                    var b = ObjectContainer.Current.ResolveAll(typeof(Builder)).FirstOrDefault(m => (m.Identity + "").EqualIgnoreCase(name));
-                    var msg = "无法找到编译器 {0}".F(name);
-                    if (b != null) msg = "{0}，你需要的可能是 {1}".F(msg, b.Identity);
-                    throw new Exception(msg);
-                }
+                if (!_builders.TryGetValue(name, out var type))
+                    throw new Exception("无法找到编译器 {0}".F(name));
 
-                return builder;
+                return type?.CreateInstance() as Builder;
             }
             catch (Exception ex)
             {
@@ -78,13 +72,7 @@ namespace NewLife.Build
         }
 
         /// <summary>所有编译器</summary>
-        public static String All
-        {
-            get
-            {
-                return ObjectContainer.Current.ResolveAll(typeof(Builder)).Select(e => e.Identity + "").Join(",");
-            }
-        }
+        public static String All => _builders.Keys.Join(",");
         #endregion
 
         #region 编译器工具

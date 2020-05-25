@@ -132,7 +132,7 @@ namespace NewLife.Build
                 XTrace.WriteLine("准备下载安装 GCCArm", Version);
 
                 var url = "http://x.newlifex.com/";
-                var client = new WebClientX(true, true)
+                var client = new WebClientX()
                 {
                     Log = XTrace.Log
                 };
