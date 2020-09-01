@@ -162,11 +162,11 @@ namespace NewLife.XScript
                         var file = cfg.File;
                         if (!File.Exists(file)) throw new FileNotFoundException(String.Format("文件{0}不存在！", file), file);
 
-                        //if (Config.Debug) Console.WriteLine("脚本：{0}", file);
-
                         // 增加源文件路径，便于调试纠错
                         if (!Path.IsPathRooted(file)) file = Path.Combine(Environment.CurrentDirectory, file);
                         file = file.GetFullPath();
+
+                        if (Config.Debug) XTrace.WriteLine("脚本：{0}", file);
 
                         se = Script.ProcessFile(file);
                         if (se == null) return;

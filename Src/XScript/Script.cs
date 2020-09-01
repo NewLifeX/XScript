@@ -282,6 +282,8 @@ namespace NewLife.XScript
             // 预编译
             se.Compile();
 
+            XTrace.WriteLine("Method: {0}", se.Method);
+
             var sw = new Stopwatch();
             var times = Config.Times;
             if (times < 1) times = 1;
