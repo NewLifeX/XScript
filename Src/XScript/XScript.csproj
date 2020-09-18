@@ -87,6 +87,12 @@
       <Version>8.10.2020.901</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NewLife.Build\NewLife.Build.csproj">
+      <Project>{98e8e88c-fcf1-46aa-9388-ff3bf4422b20}</Project>
+      <Name>NewLife.Build</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -54,8 +54,8 @@ namespace NewLife.Build
         /// <returns></returns>
         public static String GetProjectFile()
         {
-            var fs = Directory.GetFiles(".".GetFullPath(), "*.uvprojx");
-            if (fs.Length == 0) Directory.GetFiles(".".GetFullPath(), "*.uvproj");
+            var fs = Directory.GetFiles(".".GetBasePath(), "*.uvprojx");
+            if (fs.Length == 0) Directory.GetFiles(".".GetBasePath(), "*.uvproj");
             if (fs.Length == 0)
             {
                 Console.WriteLine("找不到项目文件！");
@@ -88,7 +88,7 @@ namespace NewLife.Build
             if (file.IsNullOrEmpty()) return;
 
             Console.WriteLine("加载项目：{0}", file);
-            file = file.GetFullPath();
+            file = file.GetBasePath();
 
             var doc = new XmlDocument();
             doc.Load(file);
@@ -134,14 +134,14 @@ namespace NewLife.Build
         public static String GetAxf(String[] args)
         {
             var axf = args.FirstOrDefault(e => e.EndsWithIgnoreCase(".axf"));
-            if (!String.IsNullOrEmpty(axf)) return axf.GetFullPath();
+            if (!String.IsNullOrEmpty(axf)) return axf.GetBasePath();
 
             // 搜索所有axf文件，找到最新的那一个
             var fis = Directory.GetFiles(".", "*.axf", SearchOption.AllDirectories);
             if (fis != null && fis.Length > 0)
             {
                 // 按照修改时间降序的第一个
-                return fis.OrderByDescending(e => e.AsFile().LastWriteTime).First().GetFullPath();
+                return fis.OrderByDescending(e => e.AsFile().LastWriteTime).First().GetBasePath();
             }
 
             Console.WriteLine("未能从参数中找到输出文件.axf，请在命令行中使用参数#L");
@@ -155,7 +155,7 @@ namespace NewLife.Build
         {
             // 修改编译时间
             var ft = "yyyy-MM-dd HH:mm:ss";
-            var sys = axf.GetFullPath();
+            var sys = axf.GetBasePath();
             if (!File.Exists(sys)) return false;
 
             var dt = ft.GetBytes();
@@ -220,7 +220,7 @@ namespace NewLife.Build
                 if (Path.GetFileNameWithoutExtension(axf).EndsWithIgnoreCase("D"))
                     prj += "D";
                 var bin = prj + ".bin";
-                var bin2 = bin.GetFullPath();
+                var bin2 = bin.GetBasePath();
                 //Process.Start(fromelf, String.Format("--bin {0} -o {1}", axf, bin2));
                 var p = new Process();
                 p.StartInfo.FileName = fromelf;
@@ -251,7 +251,7 @@ namespace NewLife.Build
 
             foreach (var item in list)
             {
-                var fs = Directory.GetFiles(".".GetFullPath(), "*." + item);
+                var fs = Directory.GetFiles(".".GetBasePath(), "*." + item);
                 if (fs.Length > 0)
                 {
                     foreach (var elm in fs)
@@ -272,9 +272,9 @@ namespace NewLife.Build
         {
             var deep = 1;
             // 找到SmartOS目录，里面的脚本可用于覆盖自己
-            var di = "../SmartOS".GetFullPath();
-            if (!Directory.Exists(di)) { deep++; di = "../../SmartOS".GetFullPath(); }
-            if (!Directory.Exists(di)) { deep++; di = "../../../SmartOS".GetFullPath(); }
+            var di = "../SmartOS".GetBasePath();
+            if (!Directory.Exists(di)) { deep++; di = "../../SmartOS".GetBasePath(); }
+            if (!Directory.Exists(di)) { deep++; di = "../../../SmartOS".GetBasePath(); }
             if (!Directory.Exists(di)) return;
 
             var fi = di.CombinePath("Tool/Build.cs");
@@ -287,7 +287,7 @@ namespace NewLife.Build
 
             if (!File.Exists(fi)) return;
 
-            var my = "Build.cs".GetFullPath();
+            var my = "Build.cs".GetBasePath();
             if (my.AsFile().LastWriteTime >= fi.AsFile().LastWriteTime) return;
 
             try

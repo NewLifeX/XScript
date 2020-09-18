@@ -173,7 +173,7 @@ namespace NewLife.Build
 
             var icf = Scatter;
             if (icf.IsNullOrEmpty()) icf = ".".AsDirectory().GetAllFiles("*.ld", false).FirstOrDefault()?.Name;
-            if (!icf.IsNullOrEmpty() && File.Exists(icf.GetFullPath()))
+            if (!icf.IsNullOrEmpty() && File.Exists(icf.GetBasePath()))
                 sb.AppendFormat(" -T\"{0}\"", icf);
 
             var axf = objName.EnsureEnd(".axf");
@@ -292,7 +292,7 @@ namespace NewLife.Build
                         header = elm;
                         if (header.IsNullOrEmpty()) continue;
 
-                        header = header.Trim().GetFullPath();
+                        header = header.Trim().GetBasePath();
                         if (!header.IsNullOrEmpty() && !depends.Contains(header))
                         {
                             // 如果头文件修改过，需要重新编译

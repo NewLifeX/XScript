@@ -43,7 +43,7 @@ namespace NewLife.Build
                 try
                 {
                     var name = item.GetDisplayName() ?? item.Name;
-                    _builders[name] = item;
+                    dic[name] = item;
                 }
                 catch (Exception ex)
                 {
@@ -113,8 +113,8 @@ namespace NewLife.Build
             var ss = new String[] { ".", "inc", "include", "lib" };
             foreach (var src in ss)
             {
-                var p = src.GetFullPath();
-                if (!Directory.Exists(p)) p = ("..\\" + src).GetFullPath();
+                var p = src.GetBasePath();
+                if (!Directory.Exists(p)) p = ("..\\" + src).GetBasePath();
                 if (!Directory.Exists(p)) continue;
 
                 AddIncludes(p, false);
@@ -640,7 +640,7 @@ namespace NewLife.Build
             // 要排除的集合
             var excs = new HashSet<String>((excludes + "").Split(",", ";"), StringComparer.OrdinalIgnoreCase);
 
-            path = path.GetFullPath().EnsureEnd("\\");
+            path = path.GetBasePath().EnsureEnd("\\");
             if (String.IsNullOrEmpty(exts)) exts = "*.c;*.cpp";
             foreach (var item in path.AsDirectory().GetAllFiles(exts, allSub))
             {
@@ -703,7 +703,7 @@ namespace NewLife.Build
             var p = di.Parent;
             if (p == null || p == di) return false;
             // 截止到当前目录
-            if (p.FullName.EnsureEnd("\\").EqualIgnoreCase(root.GetFullPath().EnsureEnd("\\"))) return false;
+            if (p.FullName.EnsureEnd("\\").EqualIgnoreCase(root.GetBasePath().EnsureEnd("\\"))) return false;
 
             return CheckPartial(p, root);
         }
@@ -714,7 +714,7 @@ namespace NewLife.Build
         /// <param name="allSub"></param>
         public void AddIncludes(String path, Boolean sub = false, Boolean allSub = false)
         {
-            path = path.GetFullPath();
+            path = path.GetBasePath();
             if (!Directory.Exists(path)) return;
 
             // 有头文件才要，没有头文件不要
@@ -755,7 +755,7 @@ namespace NewLife.Build
         /// <param name="allSub"></param>
         public void AddLibs(String path, String filter = null, Boolean allSub = false)
         {
-            path = path.GetFullPath();
+            path = path.GetBasePath();
             if (!Directory.Exists(path)) return;
 
             if (filter.IsNullOrEmpty()) filter = "*.lib;*.a";
@@ -778,7 +778,7 @@ namespace NewLife.Build
         /// <param name="allSub"></param>
         public void AddObjs(String path, String filter = null, Boolean allSub = false)
         {
-            path = path.GetFullPath();
+            path = path.GetBasePath();
             if (!Directory.Exists(path)) return;
 
             if (filter.IsNullOrEmpty()) filter = "*.o";
@@ -867,11 +867,11 @@ namespace NewLife.Build
                 }
             }
             if (name.IsNullOrEmpty())
-                name = ".".GetFullPath().AsDirectory().Name;
+                name = ".".GetBasePath().AsDirectory().Name;
             else if (name.StartsWith("_"))
-                name = ".".GetFullPath().AsDirectory().Name + name.TrimStart("_");
+                name = ".".GetBasePath().AsDirectory().Name + name.TrimStart("_");
             else if (name.EndsWith("\\"))
-                name += ".".GetFullPath().AsDirectory().Name;
+                name += ".".GetBasePath().AsDirectory().Name;
             if (Tiny)
                 name = name.EnsureEnd("T");
             else if (Debug)
@@ -894,7 +894,7 @@ namespace NewLife.Build
             else if (Debug)
                 objName += "D";
             objName = Output.CombinePath(objName);
-            objName.GetFullPath().EnsureDirectory(false);
+            objName.GetBasePath().EnsureDirectory(false);
             if (!file.IsNullOrEmpty())
             {
                 //objName += "\\" + Path.GetFileNameWithoutExtension(file);
@@ -916,7 +916,7 @@ namespace NewLife.Build
         {
             var lstName = "List";
             lstName = Output.CombinePath(lstName);
-            lstName.GetFullPath().EnsureDirectory(false);
+            lstName.GetBasePath().EnsureDirectory(false);
             if (!file.IsNullOrEmpty())
                 lstName += "\\" + Path.GetFileNameWithoutExtension(file);
 
