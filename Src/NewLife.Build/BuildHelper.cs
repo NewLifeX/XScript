@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Microsoft.Win32;
+using NewLife.Data;
 
 namespace NewLife.Build
 {
@@ -167,29 +168,28 @@ namespace NewLife.Build
 
             var rs = false;
             // 查找时间字符串，写入真实时间
-            using (var fs = File.Open(sys, FileMode.Open, FileAccess.ReadWrite))
+            var pk = new Packet(File.ReadAllBytes(sys));
+            var p = pk.IndexOf(dt);
+            if (p > 0)
             {
-                if (fs.IndexOf(dt) > 0)
-                {
-                    fs.Position -= dt.Length;
-                    var now = DateTime.Now.ToString(ft);
-                    Console.WriteLine("编译时间：{0}", now);
-                    fs.Write(now.GetBytes());
+                var now = DateTime.Now.ToString(ft);
+                Console.WriteLine("编译时间：{0}", now);
+                pk.Data.Write(p, now.GetBytes());
 
-                    rs = true;
-                }
-                fs.Position = 0;
-                var ct = company.GetBytes();
-                if (fs.IndexOf(ct) > 0)
-                {
-                    fs.Position -= ct.Length;
-                    Console.WriteLine("编译机器：{0}", name);
-                    fs.Write(name.GetBytes());
-                    // 多写一个0以截断字符串
-                    fs.Write((Byte)0);
+                rs = true;
+            }
 
-                    rs = true;
-                }
+            var ct = company.GetBytes();
+            p = pk.IndexOf(ct);
+            if (p > 0)
+            {
+                var buf = name.GetBytes();
+                Console.WriteLine("编译机器：{0}", name);
+                pk.Data.Write(p, buf);
+                // 多写一个0以截断字符串
+                pk.Data[p + buf.Length] = 0;
+
+                rs = true;
             }
 
             return rs;
