@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XScript", "XScript\XScript.csproj", "{FB8580E8-B500-4BAF-99BE-43ADF7ABDE2F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewLife.Build", "NewLife.Build\NewLife.Build.csproj", "{98E8E88C-FCF1-46AA-9388-FF3BF4422B20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{39747DAD-8C8D-4803-B1F4-229C618DBD78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewLife.ScriptExpression", "NewLife.ScriptExpression\NewLife.ScriptExpression.csproj", "{0DFB1C4A-2950-4AE5-88C6-FBCB88CA7D01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,8 +29,15 @@ Global
 		{39747DAD-8C8D-4803-B1F4-229C618DBD78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39747DAD-8C8D-4803-B1F4-229C618DBD78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39747DAD-8C8D-4803-B1F4-229C618DBD78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DFB1C4A-2950-4AE5-88C6-FBCB88CA7D01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DFB1C4A-2950-4AE5-88C6-FBCB88CA7D01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DFB1C4A-2950-4AE5-88C6-FBCB88CA7D01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DFB1C4A-2950-4AE5-88C6-FBCB88CA7D01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {03201E8E-C0D5-4529-BEB9-00E673610FB9}
 	EndGlobalSection
 EndGlobal
